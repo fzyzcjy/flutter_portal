@@ -1,427 +1,497 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 // extends InheritedWidget instead of StatfulWidget so that PortalProvider
 // can be subclassed to create "scopes".
-class PortalProvider extends InheritedWidget {
-  PortalProvider({
+class Portal extends InheritedWidget {
+  Portal({
     Key key,
     Widget child,
-  }) : super(
-          key: key,
-          child: _PortalTheater(child: child),
-        );
+  }) : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return false;
+  bool updateShouldNotify(InheritedWidget oldWidget) => false;
+
+  @override
+  PortalElement createElement() => PortalElement(this);
+}
+
+class PortalElement extends InheritedElement {
+  PortalElement(Portal widget) : super(widget) {
+    final portalTheater = PortalTheater();
+    _theater = PortalTheaterElement(portalTheater);
+    portalTheater._element = _theater;
+  }
+
+  @override
+  Portal get widget => super.widget as Portal;
+
+  PortalTheaterElement _theater;
+  // theater is not a child of this Element, but a child of `Portal` instead
+  // We just keep it here to expose it to the main branch.
+  PortalTheaterElement get theater => _theater;
+
+  // final _PortalTheaterState theater = _PortalTheaterState();
+
+  @override
+  Widget build() {
+    return _Portal(
+      child: super.build(),
+      theater: theater.widget,
+      // theater: PortalTheater(theater),
+    );
   }
 }
 
-class _PortalTheater extends RenderObjectWidget {
-  _PortalTheater({this.child});
+class _Portal extends SingleChildRenderObjectWidget {
+  _Portal({Widget child, this.theater}) : super(child: child);
 
-  final Widget child;
+  final Widget theater;
 
   @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderPortalTheater();
+  _RenderPortal createRenderObject(BuildContext context) {
+    return _RenderPortal();
   }
 
   @override
-  _PortalTheaterElement createElement() {
-    return _PortalTheaterElement(this);
-  }
+  _PortalElement createElement() => _PortalElement(this);
 }
 
-/// An [Element] that uses a [SingleChildRenderObjectWidget] as its configuration.
-///
-/// The child is optional.
-///
-/// This element subclass can be used for RenderObjectWidgets whose
-/// RenderObjects use the [RenderObjectWithChildMixin] mixin. Such widgets are
-/// expected to inherit from [SingleChildRenderObjectWidget].
-class _PortalTheaterElement extends RenderObjectElement {
-  /// Creates an element that uses the given widget as its configuration.
-  _PortalTheaterElement(_PortalTheater widget) : super(widget);
+class _PortalElement extends SingleChildRenderObjectElement {
+  _PortalElement(_Portal widget) : super(widget);
 
   @override
-  _PortalTheater get widget => super.widget as _PortalTheater;
+  _Portal get widget => super.widget as _Portal;
 
   @override
-  _RenderPortalTheater get renderObject =>
-      super.renderObject as _RenderPortalTheater;
+  _RenderPortal get renderObject => super.renderObject as _RenderPortal;
 
-  Element _child;
-  _PortalState _secondSlot;
-  Element _secondChild;
+  Element _branch;
 
-  void _unmountPortal(_PortalState state) {
-    assert(_secondSlot == state);
-    _secondSlot = null;
-    renderObject.markNeedsLayout();
-    // TODO: unmount the Element
-    _secondChild = updateChild(_secondChild, null, state);
-  }
+  final _branchSlot = 42;
 
-  void _updatePortal(_PortalState state) {
-    _secondSlot = state;
-    renderObject.markNeedsLayout();
-    print('updatePortal');
-
-    // if (state.widget.portalBuilder != null) {
-    // renderObject.secondChildBuilder =
-    //     (Size providerSize, Size wrappedWidgetSize, Offset offset) {
-    //   owner.buildScope(this, () {
-    //     // TODO: full error handling like in LayoutBuilder
-    //     final built = state.widget.portalBuilder(
-    //       state.context,
-    //       providerSize,
-    //       wrappedWidgetSize,
-    //       offset,
-    //     );
-
-    //     _secondChild = updateChild(_secondChild, built, state);
-    //   });
-    // };
-    // } else {
-    print('fallback updateChild ${state.widget.portal}');
-    _secondChild = updateChild(_secondChild, state.widget.portal, state);
-    // _secondChild = updateChild(_secondChild, state.widget.portal, state);
-    // }
+  @override
+  void mount(Element parent, dynamic newSlot) {
+    super.mount(parent, newSlot);
+    print('PORTAL mount');
+    renderObject.branchBuilder = () {
+      print('branchBuilder');
+      owner.buildScope(this, () {
+        _branch = updateChild(_branch, widget.theater, _branchSlot);
+      });
+    };
   }
 
   @override
-  void visitChildren(ElementVisitor visitor) {
-    if (_child != null) visitor(_child);
-    if (_secondChild != null) {
-      visitor(_secondChild);
+  void visitChildren(visitor) {
+    super.visitChildren(visitor);
+    if (_branch != null) {
+      visitor(_branch);
     }
   }
 
   @override
   void forgetChild(Element child) {
-    assert(child == _child);
-    if (_child == child) {
-      _child = null;
-    } else if (_secondChild == child) {
-      _secondChild = null;
-    }
-  }
-
-  @override
-  void mount(Element parent, dynamic newSlot) {
-    super.mount(parent, newSlot);
-    _child = updateChild(_child, widget.child, null);
-  }
-
-  @override
-  void update(_PortalTheater newWidget) {
-    super.update(newWidget);
-    assert(widget == newWidget);
-    _child = updateChild(_child, widget.child, null);
-  }
-
-  @override
-  void insertChildRenderObject(RenderBox child, _PortalState slot) {
-    final renderObject = this.renderObject;
-    assert(renderObject.debugValidateChild(child));
-    if (slot == null) {
-      renderObject.child = child;
+    print('PORTAL forgetChild ${child == _branch}  $child');
+    if (child == _branch) {
+      _branch = null;
     } else {
-      renderObject.secondChild = child;
+      super.forgetChild(child);
     }
-    assert(renderObject == this.renderObject);
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, _PortalState slot) {
-    assert(false);
+  void insertChildRenderObject(RenderObject child, dynamic slot) {
+    print('PORTAL insertRenderObject $slot $child');
+    if (slot == _branchSlot) {
+      renderObject.branch = child as RenderBox;
+    } else {
+      super.insertChildRenderObject(child, slot);
+    }
   }
 
   @override
-  void removeChildRenderObject(RenderBox child) {
-    final renderObject = this.renderObject;
-    assert(renderObject.child == child || renderObject.secondChild == child);
-    if (renderObject.child == child) {
-      renderObject.child = null;
-    } else if (renderObject.secondChild == child) {
-      renderObject..secondChild = null;
-      // ..secondChildBuilder = null
+  void moveChildRenderObject(RenderObject child, dynamic slot) {
+    print('PORTAL moveChildRenderObject $slot $child');
+    if (slot != _branchSlot) {
+      super.moveChildRenderObject(child, slot);
     }
-    assert(renderObject == this.renderObject);
+  }
+
+  @override
+  void removeChildRenderObject(RenderObject child) {
+    print('PORTAL removeChildRenderObject $child');
+    if (child == renderObject.branch) {
+      renderObject.branch = null;
+    } else {
+      super.removeChildRenderObject(child);
+    }
+  }
+
+  @override
+  void unmount() {
+    print('PORTAL unmount');
+    super.unmount();
   }
 }
 
-RenderBox _test;
-
-class _RenderPortalTheater extends RenderBox {
-  _RenderPortalTheater() {
-    _test = this;
+class _RenderPortal extends RenderProxyBox {
+  RenderBox _branch;
+  RenderBox get branch => _branch;
+  set branch(RenderBox value) {
+    if (_branch != null) dropChild(_branch);
+    _branch = value;
+    if (_branch != null) adoptChild(_branch);
   }
 
-  /// Checks whether the given render object has the correct [runtimeType] to be
-  /// a child of this render object.
-  ///
-  /// Does nothing if assertions are disabled.
-  ///
-  /// Always returns true.
-  bool debugValidateChild(RenderObject child) {
-    assert(() {
-      if (child is! RenderBox) {
-        throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary(
-              'A $runtimeType expected a child of type $RenderBox but received a '
-              'child of type ${child.runtimeType}.'),
-          ErrorDescription(
-            'RenderObjects expect specific types of children because they '
-            'coordinate with their children during layout and paint. For '
-            'example, a RenderSliver cannot be the child of a RenderBox because '
-            'a RenderSliver does not understand the RenderBox layout protocol.',
-          ),
-          ErrorSpacer(),
-          DiagnosticsProperty<dynamic>(
-            'The $runtimeType that expected a $RenderBox child was created by',
-            debugCreator,
-            style: DiagnosticsTreeStyle.errorProperty,
-          ),
-          ErrorSpacer(),
-          DiagnosticsProperty<dynamic>(
-            'The ${child.runtimeType} that did not match the expected child type '
-            'was created by',
-            child.debugCreator,
-            style: DiagnosticsTreeStyle.errorProperty,
-          ),
-        ]);
-      }
-      return true;
-    }());
-    return true;
-  }
-
-  RenderBox _child;
-
-  /// The render object's unique child
-  RenderBox get child => _child;
-  set child(RenderBox value) {
-    if (_child != null) dropChild(_child);
-    _child = value;
-    if (_child != null) adoptChild(_child);
-  }
-
-  RenderBox _secondChild;
-  // void Function(
-  //   Size providerSize,
-  //   Size wrappedWidgetSize,
-  //   Offset offset,
-  // ) secondChildBuilder;
-
-  /// The render object's unique child
-  RenderBox get secondChild => _secondChild;
-  set secondChild(RenderBox value) {
-    if (_secondChild != null) dropChild(_secondChild);
-    _secondChild = value;
-    if (_secondChild != null) adoptChild(_secondChild);
-  }
+  void Function() branchBuilder;
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    if (_child != null) _child.attach(owner);
-    if (_secondChild != null) _secondChild.attach(owner);
+    if (branch != null) branch.attach(owner);
   }
 
   @override
   void detach() {
     super.detach();
-    if (_child != null) _child.detach();
-    if (_secondChild != null) _secondChild.detach();
+    if (branch != null) branch.detach();
+  }
+
+  @override
+  void performLayout() {
+    print('PORTAL layout first branchBuilder: $branchBuilder');
+    child.layout(constraints, parentUsesSize: true);
+    size = child.size;
+
+    if (branchBuilder != null) {
+      invokeLayoutCallback((dynamic _) {
+        branchBuilder();
+      });
+    }
+
+    print('PORTAL layout second $branch');
+    branch?.layout(BoxConstraints.tight(size));
+    print('PORTAL layout done');
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    super.paint(context, offset);
+    if (branch != null) {
+      context.paintChild(branch, offset);
+    }
+  }
+
+  @override
+  void visitChildren(visitor) {
+    super.visitChildren(visitor);
+    if (branch != null) {
+      visitor(branch);
+    }
   }
 
   @override
   void redepthChildren() {
-    if (_child != null) redepthChild(_child);
-    if (_secondChild != null) redepthChild(_secondChild);
-  }
-
-  @override
-  void visitChildren(RenderObjectVisitor visitor) {
-    if (_child != null) visitor(_child);
-    if (_secondChild != null) visitor(_secondChild);
+    super.redepthChildren();
+    if (branch != null) {
+      branch.redepthChildren();
+    }
   }
 
   @override
   List<DiagnosticsNode> debugDescribeChildren() {
-    return <DiagnosticsNode>[
-      if (child != null) child.toDiagnosticsNode(name: 'child'),
-      if (secondChild != null)
-        secondChild.toDiagnosticsNode(name: 'secondChild'),
+    return [
+      ...super.debugDescribeChildren(),
+      if (branch != null) branch.toDiagnosticsNode(name: 'branch')
     ];
+  }
+}
+
+// class PortalTheater extends StatefulWidget {
+//   const PortalTheater(this.state, {Key key}) : super(key: key);
+
+//   final _PortalTheaterState state;
+
+//   @override
+//   _PortalTheaterState createState() => state;
+// }
+
+// class _PortalTheaterState extends State<PortalTheater> {
+//   final Map<RenderPortalEntry, Widget> portals = {};
+
+//   void updateEntry(RenderPortalEntry entry, Size entrySize, Widget portal) {
+//     portals[entry] = portal;
+//     final context = this.context;
+//     if (context is Element && !context.dirty) {
+//       context.markNeedsBuild();
+//     }
+//     // if (context != null) {
+//     //   setState(() {});
+//     // }
+//   }
+
+//   @override
+//   void deactivate() {
+//     print('deactivate theater');
+//     super.deactivate();
+//   }
+
+//   @override
+//   void dispose() {
+//     print('dispose theater');
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       textDirection: TextDirection.ltr,
+//       children: <Widget>[
+//         for (final portal in portals.values) SizedBox.expand(child: portal)
+//       ],
+//     );
+//   }
+
+//   @override
+//   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+//     super.debugFillProperties(properties);
+//     properties.add(DiagnosticsProperty('portals', portals));
+//   }
+// }
+
+// ignore: must_be_immutable
+class PortalTheater extends RenderObjectWidget {
+  PortalTheaterElement _element;
+  @override
+  PortalTheaterElement createElement() => _element;
+
+  @override
+  RenderPortalTheater createRenderObject(BuildContext context) {
+    return RenderPortalTheater();
+  }
+}
+
+class PortalTheaterElement extends RenderObjectElement {
+  PortalTheaterElement(PortalTheater widget) : super(widget);
+
+  Map<RenderPortalEntry, _EntryDetails> _entries = {};
+
+  @override
+  PortalTheater get widget => super.widget as PortalTheater;
+
+  @override
+  RenderPortalTheater get renderObject =>
+      super.renderObject as RenderPortalTheater;
+
+  @override
+  void forgetChild(Element child) {
+    final key = _entries.keys.firstWhere((key) {
+      return _entries[key].element == child;
+    });
+    assert(key != null);
+    _entries.remove(key);
+  }
+
+  @override
+  void mount(Element parent, dynamic newSlot) {
+    // TODO: implement mount
+    super.mount(parent, newSlot);
+    for (final entry in _entries.values) {
+      renderObject.addBuilder(entry.builder);
+    }
+  }
+
+  void removeEntry(RenderPortalEntry entryKey) {
+    final removedEntry = _entries.remove(entryKey);
+    if (removedEntry == null) return;
+    renderObject.removeBuilder(removedEntry.builder);
+  }
+
+  void updateEntry(RenderPortalEntry entryKey, Size entrySize, Widget portal) {
+    // TODO: relayout only the given entry if possible
+    final entryDetails =
+        _entries.putIfAbsent(entryKey, () => _EntryDetails(this, entryKey))
+          ..size = entrySize
+          ..portal = portal;
+
+    renderObject?.addBuilder(entryDetails.builder);
+  }
+
+  @override
+  void insertChildRenderObject(RenderObject child, RenderPortalEntry slot) {
+    _entries[slot].renderObject = child;
+    assert(renderObject.debugValidateChild(child));
+    renderObject.insert(child);
+  }
+
+  @override
+  void moveChildRenderObject(RenderObject child, RenderPortalEntry slot) {
+    assert(false);
+  }
+
+  @override
+  void removeChildRenderObject(RenderObject child) {
+    assert(child.parent == renderObject);
+    final key = _entries.keys.firstWhere((key) {
+      return _entries[key].renderObject == child;
+    });
+    assert(key != null);
+    final removedEntry = _entries.remove(key);
+    renderObject
+      ..removeBuilder(removedEntry.builder)
+      ..remove(child);
+  }
+
+  @override
+  void visitChildren(visitor) {
+    for (final entry in _entries.values) {
+      if (entry.element != null) visitor(entry.element);
+    }
+  }
+}
+
+class _EntryDetails {
+  _EntryDetails(this._owner, this.slot);
+  final PortalTheaterElement _owner;
+  final RenderPortalEntry slot;
+
+  Size size;
+  Widget portal;
+  Element element;
+  RenderObject renderObject;
+
+  void builder() {
+    _owner.owner.buildScope(_owner, () {
+      // ignore: invalid_use_of_protected_member
+      element = _owner.updateChild(element, portal, slot);
+    });
+  }
+}
+
+class _PortalTheaterParentData extends ContainerBoxParentData {}
+
+class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
+  List<VoidCallback> builders = [];
+
+  void addBuilder(VoidCallback builder) {
+    builders.add(builder);
+    // markNeedsLayout();
+  }
+
+  void removeBuilder(VoidCallback builder) {
+    builders.remove(builder);
+    // markNeedsLayout();
   }
 
   @override
   void setupParentData(RenderObject child) {
-    // We don't actually use the offset argument in BoxParentData, so let's
-    // avoid allocating it at all.
-    if (child.parentData is! ParentData) child.parentData = ParentData();
-  }
-
-  @override
-  double computeMinIntrinsicWidth(double height) {
-    if (child != null) return child.getMinIntrinsicWidth(height);
-    return 0.0;
-  }
-
-  @override
-  double computeMaxIntrinsicWidth(double height) {
-    if (child != null) return child.getMaxIntrinsicWidth(height);
-    return 0.0;
-  }
-
-  @override
-  double computeMinIntrinsicHeight(double width) {
-    if (child != null) return child.getMinIntrinsicHeight(width);
-    return 0.0;
-  }
-
-  @override
-  double computeMaxIntrinsicHeight(double width) {
-    if (child != null) return child.getMaxIntrinsicHeight(width);
-    return 0.0;
-  }
-
-  @override
-  double computeDistanceToActualBaseline(TextBaseline baseline) {
-    if (child != null) return child.getDistanceToActualBaseline(baseline);
-    return super.computeDistanceToActualBaseline(baseline);
+    if (child.parentData is! _PortalTheaterParentData) {
+      child.parentData = _PortalTheaterParentData();
+    }
   }
 
   @override
   void performLayout() {
-    assert(child != null);
-    invokeLayoutCallback((BoxConstraints callback) {
-      child.layout(constraints, parentUsesSize: true);
-      size = child.size;
-      print('didLayout first child');
-      print('hasSecond child: $secondChild');
+    print('start theater performResize');
+    size = constraints.biggest;
 
-      // if (secondChildBuilder != null) {
-      //   final originTranslation =
-      //       _reporter.getTransformTo(this).getTranslation();
-      //   _wrappedOffset = Offset(originTranslation.x, originTranslation.y);
-      //   print('here $_wrappedOffset');
-      //   secondChildBuilder?.call(size, _wrappedSize, _wrappedOffset);
-      // }
-      if (secondChild != null) {
-        secondChild.layout(BoxConstraints.tight(size));
-      }
-    });
+    final entriesConstraints = BoxConstraints.tight(size);
+
+    print('entries $firstChild');
+
+    // not using for-in because `builders` can be mutated inside the layout callback
+    for (var i = 0; i < builders.length; i++) {
+      final builder = builders[i];
+      invokeLayoutCallback<Constraints>((_) {
+        builder();
+      });
+    }
+
+    for (var child = firstChild; child != null; child = childAfter(child)) {
+      child.layout(entriesConstraints);
+    }
+    print('end theater performResize');
   }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    return child?.hitTest(result, position: position) ?? false;
-  }
-
-  @override
-  void applyPaintTransform(RenderObject child, Matrix4 transform) {}
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (child != null) context.paintChild(child, offset);
-    if (secondChild != null) context.paintChild(secondChild, offset);
+    for (var child = firstChild; child != null; child = childAfter(child)) {
+      context.paintChild(child, offset);
+    }
   }
 }
 
-class Portal extends StatefulWidget {
-  Portal({
+class PortalEntry extends SingleChildRenderObjectWidget {
+  PortalEntry({
     Key key,
-    @required this.child,
     bool visible = false,
     @required Widget portal,
+    @required Widget child,
   })  : assert(child != null),
         portal = visible ? portal : null,
-        super(key: key);
+        super(key: key, child: child);
 
   final Widget portal;
-  final Widget child;
 
   @override
-  _PortalState createState() => _PortalState();
+  RenderPortalEntry createRenderObject(BuildContext context) {
+    return RenderPortalEntry()
+      ..portal = portal
+      ..theater = dependOnTheater(context);
+  }
+
+  PortalTheaterElement dependOnTheater(BuildContext context) {
+    final portalElement = context
+        .getElementForInheritedWidgetOfExactType<Portal>() as PortalElement;
+    context.dependOnInheritedElement(portalElement);
+    return portalElement.theater;
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderPortalEntry renderObject,
+  ) {
+    renderObject
+      ..portal = portal
+      ..theater = dependOnTheater(context);
+  }
 }
 
-class _PortalState extends State<Portal> {
-  bool dirty;
-  _PortalTheaterElement element;
-
-  @override
-  void initState() {
-    super.initState();
-    dirty = widget.portal != null;
-    updatePortal();
-  }
-
-  @override
-  void didUpdateWidget(Portal oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    dirty = widget.portal != oldWidget.portal;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (dirty) {
-      updatePortal();
+class RenderPortalEntry extends RenderProxyBox {
+  Widget _portal;
+  Widget get portal => _portal;
+  set portal(Widget portal) {
+    if (portal != _portal) {
+      _portal = portal;
+      markNeedsLayout();
     }
-    return _WrappedSizeReporter(child: widget.child);
   }
 
-  void updatePortal() {
-    context.visitAncestorElements((e) {
-      if (e is _PortalTheaterElement) {
-        element = e;
-        e._updatePortal(this);
-        return false;
-      }
-      return true;
-    });
+  PortalTheaterElement _theater;
+  PortalTheaterElement get theater => _theater;
+  set theater(PortalTheaterElement theater) {
+    if (theater != _theater) {
+      _theater = theater;
+      markNeedsLayout();
+    }
   }
 
-  @override
-  void dispose() {
-    element?._unmountPortal(this);
-    super.dispose();
-  }
-}
-
-Size _wrappedSize;
-Offset _wrappedOffset;
-RenderBox _reporter;
-
-class _WrappedSizeReporter extends SingleChildRenderObjectWidget {
-  _WrappedSizeReporter({Key key, Widget child}) : super(key: key, child: child);
-
-  @override
-  _Reporter createRenderObject(BuildContext context) {
-    return _Reporter();
-  }
-}
-
-class _Reporter extends RenderProxyBox {
   @override
   void performLayout() {
-    _reporter = this;
     super.performLayout();
-    print('report size: $size');
-    _test?.markNeedsLayout();
-    _wrappedSize = size;
+    print('performLayout ENTRY  $portal');
+    theater.updateEntry(this, size, portal);
   }
 
   @override
-  void markNeedsLayout() {
-    _test.markNeedsLayout();
-    super.markNeedsLayout();
+  void detach() {
+    super.detach();
+    theater.removeEntry(this);
   }
 }

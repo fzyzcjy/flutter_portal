@@ -12,9 +12,10 @@ import 'package:portal/portal.dart';
 void main() {
   testWidgets('PortalProvider updates child', (WidgetTester tester) async {
     await tester.pumpWidget(
-      Boilerplate(
-        child: PortalProvider(
-          child: const Text('first'),
+      Portal(
+        child: const Text(
+          'first',
+          textDirection: TextDirection.ltr,
         ),
       ),
     );
@@ -23,9 +24,10 @@ void main() {
     expect(find.text('second'), findsNothing);
 
     await tester.pumpWidget(
-      Boilerplate(
-        child: PortalProvider(
-          child: const Text('second'),
+      Portal(
+        child: const Text(
+          'second',
+          textDirection: TextDirection.ltr,
         ),
       ),
     );
@@ -35,7 +37,7 @@ void main() {
   });
   test('Portal requires a child', () {
     expect(
-      () => Portal(
+      () => PortalEntry(
         portal: Container(),
         child: null,
       ),
@@ -47,8 +49,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       Boilerplate(
-        child: PortalProvider(
-          child: Portal(
+        child: Portal(
+          child: PortalEntry(
             visible: true,
             portal: const Text('firstPortal'),
             child: const Text('firstChild'),
@@ -64,7 +66,7 @@ void main() {
       "portals aren't inserted if visible is false, and visible can be changed any time",
       (tester) async {
     final portal = ValueNotifier(
-      Portal(
+      PortalEntry(
         visible: false,
         portal: Builder(builder: (_) => throw Error()),
         child: const Text('firstChild'),
@@ -73,7 +75,7 @@ void main() {
 
     await tester.pumpWidget(
       Boilerplate(
-        child: PortalProvider(
+        child: Portal(
           child: ValueListenableBuilder<Widget>(
             valueListenable: portal,
             builder: (_, value, __) => value,
@@ -86,7 +88,7 @@ void main() {
 
     final portalChildElement = tester.element(find.text('firstChild'));
 
-    portal.value = Portal(
+    portal.value = PortalEntry(
       visible: true,
       portal: const Text('secondPortal'),
       child: const Text('secondChild'),
@@ -103,7 +105,7 @@ void main() {
       reason: 'the child state must be preserved when toggling `visible`',
     );
 
-    portal.value = Portal(
+    portal.value = PortalEntry(
       visible: false,
       portal: Builder(builder: (_) => throw Error()),
       child: const Text('thirdChild'),
@@ -123,7 +125,7 @@ void main() {
   testWidgets('Unmounting Portal removes it on PortalProvider synchronously',
       (tester) async {
     final portal = ValueNotifier<Widget>(
-      Portal(
+      PortalEntry(
         visible: true,
         portal: const Text('portal'),
         child: const Text('child'),
@@ -132,7 +134,7 @@ void main() {
 
     await tester.pumpWidget(
       Boilerplate(
-        child: PortalProvider(
+        child: Portal(
           child: ValueListenableBuilder<Widget>(
             valueListenable: portal,
             builder: (_, value, __) => value,
