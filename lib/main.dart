@@ -43,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: PortalEntry(
           visible: true,
+          portalAnchor: Alignment.centerRight,
+          childAnchor: Alignment.centerLeft,
           portal: Card(
             elevation: 20,
             color: Colors.lightBlue,

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 // import 'package:portal/src/follower.dart';
 
@@ -148,6 +149,8 @@ class _PortalElement extends SingleChildRenderObjectElement {
 }
 
 class _RenderPortal extends RenderProxyBox {
+  bool isPerformingLayout = false;
+
   RenderBox _branch;
   RenderBox get branch => _branch;
   set branch(RenderBox value) {
@@ -172,19 +175,24 @@ class _RenderPortal extends RenderProxyBox {
 
   @override
   void performLayout() {
-    print('PORTAL layout first branchBuilder: $branchBuilder');
-    child.layout(constraints, parentUsesSize: true);
-    size = child.size;
+    isPerformingLayout = true;
+    try {
+      print('PORTAL layout first branchBuilder: $branchBuilder');
+      child.layout(constraints, parentUsesSize: true);
+      size = child.size;
 
-    if (branchBuilder != null) {
-      invokeLayoutCallback((dynamic _) {
-        branchBuilder();
-      });
+      if (branchBuilder != null) {
+        invokeLayoutCallback((dynamic _) {
+          branchBuilder();
+        });
+      }
+
+      print('PORTAL layout second $branch');
+      branch?.layout(BoxConstraints.tight(size));
+      print('PORTAL layout done');
+    } finally {
+      isPerformingLayout = false;
     }
-
-    print('PORTAL layout second $branch');
-    branch?.layout(BoxConstraints.tight(size));
-    print('PORTAL layout done');
   }
 
   @override
@@ -283,14 +291,22 @@ class PortalTheaterElement extends RenderObjectElement {
     renderObject.markNeedsLayout();
   }
 
-  void updateEntry(_RenderPortalLink entryKey, Size entrySize, Widget portal,
-      LayerLink link) {
+  void updateEntry(
+    _RenderPortalLink entryKey,
+    Size entrySize,
+    Widget portal,
+    LayerLink link, {
+    Alignment childAnchor,
+    Alignment portalAnchor,
+  }) {
     // TODO: relayout only the given entry if possible
     final entryDetails =
         _entries.putIfAbsent(entryKey, () => _EntryDetails(this, entryKey))
           ..size = entrySize
           ..portal = portal
-          ..link = link;
+          ..link = link
+          ..childAnchor = childAnchor
+          ..portalAnchor = portalAnchor;
 
     renderObject?.addBuilder(entryDetails.builder);
   }
@@ -340,6 +356,8 @@ class _EntryDetails {
   Widget portal;
   Element element;
   RenderObject renderObject;
+  Alignment childAnchor;
+  Alignment portalAnchor;
 
   void builder() {
     _owner.owner.buildScope(_owner, () {
@@ -353,6 +371,8 @@ class _EntryDetails {
                   targetSize: size,
                   offset: Offset(100, 100),
                   showWhenUnlinked: true,
+                  childAnchor: childAnchor,
+                  portalAnchor: portalAnchor,
                   link: link,
                   child: portal,
                 ),
@@ -377,12 +397,16 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     this.showWhenUnlinked = true,
     this.offset = Offset.zero,
     this.targetSize,
+    this.childAnchor,
+    this.portalAnchor,
     Widget child,
   })  : assert(link != null),
         assert(showWhenUnlinked != null),
         assert(offset != null),
         super(key: key, child: child);
 
+  final Alignment childAnchor;
+  final Alignment portalAnchor;
   final LayerLink link;
   final bool showWhenUnlinked;
   final Offset offset;
@@ -395,7 +419,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
       showWhenUnlinked: showWhenUnlinked,
       offset: offset,
       targetSize: targetSize,
-    );
+    )
+      ..childAnchor = childAnchor
+      ..portalAnchor = portalAnchor;
   }
 
   @override
@@ -405,7 +431,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
       ..link = link
       ..showWhenUnlinked = showWhenUnlinked
       ..offset = offset
-      ..targetSize = targetSize;
+      ..targetSize = targetSize
+      ..childAnchor = childAnchor
+      ..portalAnchor = portalAnchor;
   }
 }
 
@@ -427,6 +455,24 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     this.showWhenUnlinked = showWhenUnlinked;
     this.offset = offset;
     this.targetSize = targetSize;
+  }
+
+  Alignment _childAnchor;
+  Alignment get childAnchor => _childAnchor;
+  set childAnchor(Alignment childAnchor) {
+    if (childAnchor != _childAnchor) {
+      _childAnchor = childAnchor;
+      markNeedsPaint();
+    }
+  }
+
+  Alignment _portalAnchor;
+  Alignment get portalAnchor => _portalAnchor;
+  set portalAnchor(Alignment portalAnchor) {
+    if (portalAnchor != _portalAnchor) {
+      _portalAnchor = portalAnchor;
+      markNeedsPaint();
+    }
   }
 
   LayerLink get link => _link;
@@ -500,13 +546,25 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     assert(showWhenUnlinked != null);
-    final linkedOffset = Offset(
-      -size.width,
+    final linkedOffset = childAnchor.withinRect(
+          Rect.fromLTWH(
+            0,
+            0,
+            targetSize.width,
+            targetSize.height,
+          ),
+        ) -
+        portalAnchor.withinRect(
+          Rect.fromLTWH(
+            0,
+            0,
+            size.width,
+            size.height,
+          ),
+        );
 
-      /// + targetSize.width,
-      -size.height, // + targetSize.height,
-    );
-    print('$runtimeType $size $link');
+    print('$runtimeType $linkedOffset ');
+
     if (layer == null) {
       layer = FollowerLayer(
         link: link,
@@ -519,7 +577,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
         ..showWhenUnlinked = false
         ..linkedOffset = linkedOffset;
     }
-    // layer.link = LayerLink();
+
     context.pushLayer(
       layer,
       super.paint,
@@ -554,16 +612,20 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 class _PortalTheaterParentData extends ContainerBoxParentData {}
 
 class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
+  bool get canMarkNeedsLayout =>
+      !isPerformingLayout && !(parent as _RenderPortal).isPerformingLayout;
+
+  bool isPerformingLayout = false;
   List<VoidCallback> builders = [];
 
   void addBuilder(VoidCallback builder) {
     builders.add(builder);
-    // markNeedsLayout();
+    if (canMarkNeedsLayout) markNeedsLayout();
   }
 
   void removeBuilder(VoidCallback builder) {
     builders.remove(builder);
-    markNeedsLayout();
+    if (canMarkNeedsLayout) markNeedsLayout();
   }
 
   @override
@@ -575,28 +637,33 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
 
   @override
   void performLayout() {
-    print('THEATER start theater performLayout');
-    size = constraints.biggest;
+    isPerformingLayout = true;
+    try {
+      print('THEATER start theater performLayout');
+      size = constraints.biggest;
 
-    final entriesConstraints = BoxConstraints.tight(size);
+      final entriesConstraints = BoxConstraints.tight(size);
 
-    print('THEATER entries $firstChild');
+      print('THEATER entries $firstChild');
 
-    print('THEATER childCount before: $childCount ');
-    // not using for-in because `builders` can be mutated inside the layout callback
-    for (var i = 0; i < builders.length; i++) {
-      final builder = builders[i];
-      invokeLayoutCallback<Constraints>((_) {
-        builder();
-      });
+      print('THEATER childCount before: $childCount ');
+      // not using for-in because `builders` can be mutated inside the layout callback
+      for (var i = 0; i < builders.length; i++) {
+        final builder = builders[i];
+        invokeLayoutCallback<Constraints>((_) {
+          builder();
+        });
+      }
+
+      print('THEATER childCount after: $childCount ');
+
+      for (var child = firstChild; child != null; child = childAfter(child)) {
+        child.layout(entriesConstraints);
+      }
+      print('THEATER end theater performLayout');
+    } finally {
+      isPerformingLayout = false;
     }
-
-    print('THEATER childCount after: $childCount ');
-
-    for (var child = firstChild; child != null; child = childAfter(child)) {
-      child.layout(entriesConstraints);
-    }
-    print('THEATER end theater performLayout');
   }
 
   @override
@@ -607,10 +674,12 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
   }
 }
 
-class PortalEntry extends StatefulWidget {
+class PortalEntry<T extends Portal> extends StatefulWidget {
   PortalEntry({
     Key key,
     bool visible = false,
+    this.childAnchor = Alignment.center,
+    this.portalAnchor = Alignment.center,
     @required Widget portal,
     @required this.child,
   })  : assert(child != null),
@@ -619,19 +688,23 @@ class PortalEntry extends StatefulWidget {
 
   final Widget portal;
   final Widget child;
+  final Alignment childAnchor;
+  final Alignment portalAnchor;
 
   @override
-  _PortalEntryState createState() => _PortalEntryState();
+  _PortalEntryState<T> createState() => _PortalEntryState<T>();
 }
 
-class _PortalEntryState extends State<PortalEntry> {
+class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
   final LayerLink link = LayerLink();
 
   @override
   Widget build(BuildContext context) {
-    return _PortalLink(
+    return _PortalLink<T>(
       visible: true,
       portal: widget.portal,
+      childAnchor: widget.childAnchor,
+      portalAnchor: widget.portalAnchor,
       link: link,
       child: CompositedTransformTarget(
         link: link,
@@ -641,10 +714,12 @@ class _PortalEntryState extends State<PortalEntry> {
   }
 }
 
-class _PortalLink extends SingleChildRenderObjectWidget {
+class _PortalLink<T extends Portal> extends SingleChildRenderObjectWidget {
   _PortalLink({
     Key key,
     bool visible = false,
+    this.childAnchor,
+    this.portalAnchor,
     @required Widget portal,
     @required Widget child,
     this.link,
@@ -654,18 +729,23 @@ class _PortalLink extends SingleChildRenderObjectWidget {
 
   final Widget portal;
   final LayerLink link;
+  final Alignment childAnchor;
+  final Alignment portalAnchor;
 
   @override
   _RenderPortalLink createRenderObject(BuildContext context) {
     return _RenderPortalLink()
       ..portal = portal
       ..theater = dependOnTheater(context)
-      ..link = link;
+      ..link = link
+      ..portalAnchor = portalAnchor
+      ..childAnchor = childAnchor;
   }
 
   PortalTheaterElement dependOnTheater(BuildContext context) {
-    final portalElement = context
-        .getElementForInheritedWidgetOfExactType<Portal>() as PortalElement;
+    final portalElement =
+        context.getElementForInheritedWidgetOfExactType<T>() as PortalElement;
+    if (portalElement == null) throw StateError('Portal not found');
     context.dependOnInheritedElement(portalElement);
     return portalElement.theater;
   }
@@ -678,7 +758,9 @@ class _PortalLink extends SingleChildRenderObjectWidget {
     renderObject
       ..portal = portal
       ..theater = dependOnTheater(context)
-      ..link = link;
+      ..link = link
+      ..portalAnchor = portalAnchor
+      ..childAnchor = childAnchor;
   }
 
   @override
@@ -691,6 +773,24 @@ class _PortalLink extends SingleChildRenderObjectWidget {
 
 class _RenderPortalLink extends RenderProxyBox {
   LayerLink link;
+
+  Alignment _childAnchor;
+  Alignment get childAnchor => _childAnchor;
+  set childAnchor(Alignment childAnchor) {
+    if (childAnchor != _childAnchor) {
+      _childAnchor = childAnchor;
+      markNeedsLayout();
+    }
+  }
+
+  Alignment _portalAnchor;
+  Alignment get portalAnchor => _portalAnchor;
+  set portalAnchor(Alignment portalAnchor) {
+    if (portalAnchor != _portalAnchor) {
+      _portalAnchor = portalAnchor;
+      markNeedsLayout();
+    }
+  }
 
   Widget _portal;
   Widget get portal => _portal;
@@ -714,7 +814,14 @@ class _RenderPortalLink extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     print('performLayout ENTRY  $portal');
-    theater.updateEntry(this, size, portal, link);
+    theater.updateEntry(
+      this,
+      size,
+      portal,
+      link,
+      childAnchor: childAnchor,
+      portalAnchor: portalAnchor,
+    );
   }
 
   @override
