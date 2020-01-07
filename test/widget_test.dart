@@ -125,10 +125,12 @@ void main() {
   testWidgets('Unmounting Portal removes it on PortalProvider synchronously',
       (tester) async {
     final portal = ValueNotifier<Widget>(
-      PortalEntry(
-        visible: true,
-        portal: const Text('portal'),
-        child: const Text('child'),
+      Center(
+        child: PortalEntry(
+          visible: true,
+          portal: const Text('portal'),
+          child: const Center(child: Text('child')),
+        ),
       ),
     );
 
@@ -145,8 +147,11 @@ void main() {
 
     expect(find.text('child'), findsOneWidget);
 
-    portal.value = const Text('newChild');
+    portal.value = const Center(child: Text('newChild'));
+    print('');
+
     await tester.pump();
+    // await tester.pumpWidget(Container());
 
     expect(find.text('child'), findsNothing);
     expect(find.text('portal'), findsNothing);

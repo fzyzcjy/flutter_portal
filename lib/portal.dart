@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+// import 'package:portal/src/follower.dart';
 
 // extends InheritedWidget instead of StatfulWidget so that PortalProvider
 // can be subclassed to create "scopes".
@@ -88,10 +89,11 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void visitChildren(visitor) {
-    super.visitChildren(visitor);
+    // branch first so that it is unmounted before the main tree
     if (_branch != null) {
       visitor(_branch);
     }
+    super.visitChildren(visitor);
   }
 
   @override
@@ -130,6 +132,12 @@ class _PortalElement extends SingleChildRenderObjectElement {
     } else {
       super.removeChildRenderObject(child);
     }
+  }
+
+  @override
+  void deactivate() {
+    print('PORTAL deactivate');
+    super.deactivate();
   }
 
   @override
@@ -212,58 +220,6 @@ class _RenderPortal extends RenderProxyBox {
   }
 }
 
-// class PortalTheater extends StatefulWidget {
-//   const PortalTheater(this.state, {Key key}) : super(key: key);
-
-//   final _PortalTheaterState state;
-
-//   @override
-//   _PortalTheaterState createState() => state;
-// }
-
-// class _PortalTheaterState extends State<PortalTheater> {
-//   final Map<RenderPortalEntry, Widget> portals = {};
-
-//   void updateEntry(RenderPortalEntry entry, Size entrySize, Widget portal) {
-//     portals[entry] = portal;
-//     final context = this.context;
-//     if (context is Element && !context.dirty) {
-//       context.markNeedsBuild();
-//     }
-//     // if (context != null) {
-//     //   setState(() {});
-//     // }
-//   }
-
-//   @override
-//   void deactivate() {
-//     print('deactivate theater');
-//     super.deactivate();
-//   }
-
-//   @override
-//   void dispose() {
-//     print('dispose theater');
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       textDirection: TextDirection.ltr,
-//       children: <Widget>[
-//         for (final portal in portals.values) SizedBox.expand(child: portal)
-//       ],
-//     );
-//   }
-
-//   @override
-//   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//     super.debugFillProperties(properties);
-//     properties.add(DiagnosticsProperty('portals', portals));
-//   }
-// }
-
 // ignore: must_be_immutable
 class PortalTheater extends RenderObjectWidget {
   PortalTheaterElement _element;
@@ -279,7 +235,7 @@ class PortalTheater extends RenderObjectWidget {
 class PortalTheaterElement extends RenderObjectElement {
   PortalTheaterElement(PortalTheater widget) : super(widget);
 
-  Map<RenderPortalEntry, _EntryDetails> _entries = {};
+  Map<_RenderPortalLink, _EntryDetails> _entries = {};
 
   @override
   PortalTheater get widget => super.widget as PortalTheater;
@@ -306,36 +262,55 @@ class PortalTheaterElement extends RenderObjectElement {
     }
   }
 
-  void removeEntry(RenderPortalEntry entryKey) {
-    final removedEntry = _entries.remove(entryKey);
-    if (removedEntry == null) return;
-    renderObject.removeBuilder(removedEntry.builder);
+  @override
+  void deactivate() {
+    print('THEATHER deactivate ${renderObject.builders} ');
+    super.deactivate();
   }
 
-  void updateEntry(RenderPortalEntry entryKey, Size entrySize, Widget portal) {
+  @override
+  void unmount() {
+    print('THEATHER unmount');
+    super.unmount();
+  }
+
+  void removeEntry(_RenderPortalLink entryKey) {
+    final removedEntry = _entries[entryKey];
+    print('did remove $removedEntry');
+    if (removedEntry == null) return;
+
+    removedEntry.portal = null; // removeChildRenderObject will do its job
+    renderObject.markNeedsLayout();
+  }
+
+  void updateEntry(_RenderPortalLink entryKey, Size entrySize, Widget portal,
+      LayerLink link) {
     // TODO: relayout only the given entry if possible
     final entryDetails =
         _entries.putIfAbsent(entryKey, () => _EntryDetails(this, entryKey))
           ..size = entrySize
-          ..portal = portal;
+          ..portal = portal
+          ..link = link;
 
     renderObject?.addBuilder(entryDetails.builder);
   }
 
   @override
-  void insertChildRenderObject(RenderObject child, RenderPortalEntry slot) {
+  void insertChildRenderObject(RenderObject child, _RenderPortalLink slot) {
+    print('THEATER insertChildRenderObject $slot $child ');
     _entries[slot].renderObject = child;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child);
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, RenderPortalEntry slot) {
+  void moveChildRenderObject(RenderObject child, _RenderPortalLink slot) {
     assert(false);
   }
 
   @override
   void removeChildRenderObject(RenderObject child) {
+    print('THEATER removeChildRenderObject $child ');
     assert(child.parent == renderObject);
     final key = _entries.keys.firstWhere((key) {
       return _entries[key].renderObject == child;
@@ -358,9 +333,10 @@ class PortalTheaterElement extends RenderObjectElement {
 class _EntryDetails {
   _EntryDetails(this._owner, this.slot);
   final PortalTheaterElement _owner;
-  final RenderPortalEntry slot;
+  final _RenderPortalLink slot;
 
   Size size;
+  LayerLink link;
   Widget portal;
   Element element;
   RenderObject renderObject;
@@ -368,8 +344,210 @@ class _EntryDetails {
   void builder() {
     _owner.owner.buildScope(_owner, () {
       // ignore: invalid_use_of_protected_member
-      element = _owner.updateChild(element, portal, slot);
+      element = _owner.updateChild(
+        element,
+        portal == null
+            ? null
+            : Center(
+                child: MyCompositedTransformFollower(
+                  targetSize: size,
+                  offset: Offset(100, 100),
+                  showWhenUnlinked: true,
+                  link: link,
+                  child: portal,
+                ),
+              ),
+        slot,
+      );
     });
+  }
+}
+
+class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
+  /// Creates a composited transform target widget.
+  ///
+  /// The [link] property must not be null. If it was also provided to a
+  /// [CompositedTransformTarget], that widget must come earlier in the paint
+  /// order.
+  ///
+  /// The [showWhenUnlinked] and [offset] properties must also not be null.
+  const MyCompositedTransformFollower({
+    Key key,
+    @required this.link,
+    this.showWhenUnlinked = true,
+    this.offset = Offset.zero,
+    this.targetSize,
+    Widget child,
+  })  : assert(link != null),
+        assert(showWhenUnlinked != null),
+        assert(offset != null),
+        super(key: key, child: child);
+
+  final LayerLink link;
+  final bool showWhenUnlinked;
+  final Offset offset;
+  final Size targetSize;
+
+  @override
+  MyRenderFollowerLayer createRenderObject(BuildContext context) {
+    return MyRenderFollowerLayer(
+      link: link,
+      showWhenUnlinked: showWhenUnlinked,
+      offset: offset,
+      targetSize: targetSize,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, MyRenderFollowerLayer renderObject) {
+    renderObject
+      ..link = link
+      ..showWhenUnlinked = showWhenUnlinked
+      ..offset = offset
+      ..targetSize = targetSize;
+  }
+}
+
+class MyRenderFollowerLayer extends RenderProxyBox {
+  /// Creates a render object that uses a [FollowerLayer].
+  ///
+  /// The [link] and [offset] arguments must not be null.
+  MyRenderFollowerLayer({
+    @required LayerLink link,
+    bool showWhenUnlinked = true,
+    Offset offset = Offset.zero,
+    Size targetSize,
+    RenderBox child,
+  })  : assert(link != null),
+        assert(showWhenUnlinked != null),
+        assert(offset != null),
+        super(child) {
+    this.link = link;
+    this.showWhenUnlinked = showWhenUnlinked;
+    this.offset = offset;
+    this.targetSize = targetSize;
+  }
+
+  LayerLink get link => _link;
+  LayerLink _link;
+  set link(LayerLink value) {
+    assert(value != null);
+    if (_link == value) return;
+    _link = value;
+    markNeedsPaint();
+  }
+
+  bool get showWhenUnlinked => _showWhenUnlinked;
+  bool _showWhenUnlinked;
+  set showWhenUnlinked(bool value) {
+    assert(value != null);
+    if (_showWhenUnlinked == value) return;
+    _showWhenUnlinked = value;
+    markNeedsPaint();
+  }
+
+  Size get targetSize => _targetSize;
+  Size _targetSize;
+  set targetSize(Size value) {
+    assert(value != null);
+    if (_targetSize == value) return;
+    _targetSize = value;
+    markNeedsPaint();
+  }
+
+  Offset get offset => _offset;
+  Offset _offset;
+  set offset(Offset value) {
+    assert(value != null);
+    if (_offset == value) return;
+    _offset = value;
+    markNeedsPaint();
+  }
+
+  @override
+  void detach() {
+    layer = null;
+    super.detach();
+  }
+
+  @override
+  bool get alwaysNeedsCompositing => true;
+
+  @override
+  FollowerLayer get layer => super.layer as FollowerLayer;
+
+  Matrix4 getCurrentTransform() {
+    return layer?.getLastTransform() ?? Matrix4.identity();
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {Offset position}) {
+    return hitTestChildren(result, position: position);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    return result.addWithPaintTransform(
+      transform: getCurrentTransform(),
+      position: position,
+      hitTest: (BoxHitTestResult result, Offset position) {
+        return super.hitTestChildren(result, position: position);
+      },
+    );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    assert(showWhenUnlinked != null);
+    final linkedOffset = Offset(
+      -size.width,
+
+      /// + targetSize.width,
+      -size.height, // + targetSize.height,
+    );
+    print('$runtimeType $size $link');
+    if (layer == null) {
+      layer = FollowerLayer(
+        link: link,
+        showWhenUnlinked: false,
+        linkedOffset: linkedOffset,
+      );
+    } else {
+      layer
+        ..link = link
+        ..showWhenUnlinked = false
+        ..linkedOffset = linkedOffset;
+    }
+    // layer.link = LayerLink();
+    context.pushLayer(
+      layer,
+      super.paint,
+      Offset.zero,
+      childPaintBounds: const Rect.fromLTRB(
+        // We don't know where we'll end up, so we have no idea what our cull rect should be.
+        double.negativeInfinity,
+        double.negativeInfinity,
+        double.infinity,
+        double.infinity,
+      ),
+    );
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    transform.multiply(getCurrentTransform());
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties
+        .add(DiagnosticsProperty<bool>('showWhenUnlinked', showWhenUnlinked));
+    properties.add(DiagnosticsProperty<Offset>('offset', offset));
+    properties.add(
+        TransformProperty('current transform matrix', getCurrentTransform()));
   }
 }
 
@@ -385,7 +563,7 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
 
   void removeBuilder(VoidCallback builder) {
     builders.remove(builder);
-    // markNeedsLayout();
+    markNeedsLayout();
   }
 
   @override
@@ -397,13 +575,14 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
 
   @override
   void performLayout() {
-    print('start theater performResize');
+    print('THEATER start theater performLayout');
     size = constraints.biggest;
 
     final entriesConstraints = BoxConstraints.tight(size);
 
-    print('entries $firstChild');
+    print('THEATER entries $firstChild');
 
+    print('THEATER childCount before: $childCount ');
     // not using for-in because `builders` can be mutated inside the layout callback
     for (var i = 0; i < builders.length; i++) {
       final builder = builders[i];
@@ -412,10 +591,12 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
       });
     }
 
+    print('THEATER childCount after: $childCount ');
+
     for (var child = firstChild; child != null; child = childAfter(child)) {
       child.layout(entriesConstraints);
     }
-    print('end theater performResize');
+    print('THEATER end theater performLayout');
   }
 
   @override
@@ -426,23 +607,60 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
   }
 }
 
-class PortalEntry extends SingleChildRenderObjectWidget {
+class PortalEntry extends StatefulWidget {
   PortalEntry({
     Key key,
     bool visible = false,
     @required Widget portal,
+    @required this.child,
+  })  : assert(child != null),
+        portal = visible ? portal : null,
+        super(key: key);
+
+  final Widget portal;
+  final Widget child;
+
+  @override
+  _PortalEntryState createState() => _PortalEntryState();
+}
+
+class _PortalEntryState extends State<PortalEntry> {
+  final LayerLink link = LayerLink();
+
+  @override
+  Widget build(BuildContext context) {
+    return _PortalLink(
+      visible: true,
+      portal: widget.portal,
+      link: link,
+      child: CompositedTransformTarget(
+        link: link,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _PortalLink extends SingleChildRenderObjectWidget {
+  _PortalLink({
+    Key key,
+    bool visible = false,
+    @required Widget portal,
     @required Widget child,
+    this.link,
   })  : assert(child != null),
         portal = visible ? portal : null,
         super(key: key, child: child);
 
   final Widget portal;
+  final LayerLink link;
 
   @override
-  RenderPortalEntry createRenderObject(BuildContext context) {
-    return RenderPortalEntry()
+  _RenderPortalLink createRenderObject(BuildContext context) {
+    return _RenderPortalLink()
       ..portal = portal
-      ..theater = dependOnTheater(context);
+      ..theater = dependOnTheater(context)
+      ..link = link;
   }
 
   PortalTheaterElement dependOnTheater(BuildContext context) {
@@ -455,15 +673,25 @@ class PortalEntry extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderPortalEntry renderObject,
+    _RenderPortalLink renderObject,
   ) {
     renderObject
       ..portal = portal
-      ..theater = dependOnTheater(context);
+      ..theater = dependOnTheater(context)
+      ..link = link;
+  }
+
+  @override
+  void didUnmountRenderObject(_RenderPortalLink renderObject) {
+    print('ENTRY unmount');
+    // renderObject.theater.removeEntry(renderObject);
+    super.didUnmountRenderObject(renderObject);
   }
 }
 
-class RenderPortalEntry extends RenderProxyBox {
+class _RenderPortalLink extends RenderProxyBox {
+  LayerLink link;
+
   Widget _portal;
   Widget get portal => _portal;
   set portal(Widget portal) {
@@ -486,12 +714,13 @@ class RenderPortalEntry extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     print('performLayout ENTRY  $portal');
-    theater.updateEntry(this, size, portal);
+    theater.updateEntry(this, size, portal, link);
   }
 
   @override
   void detach() {
-    super.detach();
+    print('RO ENTRY detach');
     theater.removeEntry(this);
+    super.detach();
   }
 }

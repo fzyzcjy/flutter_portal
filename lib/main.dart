@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import 'portal.dart';
@@ -39,24 +40,17 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: GestureDetector(
-        onPanUpdate: (d) {
-          setState(() {
-            offset += d.delta;
-          });
-        },
+      body: Center(
         child: PortalEntry(
           visible: true,
-          portal: Center(
-            child: Card(
-              elevation: 20,
-              color: Colors.lightBlue,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'this is a contextual overlay',
-                  textDirection: TextDirection.ltr,
-                ),
+          portal: Card(
+            elevation: 20,
+            color: Colors.lightBlue,
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'this is a contextual overlay',
+                textDirection: TextDirection.ltr,
               ),
             ),
           ),
