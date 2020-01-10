@@ -151,15 +151,46 @@ void main() {
     print('');
 
     await tester.pump();
-    // await tester.pumpWidget(Container());
 
     expect(find.text('child'), findsNothing);
     expect(find.text('portal'), findsNothing);
     expect(find.text('newChild'), findsOneWidget);
   });
+  testWidgets("doesn't throw if no Portal in ancestors but visible is false",
+      (tester) async {
+    await tester.pumpWidget(
+      PortalEntry(
+        visible: false,
+        portal: const Text('portal', textDirection: TextDirection.ltr),
+        child: const Text('child', textDirection: TextDirection.ltr),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    expect(find.text('portal'), findsNothing);
+  });
+  testWidgets('throws if no PortalEntry were found', (tester) async {
+    await tester.pumpWidget(
+      PortalEntry(
+        visible: true,
+        portal: const Text('portal', textDirection: TextDirection.ltr),
+        child: const Text('child', textDirection: TextDirection.ltr),
+      ),
+    );
+
+    final exception = tester.takeException();
+    expect(exception, isA<PortalNotFoundError>());
+    expect(exception.toString(), equals('''
+Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnchor: center, childAnchor: center, portal: Text, child: Text).
+'''));
+  });
+  // TODO: visible defaults to true
+  // TODO: Portal can be subclassed and PortalEntry can target it
+  // TODO: test alignment
+  // TODO: alignment defaults to center
+  // TODO: portalEntries can fill the portal if desired
   // TODO: Portal handles reparenting (PortalProvider changing)
   // TODO: can insert a portal without rebuilding PortalProvider at the same time
-  // TODO: do not disturb Overlay.of
   // TODO: click handling
   // TODO: infinite number of portals
 }

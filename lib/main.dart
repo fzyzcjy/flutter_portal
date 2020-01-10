@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
 
 import 'portal.dart';
 
@@ -31,11 +30,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Offset offset = Offset(100, 100);
-
   @override
   Widget build(BuildContext context) {
-    bool condition = offset.dy < 300;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
