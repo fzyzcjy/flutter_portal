@@ -76,9 +76,8 @@ class _PortalElement extends SingleChildRenderObjectElement {
   @override
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    print('PORTAL mount');
+
     renderObject.branchBuilder = () {
-      print('branchBuilder');
       owner.buildScope(this, () {
         _branch = updateChild(_branch, widget.theater, _branchSlot);
       });
@@ -96,7 +95,6 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void forgetChild(Element child) {
-    print('PORTAL forgetChild ${child == _branch}  $child');
     if (child == _branch) {
       _branch = null;
     } else {
@@ -106,7 +104,6 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void insertChildRenderObject(RenderObject child, dynamic slot) {
-    print('PORTAL insertRenderObject $slot $child');
     if (slot == _branchSlot) {
       renderObject.branch = child as RenderBox;
     } else {
@@ -116,7 +113,6 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void moveChildRenderObject(RenderObject child, dynamic slot) {
-    print('PORTAL moveChildRenderObject $slot $child');
     if (slot != _branchSlot) {
       super.moveChildRenderObject(child, slot);
     }
@@ -124,7 +120,6 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    print('PORTAL removeChildRenderObject $child');
     if (child == renderObject.branch) {
       renderObject.branch = null;
     } else {
@@ -134,13 +129,11 @@ class _PortalElement extends SingleChildRenderObjectElement {
 
   @override
   void deactivate() {
-    print('PORTAL deactivate');
     super.deactivate();
   }
 
   @override
   void unmount() {
-    print('PORTAL unmount');
     super.unmount();
   }
 }
@@ -174,7 +167,6 @@ class _RenderPortal extends RenderProxyBox {
   void performLayout() {
     isPerformingLayout = true;
     try {
-      print('PORTAL layout first branchBuilder: $branchBuilder');
       child.layout(constraints, parentUsesSize: true);
       size = child.size;
 
@@ -184,9 +176,7 @@ class _RenderPortal extends RenderProxyBox {
         });
       }
 
-      print('PORTAL layout second $branch');
       branch?.layout(BoxConstraints.tight(size));
-      print('PORTAL layout done');
     } finally {
       isPerformingLayout = false;
     }
@@ -214,6 +204,15 @@ class _RenderPortal extends RenderProxyBox {
     if (branch != null) {
       branch.redepthChildren();
     }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    if (branch?.hitTest(result, position: position) ?? false) {
+      return true;
+    }
+
+    return child?.hitTest(result, position: position) ?? false;
   }
 
   @override
@@ -268,19 +267,17 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void deactivate() {
-    print('THEATHER deactivate ${renderObject.builders} ');
     super.deactivate();
   }
 
   @override
   void unmount() {
-    print('THEATHER unmount');
     super.unmount();
   }
 
   void removeEntry(_RenderPortalLink entryKey) {
     final removedEntry = _entries[entryKey];
-    print('did remove $removedEntry');
+
     if (removedEntry == null) return;
 
     removedEntry.portal = null; // removeChildRenderObject will do its job
@@ -295,7 +292,7 @@ class PortalTheaterElement extends RenderObjectElement {
     Alignment childAnchor,
     Alignment portalAnchor,
   }) {
-    final entryDetails = _entries.putIfAbsent(entryKey, () {
+    _entries.putIfAbsent(entryKey, () {
       final newEntryDetails = _EntryDetails(this, entryKey);
       renderObject?.addBuilder(newEntryDetails.builder);
       return newEntryDetails;
@@ -307,14 +304,13 @@ class PortalTheaterElement extends RenderObjectElement {
       ..portalAnchor = portalAnchor;
 
     if (renderObject?.canMarkNeedsLayout ?? false) {
+      renderObject?.markNeedsLayout();
       // TODO: relayout only the given entry if possible
-      entryDetails?.renderObject?.markNeedsLayout();
     }
   }
 
   @override
   void insertChildRenderObject(RenderObject child, _RenderPortalLink slot) {
-    print('THEATER insertChildRenderObject $slot $child ');
     _entries[slot].renderObject = child;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child);
@@ -327,7 +323,6 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    print('THEATER removeChildRenderObject $child ');
     assert(child.parent == renderObject);
     final key = _entries.keys.firstWhere((key) {
       return _entries[key].renderObject == child;
@@ -345,9 +340,18 @@ class PortalTheaterElement extends RenderObjectElement {
       if (entry.element != null) visitor(entry.element);
     }
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    var i = 0;
+    for (final entry in _entries.values) {
+      properties.add(DiagnosticsProperty('entry ${i++}', entry));
+    }
+  }
 }
 
-class _EntryDetails {
+class _EntryDetails extends DiagnosticableTree with DiagnosticableMixin {
   _EntryDetails(this._owner, this.slot);
   final PortalTheaterElement _owner;
   final _RenderPortalLink slot;
@@ -367,21 +371,32 @@ class _EntryDetails {
         element,
         portal == null
             ? null
-            : Center(
-                child: MyCompositedTransformFollower(
-                  targetSize: size,
-                  showWhenUnlinked: true,
-                  childAnchor: childAnchor,
-                  portalAnchor: portalAnchor,
-                  link: link,
-                  child: portal,
-                ),
+            : MyCompositedTransformFollower(
+                targetSize: size,
+                showWhenUnlinked: true,
+                childAnchor: childAnchor,
+                portalAnchor: portalAnchor,
+                link: link,
+                child: portal,
               ),
         slot,
       );
     });
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty('size', size));
+    properties.add(DiagnosticsProperty('link', link));
+    properties.add(DiagnosticsProperty('element', element));
+    properties.add(DiagnosticsProperty('renderObject', renderObject));
+    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
+    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
+  }
 }
+
+class _PortalTheaterParentData extends ContainerBoxParentData {}
 
 class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   const MyCompositedTransformFollower({
@@ -502,7 +517,9 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   bool hitTest(BoxHitTestResult result, {Offset position}) {
-    return hitTestChildren(result, position: position);
+    final didCaptureClick = hitTestChildren(result, position: position);
+
+    return didCaptureClick;
   }
 
   @override
@@ -511,7 +528,9 @@ class MyRenderFollowerLayer extends RenderProxyBox {
       transform: getCurrentTransform(),
       position: position,
       hitTest: (BoxHitTestResult result, Offset position) {
-        return super.hitTestChildren(result, position: position);
+        var hitTestChildren = super.hitTestChildren(result, position: position);
+
+        return hitTestChildren;
       },
     );
   }
@@ -519,6 +538,10 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     assert(showWhenUnlinked != null);
+
+    var builder = DiagnosticPropertiesBuilder();
+    debugFillProperties(builder);
+
     final linkedOffset = childAnchor.withinRect(
           Rect.fromLTWH(
             0,
@@ -535,8 +558,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
             size.height,
           ),
         );
-
-    print('$runtimeType $linkedOffset ');
 
     if (layer == null) {
       layer = FollowerLayer(
@@ -578,10 +599,12 @@ class MyRenderFollowerLayer extends RenderProxyBox {
         .add(DiagnosticsProperty<bool>('showWhenUnlinked', showWhenUnlinked));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
+
+    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
+    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
+    properties.add(DiagnosticsProperty('targetSize', targetSize));
   }
 }
-
-class _PortalTheaterParentData extends ContainerBoxParentData {}
 
 class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
   bool get canMarkNeedsLayout =>
@@ -611,14 +634,10 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
   void performLayout() {
     isPerformingLayout = true;
     try {
-      print('THEATER start theater performLayout');
       size = constraints.biggest;
 
-      final entriesConstraints = BoxConstraints.tight(size);
+      final entriesConstraints = BoxConstraints.loose(size);
 
-      print('THEATER entries $firstChild');
-
-      print('THEATER childCount before: $childCount ');
       // not using for-in because `builders` can be mutated inside the layout callback
       for (var i = 0; i < builders.length; i++) {
         final builder = builders[i];
@@ -627,12 +646,9 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
         });
       }
 
-      print('THEATER childCount after: $childCount ');
-
       for (var child = firstChild; child != null; child = childAfter(child)) {
         child.layout(entriesConstraints);
       }
-      print('THEATER end theater performLayout');
     } finally {
       isPerformingLayout = false;
     }
@@ -644,17 +660,35 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
       context.paintChild(child, offset);
     }
   }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {Offset position}) {
+    // don't capture click if clicking on the theather but not an entry
+    return hitTestChildren(result, position: position);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    for (var child = firstChild; child != null; child = childAfter(child)) {
+      if ((child as RenderBox).hitTest(result, position: position)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 class PortalEntry<T extends Portal> extends StatefulWidget {
   PortalEntry({
     Key key,
-    this.visible = false,
+    this.visible = true,
     this.childAnchor = Alignment.center,
     this.portalAnchor = Alignment.center,
-    @required this.portal,
+    this.portal,
     @required this.child,
-  })  : assert(child != null),
+  })  : assert(visible == false || portal != null),
+        assert(child != null),
         super(key: key);
 
   final Widget portal;
@@ -665,6 +699,21 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
 
   @override
   _PortalEntryState<T> createState() => _PortalEntryState<T>();
+
+  @override
+  bool operator ==(Object other) {
+    return other is PortalEntry &&
+        visible == other.visible &&
+        child == other.child &&
+        portal == other.portal &&
+        childAnchor == other.childAnchor &&
+        portalAnchor == other.portalAnchor;
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(portal, child, childAnchor, portalAnchor, visible);
+  }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -683,10 +732,6 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
   @override
   Widget build(BuildContext context) {
     return _PortalLink<T>(
-      visible: widget.visible,
-      portal: widget.portal,
-      childAnchor: widget.childAnchor,
-      portalAnchor: widget.portalAnchor,
       portalEntry: widget,
       link: layerLink,
       child: CompositedTransformTarget(
@@ -706,31 +751,20 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
 class _PortalLink<T extends Portal> extends SingleChildRenderObjectWidget {
   _PortalLink({
     Key key,
-    bool visible = false,
-    this.childAnchor,
-    this.portalAnchor,
-    @required Widget portal,
-    @required Widget child,
-    this.portalEntry,
-    this.link,
-  })  : assert(child != null),
-        portal = visible ? portal : null,
-        super(key: key, child: child);
+    @required this.link,
+    @required this.portalEntry,
+    Widget child,
+  }) : super(key: key, child: child);
 
-  final Widget portal;
   final LayerLink link;
-  final Alignment childAnchor;
-  final Alignment portalAnchor;
   final PortalEntry portalEntry;
 
   @override
   _RenderPortalLink createRenderObject(BuildContext context) {
     return _RenderPortalLink()
-      ..portal = portal
-      ..theater = dependOnTheater(context)
+      ..entry = portalEntry
       ..link = link
-      ..portalAnchor = portalAnchor
-      ..childAnchor = childAnchor;
+      ..theater = dependOnTheater(context);
   }
 
   PortalTheaterElement dependOnTheater(BuildContext context) {
@@ -750,47 +784,27 @@ class _PortalLink<T extends Portal> extends SingleChildRenderObjectWidget {
     _RenderPortalLink renderObject,
   ) {
     renderObject
-      ..portal = portal
-      ..theater = dependOnTheater(context)
+      ..entry = portalEntry
       ..link = link
-      ..portalAnchor = portalAnchor
-      ..childAnchor = childAnchor;
-  }
-
-  @override
-  void didUnmountRenderObject(_RenderPortalLink renderObject) {
-    print('ENTRY unmount');
-    // renderObject.theater.removeEntry(renderObject);
-    super.didUnmountRenderObject(renderObject);
+      ..theater = dependOnTheater(context);
   }
 }
 
 class _RenderPortalLink extends RenderProxyBox {
-  LayerLink link;
-
-  Alignment _childAnchor;
-  Alignment get childAnchor => _childAnchor;
-  set childAnchor(Alignment childAnchor) {
-    if (childAnchor != _childAnchor) {
-      _childAnchor = childAnchor;
+  LayerLink _link;
+  LayerLink get link => _link;
+  set link(LayerLink link) {
+    if (_link != link) {
+      _link = link;
       markNeedsLayout();
     }
   }
 
-  Alignment _portalAnchor;
-  Alignment get portalAnchor => _portalAnchor;
-  set portalAnchor(Alignment portalAnchor) {
-    if (portalAnchor != _portalAnchor) {
-      _portalAnchor = portalAnchor;
-      markNeedsLayout();
-    }
-  }
-
-  Widget _portal;
-  Widget get portal => _portal;
-  set portal(Widget portal) {
-    if (portal != _portal) {
-      _portal = portal;
+  PortalEntry _entry;
+  PortalEntry get entry => _entry;
+  set entry(PortalEntry value) {
+    if (_entry != value) {
+      _entry = value;
       markNeedsLayout();
     }
   }
@@ -807,20 +821,19 @@ class _RenderPortalLink extends RenderProxyBox {
   @override
   void performLayout() {
     super.performLayout();
-    print('performLayout ENTRY  $portal');
+
     theater?.updateEntry(
       this,
       size,
-      portal,
+      entry.visible ? entry.portal : null,
       link,
-      childAnchor: childAnchor,
-      portalAnchor: portalAnchor,
+      childAnchor: entry.childAnchor,
+      portalAnchor: entry.portalAnchor,
     );
   }
 
   @override
   void detach() {
-    print('RO ENTRY detach');
     theater?.removeEntry(this);
     super.detach();
   }
