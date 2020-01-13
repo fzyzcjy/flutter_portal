@@ -5,6 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portal/portal.dart';
@@ -492,6 +493,37 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(tester.getBottomRight(portalFinder), const Offset(800, 600));
   });
 
+  testWidgets('Portal can be added above navigator but under MaterialApp',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (_, child) => Portal(child: child),
+        home: PortalEntry(
+          portal: const Text('portal'),
+          child: const Text('child'),
+        ),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    expect(find.text('portal'), findsOneWidget);
+  });
+  testWidgets('Portal can be added above navigator but under CupertinoApp',
+      (tester) async {
+    await tester.pumpWidget(
+      CupertinoApp(
+        builder: (_, child) => Portal(child: child),
+        home: PortalEntry(
+          portal: const Text('portal'),
+          child: const Text('child'),
+        ),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    expect(find.text('portal'), findsOneWidget);
+  });
+  // TODO: anchors can be `null` to _not_ align around the child.
   // TODO: clip overflow
   // TODO: Portal handles reparenting (PortalProvider changing)
   // TODO: infinite number of portals
