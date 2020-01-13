@@ -369,6 +369,43 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     await tester.pumpWidget(
       Portal(
         child: Align(
+          alignment: Alignment.bottomRight,
+          child: PortalEntry(
+            childAnchor: Alignment.topRight,
+            portalAnchor: Alignment.bottomRight,
+            portal: Container(key: portalKey, height: 20, width: 20),
+            child: Container(key: childKey, height: 10, width: 10),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byKey(childKey)),
+      equals(const Size(10, 10)),
+    );
+    expect(
+      tester.getBottomRight(find.byKey(childKey)),
+      equals(const Offset(800, 600)),
+    );
+
+    expect(
+      tester.getSize(find.byKey(portalKey)),
+      equals(const Size(20, 20)),
+    );
+    expect(
+      tester.getBottomRight(find.byKey(portalKey)),
+      equals(const Offset(800, 600 - 10.0)),
+    );
+  });
+
+  testWidgets('anchors defaults to center', (tester) async {
+    const portalKey = Key('portal');
+    const childKey = Key('child');
+
+    await tester.pumpWidget(
+      Portal(
+        child: Align(
           alignment: Alignment.center,
           child: PortalEntry(
             portal: Container(key: portalKey, height: 20, width: 20),
@@ -396,10 +433,47 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       equals(const Offset(800 / 2, 600 / 2)),
     );
   });
+  testWidgets('PortalEntry target its generic parameter', (tester) async {
+    final portalKey = UniqueKey();
+
+    await tester.pumpWidget(
+      TestPortal(
+        child: Center(
+          child: Portal(
+            child: PortalEntry<TestPortal>(
+              // Fills the portal so that if it's added to TestPortal it'll be on the top-left
+              // but if it's added to Portal, it'll start in the center of the screen.
+              portal: Container(key: portalKey),
+              child: const Text('child', textDirection: TextDirection.ltr),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byKey(portalKey)),
+      equals(Offset.zero),
+    );
+  });
+
+  testWidgets(
+      "PortalEntry doesn't fallback to Portal if generic doesn't exists",
+      (tester) async {
+    await tester.pumpWidget(
+      Portal(
+        child: PortalEntry<TestPortal>(
+          portal: const Text('portal', textDirection: TextDirection.ltr),
+          child: Container(),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isA<PortalNotFoundError>());
+  });
 
   // TODO: clip overflow
-
-  // TODO: Portal can be subclassed and PortalEntry can target it
   // TODO: test alignment
   // TODO: alignment defaults to center
   // TODO: portalEntries can fill the portal if desired
@@ -420,3 +494,6 @@ class Boilerplate extends StatelessWidget {
     );
   }
 }
+
+mixin Noop {}
+class TestPortal = Portal with Noop;
