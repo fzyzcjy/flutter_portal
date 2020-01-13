@@ -55,8 +55,8 @@ class MyApp extends StatelessWidget {
             label: 'Tooltip',
             child: Card(
               color: Colors.red,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text('click me to show a tooltip'),
               ),
             ),

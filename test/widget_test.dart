@@ -659,11 +659,10 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       child: Container(),
     );
   });
-  // TODO: anchors can be `null` to _not_ align around the child.
   // TODO: clip overflow
   // TODO: Portal handles reparenting (PortalProvider changing)
   // TODO: infinite number of portals
-  // TODO: click on the most recent portal
+  // TODO: click is applied based on the order portals were added
   // TODO: most recent portal paints above older ones
 }
 
