@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/rrousselGit/portal.svg?branch=master)](https://travis-ci.org/rrousselGit/portal)
+[![pub package](https://img.shields.io/pub/v/portal.svg)](https://pub.dartlang.org/packages/portal) [![codecov](https://codecov.io/gh/rrousselGit/portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/portal)
+
 # portal
 
 A new Flutter project.
