@@ -8,7 +8,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:portal/portal.dart';
+import 'package:flutter_portal/flutter_portal.dart';
 
 void main() {
   testWidgets('PortalProvider updates child', (WidgetTester tester) async {
@@ -191,7 +191,7 @@ void main() {
     final exception = tester.takeException();
     expect(exception, isA<PortalNotFoundError>());
     expect(exception.toString(), equals('''
-Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnchor: center, childAnchor: center, portal: Text, child: Text).
+Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnchor: null, childAnchor: null, portal: Text, child: Text).
 '''));
   });
   testWidgets('visible defaults to true', (tester) async {
@@ -399,7 +399,7 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     );
   });
 
-  testWidgets('anchors defaults to center', (tester) async {
+  testWidgets('defaults to fill if no anchor are specified', (tester) async {
     const portalKey = Key('portal');
     const childKey = Key('child');
 
@@ -426,13 +426,122 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
 
     expect(
       tester.getSize(find.byKey(portalKey)),
-      equals(const Size(20, 20)),
+      equals(const Size(800, 600)),
     );
     expect(
-      tester.getCenter(find.byKey(portalKey)),
-      equals(const Offset(800 / 2, 600 / 2)),
+      tester.getTopLeft(find.byKey(portalKey)),
+      equals(Offset.zero),
     );
   });
+  testWidgets('click works when switching between anchor/fill', (tester) async {
+    final child = const Text('a', textDirection: TextDirection.ltr);
+    const portalKey = Key('portal');
+    const childKey = Key('child');
+
+    var portalClickCount = 0;
+    var childClickCount = 0;
+
+    await tester.pumpWidget(
+      Portal(
+        child: Center(
+          child: PortalEntry(
+            portal: GestureDetector(
+              key: portalKey,
+              onTap: () => portalClickCount++,
+              child: child,
+            ),
+            child: GestureDetector(
+              key: childKey,
+              onTap: () => childClickCount++,
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(childKey));
+
+    expect(portalClickCount, equals(1));
+    expect(childClickCount, equals(0));
+
+    await tester.tapAt(Offset.zero);
+
+    expect(portalClickCount, equals(2));
+    expect(childClickCount, equals(0));
+
+    portalClickCount = 0;
+    childClickCount = 0;
+
+    await tester.pumpWidget(
+      Portal(
+        child: Center(
+          child: PortalEntry(
+            childAnchor: Alignment.bottomCenter,
+            portalAnchor: Alignment.topCenter,
+            portal: GestureDetector(
+              key: portalKey,
+              onTap: () => portalClickCount++,
+              child: child,
+            ),
+            child: GestureDetector(
+              key: childKey,
+              onTap: () => childClickCount++,
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(childKey));
+
+    expect(portalClickCount, equals(0));
+    expect(childClickCount, equals(1));
+
+    await tester.tapAt(Offset.zero);
+
+    expect(portalClickCount, equals(0));
+    expect(childClickCount, equals(1));
+
+    await tester.tap(find.byKey(portalKey));
+
+    expect(portalClickCount, equals(1));
+    expect(childClickCount, equals(1));
+
+    portalClickCount = 0;
+    childClickCount = 0;
+
+    await tester.pumpWidget(
+      Portal(
+        child: Center(
+          child: PortalEntry(
+            portal: GestureDetector(
+              key: portalKey,
+              onTap: () => portalClickCount++,
+              child: child,
+            ),
+            child: GestureDetector(
+              key: childKey,
+              onTap: () => childClickCount++,
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(childKey));
+
+    expect(portalClickCount, equals(1));
+    expect(childClickCount, equals(0));
+
+    await tester.tapAt(Offset.zero);
+
+    expect(portalClickCount, equals(2));
+    expect(childClickCount, equals(0));
+  });
+  // TODO: anchor not null then null still clicks
   testWidgets('PortalEntry target its generic parameter', (tester) async {
     final portalKey = UniqueKey();
 
@@ -522,6 +631,33 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
 
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
+  });
+  testWidgets('is one anchor is null, the other one must be', (tester) async {
+    expect(
+      () => PortalEntry(
+        portalAnchor: null,
+        childAnchor: Alignment.center,
+        portal: Container(),
+        child: Container(),
+      ),
+      throwsAssertionError,
+    );
+    expect(
+      () => PortalEntry(
+        portalAnchor: Alignment.center,
+        childAnchor: null,
+        portal: Container(),
+        child: Container(),
+      ),
+      throwsAssertionError,
+    );
+
+    PortalEntry(
+      childAnchor: null,
+      portalAnchor: null,
+      portal: Container(),
+      child: Container(),
+    );
   });
   // TODO: anchors can be `null` to _not_ align around the child.
   // TODO: clip overflow

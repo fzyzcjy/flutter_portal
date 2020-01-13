@@ -375,7 +375,6 @@ class _EntryDetails extends DiagnosticableTree with DiagnosticableMixin {
             ? null
             : MyCompositedTransformFollower(
                 targetSize: size,
-                showWhenUnlinked: true,
                 childAnchor: childAnchor,
                 portalAnchor: portalAnchor,
                 link: link,
@@ -404,28 +403,21 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   const MyCompositedTransformFollower({
     Key key,
     @required this.link,
-    this.showWhenUnlinked = true,
     this.targetSize,
     this.childAnchor,
     this.portalAnchor,
     Widget child,
-  })  : assert(link != null),
-        assert(showWhenUnlinked != null),
-        super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   final Alignment childAnchor;
   final Alignment portalAnchor;
   final LayerLink link;
-  final bool showWhenUnlinked;
   final Size targetSize;
 
   @override
   MyRenderFollowerLayer createRenderObject(BuildContext context) {
-    return MyRenderFollowerLayer(
-      link: link,
-      showWhenUnlinked: showWhenUnlinked,
-      targetSize: targetSize,
-    )
+    return MyRenderFollowerLayer(link: link)
+      ..targetSize = targetSize
       ..childAnchor = childAnchor
       ..portalAnchor = portalAnchor;
   }
@@ -435,7 +427,6 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
       BuildContext context, MyRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
-      ..showWhenUnlinked = showWhenUnlinked
       ..targetSize = targetSize
       ..childAnchor = childAnchor
       ..portalAnchor = portalAnchor;
@@ -445,16 +436,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
 class MyRenderFollowerLayer extends RenderProxyBox {
   MyRenderFollowerLayer({
     @required LayerLink link,
-    bool showWhenUnlinked = true,
-    Size targetSize,
     RenderBox child,
-  })  : assert(link != null),
-        assert(showWhenUnlinked != null),
-        super(child) {
-    this.link = link;
-    this.showWhenUnlinked = showWhenUnlinked;
-    this.targetSize = targetSize;
-  }
+  })  : _link = link,
+        super(child);
 
   Alignment _childAnchor;
   Alignment get childAnchor => _childAnchor;
@@ -477,18 +461,12 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   LayerLink get link => _link;
   LayerLink _link;
   set link(LayerLink value) {
-    assert(value != null);
     if (_link == value) return;
+    if (_link == null || value == null) {
+      markNeedsCompositingBitsUpdate();
+      markNeedsLayoutForSizedByParentChange();
+    }
     _link = value;
-    markNeedsPaint();
-  }
-
-  bool get showWhenUnlinked => _showWhenUnlinked;
-  bool _showWhenUnlinked;
-  set showWhenUnlinked(bool value) {
-    assert(value != null);
-    if (_showWhenUnlinked == value) return;
-    _showWhenUnlinked = value;
     markNeedsPaint();
   }
 
@@ -508,7 +486,10 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  bool get alwaysNeedsCompositing => true;
+  bool get alwaysNeedsCompositing => link != null;
+
+  @override
+  bool get sizedByParent => link == null;
 
   @override
   FollowerLayer get layer => super.layer as FollowerLayer;
@@ -519,47 +500,49 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   bool hitTest(BoxHitTestResult result, {Offset position}) {
-    final didCaptureClick = hitTestChildren(result, position: position);
-
-    return didCaptureClick;
+    return hitTestChildren(result, position: position);
   }
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    if (link == null) {
+      return super.hitTestChildren(result, position: position);
+    }
     return result.addWithPaintTransform(
       transform: getCurrentTransform(),
       position: position,
       hitTest: (BoxHitTestResult result, Offset position) {
-        var hitTestChildren = super.hitTestChildren(result, position: position);
-
-        return hitTestChildren;
+        return super.hitTestChildren(result, position: position);
       },
     );
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) {
-    assert(showWhenUnlinked != null);
+  void performResize() {
+    size = constraints.biggest;
+  }
 
-    var builder = DiagnosticPropertiesBuilder();
-    debugFillProperties(builder);
+  @override
+  void performLayout() {
+    if (sizedByParent) {
+      child.layout(BoxConstraints.tight(size));
+    } else {
+      super.performLayout();
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (link == null) {
+      layer = null;
+      super.paint(context, offset);
+      return;
+    }
 
     final linkedOffset = childAnchor.withinRect(
-          Rect.fromLTWH(
-            0,
-            0,
-            targetSize.width,
-            targetSize.height,
-          ),
+          Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
         ) -
-        portalAnchor.withinRect(
-          Rect.fromLTWH(
-            0,
-            0,
-            size.width,
-            size.height,
-          ),
-        );
+        portalAnchor.withinRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     if (layer == null) {
       layer = FollowerLayer(
@@ -590,15 +573,13 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void applyPaintTransform(RenderBox child, Matrix4 transform) {
-    transform.multiply(getCurrentTransform());
+    if (link != null) transform.multiply(getCurrentTransform());
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
-    properties
-        .add(DiagnosticsProperty<bool>('showWhenUnlinked', showWhenUnlinked));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
 
@@ -685,11 +666,13 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
   PortalEntry({
     Key key,
     this.visible = true,
-    this.childAnchor = Alignment.center,
-    this.portalAnchor = Alignment.center,
+    this.childAnchor,
+    this.portalAnchor,
     this.portal,
     @required this.child,
   })  : assert(visible == false || portal != null),
+        assert((childAnchor == null && portalAnchor == null) ||
+            (childAnchor != null && portalAnchor != null)),
         assert(child != null),
         super(key: key);
 
@@ -735,7 +718,9 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
   Widget build(BuildContext context) {
     return _PortalLink<T>(
       portalEntry: widget,
-      link: layerLink,
+      link: widget.childAnchor != null && widget.portalAnchor != null
+          ? layerLink
+          : null,
       child: CompositedTransformTarget(
         link: layerLink,
         child: widget.child,
