@@ -36,29 +36,25 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: PortalEntry(
-          visible: true,
-          portalAnchor: Alignment.centerRight,
-          childAnchor: Alignment.centerLeft,
-          portal: Card(
-            elevation: 20,
-            color: Colors.lightBlue,
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'this is a contextual overlay',
-                textDirection: TextDirection.ltr,
-              ),
+      body: ListView.builder(
+        itemBuilder: (_, index) {
+          return PortalEntry(
+            portalAnchor: Alignment.centerLeft,
+            childAnchor: Alignment.centerLeft,
+            portal: RaisedButton(
+              child: const Text('portal'),
+              onPressed: () {
+                print('portal clidk');
+              },
             ),
-          ),
-          child: const Card(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('drag me'),
+            child: RaisedButton(
+              onPressed: () {
+                print('child clidk');
+              },
+              child: const Text('child'),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

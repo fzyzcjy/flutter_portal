@@ -278,7 +278,6 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
               portalAnchor: Alignment.bottomCenter,
               childAnchor: Alignment.topCenter,
               portal: RaisedButton(
-                key: Key('portal'),
                 onPressed: () => portalClickCount++,
                 child: const Text('portal'),
               ),
@@ -473,12 +472,31 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(tester.takeException(), isA<PortalNotFoundError>());
   });
 
+  testWidgets('portals can fill the Portal', (tester) async {
+    final portal = Container();
+    await tester.pumpWidget(
+      Portal(
+        child: Center(
+          child: PortalEntry<Portal>(
+            portal: portal,
+            child: const Text('child', textDirection: TextDirection.ltr),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    final portalFinder = find.byWidget(portal);
+    expect(portalFinder, findsOneWidget);
+    expect(tester.getTopLeft(portalFinder), Offset.zero);
+    expect(tester.getBottomRight(portalFinder), const Offset(800, 600));
+  });
+
   // TODO: clip overflow
-  // TODO: test alignment
-  // TODO: alignment defaults to center
-  // TODO: portalEntries can fill the portal if desired
   // TODO: Portal handles reparenting (PortalProvider changing)
   // TODO: infinite number of portals
+  // TODO: click on the most recent portal
+  // TODO: most recent portal paints above older ones
 }
 
 class Boilerplate extends StatelessWidget {

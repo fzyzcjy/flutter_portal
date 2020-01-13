@@ -306,6 +306,8 @@ class PortalTheaterElement extends RenderObjectElement {
     if (renderObject?.canMarkNeedsLayout ?? false) {
       renderObject?.markNeedsLayout();
       // TODO: relayout only the given entry if possible
+      // The difficulty is about only making the entry as needing build
+      // while we need to update its element (curently done through `builders`)
     }
   }
 
