@@ -10,7 +10,8 @@ class Portal extends InheritedWidget {
   Portal({
     Key key,
     Widget child,
-  }) : super(key: key, child: child);
+  })  : assert(child != null),
+        super(key: key, child: child);
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) => false;
@@ -34,14 +35,11 @@ class PortalElement extends InheritedElement {
   // We just keep it here to expose it to the main branch.
   PortalTheaterElement get theater => _theater;
 
-  // final _PortalTheaterState theater = _PortalTheaterState();
-
   @override
   Widget build() {
     return _Portal(
       child: super.build(),
       theater: theater.widget,
-      // theater: PortalTheater(theater),
     );
   }
 }
@@ -126,16 +124,6 @@ class _PortalElement extends SingleChildRenderObjectElement {
       super.removeChildRenderObject(child);
     }
   }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
-
-  @override
-  void unmount() {
-    super.unmount();
-  }
 }
 
 class _RenderPortal extends RenderProxyBox {
@@ -161,6 +149,12 @@ class _RenderPortal extends RenderProxyBox {
   void detach() {
     super.detach();
     if (branch != null) branch.detach();
+  }
+
+  @override
+  void markNeedsLayout() {
+    branch?.markNeedsLayout();
+    super.markNeedsLayout();
   }
 
   @override
@@ -239,7 +233,8 @@ class PortalTheater extends RenderObjectWidget {
 class PortalTheaterElement extends RenderObjectElement {
   PortalTheaterElement(PortalTheater widget) : super(widget);
 
-  final Map<_RenderPortalLink, _EntryDetails> _entries = {};
+  @visibleForTesting
+  final Map<_RenderPortalLink, EntryDetails> entries = {};
 
   @override
   PortalTheater get widget => super.widget as PortalTheater;
@@ -250,33 +245,23 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void forgetChild(Element child) {
-    final key = _entries.keys.firstWhere((key) {
-      return _entries[key].element == child;
+    final key = entries.keys.firstWhere((key) {
+      return entries[key].element == child;
     });
     assert(key != null);
-    _entries.remove(key);
+    entries.remove(key);
   }
 
   @override
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    for (final entry in _entries.values) {
+    for (final entry in entries.values) {
       renderObject.addBuilder(entry.builder);
     }
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
-
-  @override
-  void unmount() {
-    super.unmount();
-  }
-
   void removeEntry(_RenderPortalLink entryKey) {
-    final removedEntry = _entries[entryKey];
+    final removedEntry = entries[entryKey];
 
     if (removedEntry == null) return;
 
@@ -292,8 +277,8 @@ class PortalTheaterElement extends RenderObjectElement {
     Alignment childAnchor,
     Alignment portalAnchor,
   }) {
-    _entries.putIfAbsent(entryKey, () {
-      final newEntryDetails = _EntryDetails(this, entryKey);
+    entries.putIfAbsent(entryKey, () {
+      final newEntryDetails = EntryDetails(this, entryKey);
       renderObject?.addBuilder(newEntryDetails.builder);
       return newEntryDetails;
     })
@@ -313,7 +298,7 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void insertChildRenderObject(RenderObject child, _RenderPortalLink slot) {
-    _entries[slot].renderObject = child;
+    entries[slot].renderObject = child;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child);
   }
@@ -326,11 +311,11 @@ class PortalTheaterElement extends RenderObjectElement {
   @override
   void removeChildRenderObject(RenderObject child) {
     assert(child.parent == renderObject);
-    final key = _entries.keys.firstWhere((key) {
-      return _entries[key].renderObject == child;
+    final key = entries.keys.firstWhere((key) {
+      return entries[key].renderObject == child;
     });
     assert(key != null);
-    final removedEntry = _entries.remove(key);
+    final removedEntry = entries.remove(key);
     renderObject
       ..removeBuilder(removedEntry.builder)
       ..remove(child);
@@ -338,7 +323,7 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void visitChildren(visitor) {
-    for (final entry in _entries.values) {
+    for (final entry in entries.values) {
       if (entry.element != null) visitor(entry.element);
     }
   }
@@ -347,14 +332,15 @@ class PortalTheaterElement extends RenderObjectElement {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     var i = 0;
-    for (final entry in _entries.values) {
+    for (final entry in entries.values) {
       properties.add(DiagnosticsProperty('entry ${i++}', entry));
     }
   }
 }
 
-class _EntryDetails extends DiagnosticableTree with DiagnosticableMixin {
-  _EntryDetails(this._owner, this.slot);
+@visibleForTesting
+class EntryDetails extends DiagnosticableTree with DiagnosticableMixin {
+  EntryDetails(this._owner, this.slot);
   final PortalTheaterElement _owner;
   final _RenderPortalLink slot;
 

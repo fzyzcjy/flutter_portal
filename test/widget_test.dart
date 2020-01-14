@@ -7,6 +7,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 
@@ -658,6 +659,92 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       portal: Container(),
       child: Container(),
     );
+  });
+  testWidgets('handles reparenting with GlobalKey', (tester) async {
+    final firstPortal = UniqueKey();
+    final secondPortal = UniqueKey();
+
+    final entryKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Row(
+        textDirection: TextDirection.ltr,
+        children: <Widget>[
+          Portal(
+            key: firstPortal,
+            child: PortalEntry(
+              key: entryKey,
+              portal: Container(),
+              child: Container(),
+            ),
+          ),
+          Portal(key: secondPortal, child: Container()),
+        ],
+      ),
+    );
+
+    final firstPortalElement =
+        tester.element(find.byKey(firstPortal)) as PortalElement;
+    final secondPortalElement =
+        tester.element(find.byKey(secondPortal)) as PortalElement;
+
+    expect(firstPortalElement.theater.entries.length, 1);
+    expect(firstPortalElement.theater.renderObject.builders.length, 1);
+    expect(firstPortalElement.theater.renderObject.childCount, 1);
+    expect(secondPortalElement.theater.entries.length, 0);
+    expect(secondPortalElement.theater.renderObject.builders.length, 0);
+    expect(secondPortalElement.theater.renderObject.childCount, 0);
+
+    await tester.pumpWidget(
+      Row(
+        textDirection: TextDirection.ltr,
+        children: <Widget>[
+          Portal(
+            key: firstPortal,
+            child: Container(),
+          ),
+          Portal(
+            key: secondPortal,
+            child: PortalEntry(
+              key: entryKey,
+              portal: Container(),
+              child: Container(),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    expect(firstPortalElement.theater.entries.length, 0);
+    expect(firstPortalElement.theater.renderObject.builders.length, 0);
+    expect(firstPortalElement.theater.renderObject.childCount, 0);
+    expect(secondPortalElement.theater.entries.length, 1);
+    expect(secondPortalElement.theater.renderObject.builders.length, 1);
+    expect(secondPortalElement.theater.renderObject.childCount, 1);
+
+    await tester.pumpWidget(
+      Row(
+        textDirection: TextDirection.ltr,
+        children: <Widget>[
+          Portal(
+            key: firstPortal,
+            child: PortalEntry(
+              key: entryKey,
+              portal: Container(),
+              child: Container(),
+            ),
+          ),
+          Portal(key: secondPortal, child: Container()),
+        ],
+      ),
+    );
+
+    expect(firstPortalElement.theater.entries.length, 1);
+    expect(firstPortalElement.theater.renderObject.builders.length, 1);
+    expect(firstPortalElement.theater.renderObject.childCount, 1);
+    expect(secondPortalElement.theater.entries.length, 0);
+    expect(secondPortalElement.theater.renderObject.builders.length, 0);
+    expect(secondPortalElement.theater.renderObject.childCount, 0);
   });
   // TODO: clip overflow
   // TODO: Portal handles reparenting (PortalProvider changing)
