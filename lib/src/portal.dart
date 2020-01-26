@@ -638,7 +638,7 @@ class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    for (var child = firstChild; child != null; child = childAfter(child)) {
+    for (var child = lastChild; child != null; child = childBefore(child)) {
       if ((child as RenderBox).hitTest(result, position: position)) {
         return true;
       }
