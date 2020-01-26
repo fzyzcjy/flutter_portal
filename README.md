@@ -26,7 +26,7 @@ Instead, is uses an imperative API. This comes with a few drawbacks:
 
 - [Overlay.of](https://api.flutter.dev/flutter/widgets/Overlay/of.html) is hardly
   customizable and O(N). If we want to add our [OverlayEntry] on a specific
-  [Overlay], we may have to rely on [GlobalKey], which is not ideal.
+  [Overlay], we may have to rely on [GlobalKey](https://api.flutter.dev/flutter/widgets/GlobalKey-class.html), which is not ideal.
 
 That's where `portal` comes into play.
 
@@ -42,7 +42,7 @@ First, you will need to add `portal` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  portal: ^0.0.1
+  flutter_portal: ^0.0.1
 ```
 
 Then, run `flutter packages get` in your terminal.
