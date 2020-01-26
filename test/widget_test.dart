@@ -189,7 +189,7 @@ void main() {
       ),
     );
 
-    final exception = tester.takeException();
+    final dynamic exception = tester.takeException();
     expect(exception, isA<PortalNotFoundError>());
     expect(exception.toString(), equals('''
 Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnchor: null, childAnchor: null, portal: Text, child: Text).

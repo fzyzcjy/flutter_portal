@@ -672,21 +672,6 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
   _PortalEntryState<T> createState() => _PortalEntryState<T>();
 
   @override
-  bool operator ==(Object other) {
-    return other is PortalEntry &&
-        visible == other.visible &&
-        child == other.child &&
-        portal == other.portal &&
-        childAnchor == other.childAnchor &&
-        portalAnchor == other.portalAnchor;
-  }
-
-  @override
-  int get hashCode {
-    return hashValues(portal, child, childAnchor, portalAnchor, visible);
-  }
-
-  @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(FlagProperty('visible', value: visible, ifTrue: 'visible'));

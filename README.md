@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/rrousselGit/portal.svg?branch=master)](https://travis-ci.org/rrousselGit/portal)
-[![pub package](https://img.shields.io/pub/v/portal.svg)](https://pub.dartlang.org/packages/portal) [![codecov](https://codecov.io/gh/rrousselGit/portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/portal)
+[![Build Status](https://travis-ci.org/rrousselGit/flutter_portal.svg?branch=master)](https://travis-ci.org/rrousselGit/flutter_portal)
+[![pub package](https://img.shields.io/pub/v/portal.svg)](https://pub.dartlang.org/packages/portal) [![codecov](https://codecov.io/gh/rrousselGit/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/flutter_portal)
 
 ## Motivation
 
@@ -190,7 +190,7 @@ Center(
 This will align the top-center of `child` with the bottom-center of `portal`,
 which renders the following:
 
-<img src="https://raw.githubusercontent.com/rrousselGit/portal/master/resources/alignment.png" width="200" />
+<img src="https://raw.githubusercontent.com/rrousselGit/flutter_portal/master/resources/alignment.png" width="200" />
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html

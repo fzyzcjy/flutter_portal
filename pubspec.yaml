@@ -1,10 +1,9 @@
 name: flutter_portal
 version: 0.0.1
 description: Overlay/OverlayEntry, but declarative
-homepage: https://github.com/rrousselGit/provider
+homepage: https://github.com/rrousselGit/flutter_portal
 authors:
   - Remi Rousselet <darky12s@gmail.com>
-  - Flutter Team <flutter-dev@googlegroups.com>
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
