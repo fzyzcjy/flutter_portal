@@ -8,8 +8,8 @@ Flutter comes with two classes for manipulating "overlays":
 - [Overlay]
 - [OverlayEntry]
 
-But [OverlayEntry] is very akward to use. As opposed to most of framework,
-[OverlayEntry] is **not** a widget with a nice and clean declarative API.
+But [OverlayEntry] is very akward to use. As opposed to most of the framework,
+[OverlayEntry] is **not** a widget (which comes with a nice and clean declarative API).
 
 Instead, is uses an imperative API. This comes with a few drawbacks:
 
