@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/rrousselGit/flutter_portal.svg?branch=master)](https://travis-ci.org/rrousselGit/flutter_portal)
-[![pub package](https://img.shields.io/pub/v/portal.svg)](https://pub.dartlang.org/packages/portal) [![codecov](https://codecov.io/gh/rrousselGit/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/flutter_portal)
+[![pub package](https://img.shields.io/pub/v/portal.svg)](https://pub.dartlang.org/packages/flutter_portal) [![codecov](https://codecov.io/gh/rrousselGit/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/flutter_portal)
 
 ## Motivation
 
@@ -192,6 +192,37 @@ which renders the following:
 
 <img src="https://raw.githubusercontent.com/rrousselGit/flutter_portal/master/resources/alignment.png" width="200" />
 
+### Target a specific [Portal] with a [PortalEntry]
+
+Sometimes you may have multiple [Portal], and want to add your [PortalEntry] on
+a very specific [Portal].
+
+By default, [PortalEntry] will add its `portal` on the nearest [Portal].
+
+But you can customize this behavior by having subclassing [Portal]:
+
+```dart
+mixin NoOp {}
+/// Fork [Portal] and all its parameters/properties
+class MyPortal = Portal with NoOp; 
+```
+
+Then you can target a custom [Portal] on [PortalEntry] by specifying a generic
+parameter:
+
+```dart
+MyPortal(
+  child: Portal(
+    // adds the portal on MyPortal instead of Portal
+    child: PortalEntry<MyPortal>(
+      ...
+    )
+  ),
+),
+```
+
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
 [addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
+[portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
+[portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
