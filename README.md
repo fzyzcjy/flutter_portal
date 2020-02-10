@@ -80,7 +80,7 @@ To use `portal`, we have to rely on two widgets:
   Consider the following [OverlayEntry] example:
 
   ```dart
-    class Example extends StatefulWidget {
+  class Example extends StatefulWidget {
     const Example({Key key, this.title}) : super(key: key);
 
     final String title;
