@@ -241,6 +241,7 @@ class PortalTheaterElement extends RenderObjectElement {
 
   @override
   void forgetChild(Element child) {
+    super.forgetChild(child);
     final key = entries.keys.firstWhere((key) {
       return entries[key].element == child;
     });
