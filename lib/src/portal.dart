@@ -211,7 +211,10 @@ class _RenderPortal extends RenderProxyBox {
 
   @override
   List<DiagnosticsNode> debugDescribeChildren() {
-    return [...super.debugDescribeChildren(), if (branch != null) branch.toDiagnosticsNode(name: 'branch')];
+    return [
+      ...super.debugDescribeChildren(),
+      if (branch != null) branch.toDiagnosticsNode(name: 'branch')
+    ];
   }
 }
 
@@ -237,7 +240,8 @@ class PortalTheaterElement extends RenderObjectElement {
   PortalTheater get widget => super.widget as PortalTheater;
 
   @override
-  RenderPortalTheater get renderObject => super.renderObject as RenderPortalTheater;
+  RenderPortalTheater get renderObject =>
+      super.renderObject as RenderPortalTheater;
 
   @override
   void forgetChild(Element child) {
@@ -406,7 +410,8 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, MyRenderFollowerLayer renderObject) {
+  void updateRenderObject(
+      BuildContext context, MyRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
       ..targetSize = targetSize
@@ -562,7 +567,8 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
-    properties.add(TransformProperty('current transform matrix', getCurrentTransform()));
+    properties.add(
+        TransformProperty('current transform matrix', getCurrentTransform()));
 
     properties.add(DiagnosticsProperty('childAnchor', childAnchor));
     properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
@@ -571,7 +577,8 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 }
 
 class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
-  bool get canMarkNeedsLayout => !isPerformingLayout && !(parent as _RenderPortal).isPerformingLayout;
+  bool get canMarkNeedsLayout =>
+      !isPerformingLayout && !(parent as _RenderPortal).isPerformingLayout;
 
   bool isPerformingLayout = false;
   List<VoidCallback> builders = [];
@@ -651,7 +658,8 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
     this.portal,
     @required this.child,
   })  : assert(visible == false || portal != null),
-        assert((childAnchor == null && portalAnchor == null) || (childAnchor != null && portalAnchor != null)),
+        assert((childAnchor == null && portalAnchor == null) ||
+            (childAnchor != null && portalAnchor != null)),
         assert(child != null),
         super(key: key);
 
@@ -682,7 +690,9 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
   Widget build(BuildContext context) {
     return _PortalLink<T>(
       portalEntry: widget,
-      link: widget.childAnchor != null && widget.portalAnchor != null ? layerLink : null,
+      link: widget.childAnchor != null && widget.portalAnchor != null
+          ? layerLink
+          : null,
       child: CompositedTransformTarget(
         link: layerLink,
         child: widget.child,
@@ -717,7 +727,8 @@ class _PortalLink<T extends Portal> extends SingleChildRenderObjectWidget {
   }
 
   PortalTheaterElement dependOnTheater(BuildContext context) {
-    final portalElement = context.getElementForInheritedWidgetOfExactType<T>() as PortalElement;
+    final portalElement =
+        context.getElementForInheritedWidgetOfExactType<T>() as PortalElement;
     if (portalElement == null) {
       if (portalEntry.visible) throw PortalNotFoundError<T>._(portalEntry);
       return null;

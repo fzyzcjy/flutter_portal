@@ -56,8 +56,11 @@ void main() {
       throwsAssertionError,
     );
   });
-  test('Portal required either portalBuilder or portal', () {});
-  testWidgets('Portal synchronously add portals to PortalProvider', (tester) async {
+  test('Portal required either portalBuilder or portal', () {
+    // TODO:
+  });
+  testWidgets('Portal synchronously add portals to PortalProvider',
+      (tester) async {
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
@@ -73,7 +76,9 @@ void main() {
     expect(find.text('firstChild'), findsOneWidget);
     expect(find.text('firstPortal'), findsOneWidget);
   });
-  testWidgets("portals aren't inserted if visible is false, and visible can be changed any time", (tester) async {
+  testWidgets(
+      "portals aren't inserted if visible is false, and visible can be changed any time",
+      (tester) async {
     final portal = ValueNotifier(
       PortalEntry(
         visible: false,
@@ -131,7 +136,8 @@ void main() {
       reason: 'the child state must be preserved when toggling `visible`',
     );
   });
-  testWidgets('Unmounting Portal removes it on PortalProvider synchronously', (tester) async {
+  testWidgets('Unmounting Portal removes it on PortalProvider synchronously',
+      (tester) async {
     final portal = ValueNotifier<Widget>(
       Center(
         child: PortalEntry(
@@ -163,7 +169,8 @@ void main() {
     expect(find.text('portal'), findsNothing);
     expect(find.text('newChild'), findsOneWidget);
   });
-  testWidgets("doesn't throw if no Portal in ancestors but visible is false", (tester) async {
+  testWidgets("doesn't throw if no Portal in ancestors but visible is false",
+      (tester) async {
     await tester.pumpWidget(
       PortalEntry(
         visible: false,
@@ -205,7 +212,9 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
   });
-  testWidgets('can insert a portal without rebuilding PortalProvider at the same time', (tester) async {
+  testWidgets(
+      'can insert a portal without rebuilding PortalProvider at the same time',
+      (tester) async {
     Widget child = const Text('first');
     final builder = Builder(builder: (_) => child);
 
@@ -232,7 +241,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(find.text('second'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
   });
-  testWidgets('clicking on portal if above child clicks only the portal', (tester) async {
+  testWidgets('clicking on portal if above child clicks only the portal',
+      (tester) async {
     var portalClickCount = 0;
     var childClickCount = 0;
 
@@ -258,7 +268,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(portalClickCount, equals(1));
     expect(childClickCount, equals(0));
   });
-  testWidgets('if portal is not above child, we can click on both', (tester) async {
+  testWidgets('if portal is not above child, we can click on both',
+      (tester) async {
     var portalClickCount = 0;
     var childClickCount = 0;
 
@@ -645,7 +656,9 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     );
   });
 
-  testWidgets("PortalEntry doesn't fallback to Portal if generic doesn't exists", (tester) async {
+  testWidgets(
+      "PortalEntry doesn't fallback to Portal if generic doesn't exists",
+      (tester) async {
     await tester.pumpWidget(
       Portal(
         child: PortalEntry<TestPortal>(
@@ -678,7 +691,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(tester.getBottomRight(portalFinder), const Offset(800, 600));
   });
 
-  testWidgets('Portal can be added above navigator but under MaterialApp', (tester) async {
+  testWidgets('Portal can be added above navigator but under MaterialApp',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         builder: (_, child) => Portal(child: child),
@@ -692,7 +706,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
   });
-  testWidgets('Portal can be added above navigator but under CupertinoApp', (tester) async {
+  testWidgets('Portal can be added above navigator but under CupertinoApp',
+      (tester) async {
     await tester.pumpWidget(
       CupertinoApp(
         builder: (_, child) => Portal(child: child),
@@ -733,6 +748,54 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       child: Container(),
     );
   });
+  testWidgets('layout builder between portal and entry on first build',
+      (tester) async {
+    await tester.pumpWidget(Portal(
+      child: LayoutBuilder(
+        builder: (_, __) {
+          return PortalEntry(
+            portal: const Text('portal', textDirection: TextDirection.ltr),
+            child: const Text('child', textDirection: TextDirection.ltr),
+          );
+        },
+      ),
+    ));
+
+    expect(find.text('child'), findsOneWidget);
+    expect(find.text('portal'), findsOneWidget);
+  });
+  testWidgets(
+      'layout builder between portal and entry without rebuilding portl',
+      (tester) async {
+    final notifier = ValueNotifier<Widget>(
+      const Text('child', textDirection: TextDirection.ltr),
+    );
+
+    await tester.pumpWidget(
+      Portal(
+        child: ValueListenableBuilder<Widget>(
+          valueListenable: notifier,
+          builder: (c, child, _) => child,
+        ),
+      ),
+    );
+
+    expect(find.text('child'), findsOneWidget);
+    expect(find.text('child2'), findsNothing);
+    expect(find.text('portal'), findsNothing);
+
+    notifier.value = LayoutBuilder(builder: (_, __) {
+      return PortalEntry(
+        portal: const Text('portal', textDirection: TextDirection.ltr),
+        child: const Text('child2', textDirection: TextDirection.ltr),
+      );
+    });
+    await tester.pump();
+
+    expect(find.text('child'), findsNothing);
+    expect(find.text('child2'), findsOneWidget);
+    expect(find.text('portal'), findsOneWidget);
+  });
   testWidgets('handles reparenting with GlobalKey', (tester) async {
     final firstPortal = UniqueKey();
     final secondPortal = UniqueKey();
@@ -756,8 +819,10 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       ),
     );
 
-    final firstPortalElement = tester.element(find.byKey(firstPortal)) as PortalElement;
-    final secondPortalElement = tester.element(find.byKey(secondPortal)) as PortalElement;
+    final firstPortalElement =
+        tester.element(find.byKey(firstPortal)) as PortalElement;
+    final secondPortalElement =
+        tester.element(find.byKey(secondPortal)) as PortalElement;
 
     expect(firstPortalElement.theater.entries.length, 1);
     expect(firstPortalElement.theater.renderObject.builders.length, 1);
@@ -853,11 +918,15 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
 
     expect(tester.getTopLeft(find.byWidget(topLeft)), Offset.zero);
     expect(tester.getTopRight(find.byWidget(topRight)), const Offset(800, 0));
-    expect(tester.getBottomRight(find.byWidget(bottomRight)), const Offset(800, 600));
-    expect(tester.getBottomLeft(find.byWidget(bottomLeft)), const Offset(0, 600));
+    expect(tester.getBottomRight(find.byWidget(bottomRight)),
+        const Offset(800, 600));
+    expect(
+        tester.getBottomLeft(find.byWidget(bottomLeft)), const Offset(0, 600));
   });
 
-  testWidgets('click is applied in reverse order of portal addition (last click first)', (tester) async {
+  testWidgets(
+      'click is applied in reverse order of portal addition (last click first)',
+      (tester) async {
     var didClickFirst = false;
     var didClickSecond = false;
     await tester.pumpWidget(
@@ -895,7 +964,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
     expect(didClickFirst, isFalse);
     expect(didClickSecond, isTrue);
   });
-  testWidgets('portals paints in order of addition (last paints last)', (tester) async {
+  testWidgets('portals paints in order of addition (last paints last)',
+      (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
@@ -917,7 +987,8 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       ),
     );
 
-    await expectLater(find.byType(Portal), matchesGoldenFile('paint_order.jpg'));
+    await expectLater(
+        find.byType(Portal), matchesGoldenFile('paint_order.jpg'));
   });
 }
 

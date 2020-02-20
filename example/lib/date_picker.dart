@@ -59,7 +59,9 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Example'),
         ),
-        body: LayoutBuilder(builder: (_, __) => LayoutBuilder(builder: (_, __) =>DatePickerUsageExample())),
+        body: LayoutBuilder(
+            builder: (_, __) =>
+                LayoutBuilder(builder: (_, __) => DatePickerUsageExample())),
       ),
     );
   }
