@@ -1,9 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 
-// This implements Medium's clap button
+// a contextual menu
 
 void main() => runApp(MyApp());
 
