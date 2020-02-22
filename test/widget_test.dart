@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_portal/flutter_portal.dart';
+import 'package:mockito/mockito.dart';
 
 void main() {
   testWidgets('PortalProvider updates child', (WidgetTester tester) async {
@@ -748,6 +749,60 @@ Error: Could not find a Portal above this PortalEntry<Portal>(visible, portalAnc
       child: Container(),
     );
   });
+
+testWidgets(
+    'both entry and modal rebuilds withint the same frame with layoutbuilder between portal and entry',
+    (tester) async {
+  final entryNotifier = ValueNotifier(0);
+  final mainNotifier = ValueNotifier(0);
+  final entryBuild = EntryBuildSpy();
+
+  await tester.pumpWidget(
+    Portal(
+      child: Center(
+        child: ValueListenableBuilder<int>(
+          valueListenable: mainNotifier,
+          builder: (c, value, _) {
+            return LayoutBuilder(
+              builder: (_, __) {
+                return PortalEntry(
+                  portal: ValueListenableBuilder<int>(
+                    valueListenable: entryNotifier,
+                    builder: (_, value2, __) {
+                      entryBuild(value, value2);
+                      return Text(
+                        '$value $value2',
+                        textDirection: TextDirection.ltr,
+                      );
+                    },
+                  ),
+                  child: Text('$value', textDirection: TextDirection.ltr),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    ),
+  );
+
+  expect(find.text('0'), findsOneWidget);
+  expect(find.text('0 0'), findsOneWidget);
+  verify(entryBuild(0, 0)).called(1);
+  verifyNoMoreInteractions(entryBuild);
+
+  mainNotifier.value++;
+  entryNotifier.value++;
+  await tester.pump();
+
+  expect(find.text('1'), findsOneWidget);
+  expect(find.text('1 1'), findsOneWidget);
+  verifyInOrder([
+    entryBuild(0, 1),
+    entryBuild(1, 1),
+  ]);
+  verifyNoMoreInteractions(entryBuild);
+});
   testWidgets('layout builder between portal and entry on first build',
       (tester) async {
     await tester.pumpWidget(Portal(
@@ -1008,3 +1063,7 @@ class Boilerplate extends StatelessWidget {
 
 mixin Noop {}
 class TestPortal = Portal with Noop;
+
+class EntryBuildSpy extends Mock {
+  void call(int value1, int value2);
+}
