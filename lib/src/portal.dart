@@ -109,7 +109,6 @@ class RenderPortalTheater extends RenderProxyBox {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    print(position);
     for (final overlay in overlayLink.overlays) {
       if (overlay?.hitTest(result, position: position) ?? false) {
         return true;
@@ -123,7 +122,7 @@ class RenderPortalTheater extends RenderProxyBox {
 class PortalEntry<T extends Portal> extends SingleChildRenderObjectWidget {
   PortalEntry({
     Key key,
-    bool visible = false,
+    bool visible = true,
     this.childAnchor,
     this.portalAnchor,
     Widget portal,

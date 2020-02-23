@@ -5,14 +5,34 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:mockito/mockito.dart';
 
-void main() {
+Future<ByteData> fetchFont() async {
+  final roboto = File.fromUri(
+    Uri.parse('${Directory.current.path}/../assets/Roboto-Regular.ttf'),
+  );
+  final bytes = Uint8List.fromList(await roboto.readAsBytes());
+  return ByteData.view(bytes.buffer);
+}
+
+/// Fetch Roboto font from local cache, or from the internet, if it's not
+/// found in the cache.
+/// It needs to be done because flutter_test blocks access to package assets
+/// (see https://github.com/flutter/flutter/issues/12999).
+
+void main() async {
+  final fontLoader = FontLoader('Roboto')..addFont(fetchFont());
+  await fontLoader.load();
+
   testWidgets('PortalProvider updates child', (WidgetTester tester) async {
     await tester.pumpWidget(
       const Portal(
@@ -84,10 +104,8 @@ void main() {
       tester.getCenter(find.text('firstChild')),
       const Offset(400, 300),
     );
-    expect(
-      tester.getSize(find.text('firstChild')),
-      const Size(140, 14),
-    );
+
+    await expectLater(find.byType(Portal), matchesGoldenFile('mounted.png'));
   });
   testWidgets(
       "portals aren't inserted if mounted is false, and visible can be changed any time",
@@ -181,6 +199,8 @@ void main() {
     expect(find.text('child'), findsNothing);
     expect(find.text('portal'), findsNothing);
     expect(find.text('newChild'), findsOneWidget);
+
+    await expectLater(find.byType(Portal), matchesGoldenFile('unmounted.png'));
   });
   testWidgets('throws if no PortalEntry were found', (tester) async {
     await tester.pumpWidget(
@@ -211,36 +231,40 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
 
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
-  }, skip: true);
+  });
   testWidgets(
       'can insert a portal without rebuilding PortalProvider at the same time',
       (tester) async {
-    Widget child = const Text('first');
-    final builder = Builder(builder: (_) => child);
+    var child = ValueNotifier<Widget>(const Text('first'));
+    final builder = ValueListenableBuilder<Widget>(
+      valueListenable: child,
+      builder: (_, child, __) => child,
+    );
 
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
-          child: builder,
+          child: Center(child: builder),
         ),
       ),
     );
-    final element = tester.element(find.byWidget(builder));
 
     expect(find.text('first'), findsOneWidget);
 
-    element.markNeedsBuild();
-    child = PortalEntry(
+    child.value = PortalEntry(
       portal: const Text('portal'),
       child: const Text('second'),
     );
-
     await tester.pump();
 
     expect(find.text('first'), findsNothing);
     expect(find.text('second'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
-  }, skip: true);
+    await expectLater(
+      find.byType(Portal),
+      matchesGoldenFile('mounted_no_rebuild.png'),
+    );
+  });
   testWidgets('clicking on portal if above child clicks only the portal',
       (tester) async {
     var portalClickCount = 0;
@@ -267,7 +291,7 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
 
     expect(portalClickCount, equals(1));
     expect(childClickCount, equals(0));
-  }, skip: true);
+  });
   testWidgets('if portal is not above child, we can click on both',
       (tester) async {
     var portalClickCount = 0;
@@ -435,7 +459,7 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
       tester.getTopLeft(find.byKey(portalKey)),
       equals(Offset.zero),
     );
-  }, skip: true);
+  });
   testWidgets('click works when switching between anchor/fill', (tester) async {
     final child = const Text('a', textDirection: TextDirection.ltr);
     const portalKey = Key('portal');
