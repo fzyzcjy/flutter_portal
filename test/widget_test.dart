@@ -340,14 +340,17 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
     const portalKey = Key('portal');
     const childKey = Key('child');
     await tester.pumpWidget(
-      Portal(
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: PortalEntry(
-            portalAnchor: Alignment.topLeft,
-            childAnchor: Alignment.bottomLeft,
-            portal: Container(key: portalKey, height: 42, width: 24),
-            child: Container(key: childKey, height: 10, width: 10),
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Portal(
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: PortalEntry(
+              portalAnchor: Alignment.topLeft,
+              childAnchor: Alignment.bottomLeft,
+              portal: Container(key: portalKey, height: 42, width: 24),
+              child: Container(key: childKey, height: 10, width: 10),
+            ),
           ),
         ),
       ),
@@ -369,14 +372,17 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
     );
 
     await tester.pumpWidget(
-      Portal(
-        child: Align(
-          alignment: Alignment.topRight,
-          child: PortalEntry(
-            portalAnchor: Alignment.topRight,
-            childAnchor: Alignment.bottomRight,
-            portal: Container(key: portalKey, height: 24, width: 42),
-            child: Container(key: childKey, height: 20, width: 20),
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Portal(
+          child: Align(
+            alignment: Alignment.topRight,
+            child: PortalEntry(
+              portalAnchor: Alignment.topRight,
+              childAnchor: Alignment.bottomRight,
+              portal: Container(key: portalKey, height: 24, width: 42),
+              child: Container(key: childKey, height: 20, width: 20),
+            ),
           ),
         ),
       ),
@@ -401,14 +407,17 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
     );
 
     await tester.pumpWidget(
-      Portal(
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: PortalEntry(
-            childAnchor: Alignment.topRight,
-            portalAnchor: Alignment.bottomRight,
-            portal: Container(key: portalKey, height: 20, width: 20),
-            child: Container(key: childKey, height: 10, width: 10),
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Portal(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: PortalEntry(
+              childAnchor: Alignment.topRight,
+              portalAnchor: Alignment.bottomRight,
+              portal: Container(key: portalKey, height: 20, width: 20),
+              child: Container(key: childKey, height: 10, width: 10),
+            ),
           ),
         ),
       ),
@@ -438,12 +447,15 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
     const childKey = Key('child');
 
     await tester.pumpWidget(
-      Portal(
-        child: Align(
-          alignment: Alignment.center,
-          child: PortalEntry(
-            portal: Container(key: portalKey, height: 20, width: 20),
-            child: Container(key: childKey, height: 10, width: 10),
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Portal(
+          child: Align(
+            alignment: Alignment.center,
+            child: PortalEntry(
+              portal: Container(key: portalKey, height: 20, width: 20),
+              child: Container(key: childKey, height: 10, width: 10),
+            ),
           ),
         ),
       ),

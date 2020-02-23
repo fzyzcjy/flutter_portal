@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 
@@ -14,111 +16,59 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Example'),
         ),
-        body: Container(
-          padding: const EdgeInsets.all(10),
-          alignment: Alignment.centerLeft,
-          child: ContextualMenuExample(),
+        body: Center(
+          child: ClapButton(),
         ),
       ),
     );
   }
 }
 
-class ContextualMenuExample extends StatefulWidget {
-  ContextualMenuExample({Key key}) : super(key: key);
+class ClapButton extends StatefulWidget {
+  ClapButton({Key key}) : super(key: key);
 
   @override
-  _ContextualMenuExampleState createState() => _ContextualMenuExampleState();
+  _ClapButtonState createState() => _ClapButtonState();
 }
 
-class _ContextualMenuExampleState extends State<ContextualMenuExample> {
-  bool showMenu = false;
+class _ClapButtonState extends State<ClapButton> {
+  int clapCount = 0;
+  bool hasClappedRecently = false;
+  Timer resetHasClappedRecentlyTimer;
 
   @override
   Widget build(BuildContext context) {
-    return ModalEntry(
-      visible: showMenu,
-      onClose: () => setState(() => showMenu = false),
-      childAnchor: Alignment.topRight,
-      menuAnchor: Alignment.topLeft,
-      menu: const Menu(
-        children: [
-          PopupMenuItem<void>(
-            height: 42,
-            child: Text('first'),
-          ),
-          PopupMenuItem<void>(
-            height: 42,
-            child: Text('second'),
-          ),
-        ],
+    return PortalEntry(
+      visible: hasClappedRecently,
+      // aligns the top-center of `child` with the bottom-center of `portal`
+      childAnchor: Alignment.topCenter,
+      portalAnchor: Alignment.bottomCenter,
+      portal: Material(
+        elevation: 8,
+        borderRadius: BorderRadius.circular(40),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('$clapCount'),
+        ),
       ),
       child: RaisedButton(
-        onPressed: () => setState(() => showMenu = true),
-        child: const Text('show menu'),
+        onPressed: _clap,
+        child: Icon(Icons.plus_one),
       ),
     );
   }
-}
 
-class Menu extends StatelessWidget {
-  const Menu({
-    Key key,
-    @required this.children,
-  }) : super(key: key);
+  void _clap() {
+    resetHasClappedRecentlyTimer?.cancel();
 
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10),
-      child: Card(
-        elevation: 8,
-        child: IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
-        ),
-      ),
+    resetHasClappedRecentlyTimer = Timer(
+      const Duration(seconds: 2),
+      () => setState(() => hasClappedRecently = false),
     );
-  }
-}
 
-class ModalEntry extends StatelessWidget {
-  const ModalEntry({
-    Key key,
-    this.onClose,
-    this.menu,
-    this.visible,
-    this.menuAnchor,
-    this.childAnchor,
-    this.child,
-  }) : super(key: key);
-
-  final VoidCallback onClose;
-  final Widget menu;
-  final bool visible;
-  final Widget child;
-  final Alignment menuAnchor;
-  final Alignment childAnchor;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: visible ? onClose : null,
-      child: PortalEntry(
-        visible: visible,
-        portal: menu,
-        portalAnchor: menuAnchor,
-        childAnchor: childAnchor,
-        child: IgnorePointer(
-          ignoring: visible,
-          child: child,
-        ),
-      ),
-    );
+    setState(() {
+      hasClappedRecently = true;
+      clapCount++;
+    });
   }
 }

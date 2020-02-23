@@ -163,6 +163,42 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
       throw PortalNotFoundError._(widget);
     }
 
+    return Stack(
+      children: <Widget>[
+        widget.childAnchor == null
+            ? widget.child
+            : CompositedTransformTarget(
+                link: link,
+                child: widget.child,
+              ),
+        if (widget.portal != null && widget.portalAnchor == null)
+          _PortalEntryTheater(
+            overlayLink: scope.overlayLink,
+            portal: widget.portal,
+            child: const SizedBox.shrink(),
+          )
+        else if (widget.portal != null)
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return _PortalEntryTheater(
+                  overlayLink: scope.overlayLink,
+                  loosen: true,
+                  portal: MyCompositedTransformFollower(
+                    link: link,
+                    childAnchor: widget.childAnchor,
+                    portalAnchor: widget.portalAnchor,
+                    targetSize: constraints.biggest,
+                    child: widget.portal,
+                  ),
+                  child: const SizedBox.shrink(),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+
     return _PortalEntryTheater(
       portal: widget.portalAnchor != null
           ? MyCompositedTransformFollower(
@@ -189,17 +225,19 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     Key key,
     @required this.portal,
     @required this.overlayLink,
+    @required this.loosen = false,
     @required Widget child,
   })  : assert(child != null),
         assert(overlayLink != null),
         super(key: key, child: child);
 
   final Widget portal;
+  final bool loosen;
   final _OverlayLink overlayLink;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPortalEntry(overlayLink);
+    return _RenderPortalEntry(overlayLink, loosen: loosen);
   }
 
   @override
@@ -207,7 +245,9 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     BuildContext context,
     _RenderPortalEntry renderObject,
   ) {
-    renderObject.overlayLink = overlayLink;
+    renderObject
+      ..overlayLink = overlayLink
+      ..loosen = loosen;
   }
 
   @override
@@ -215,7 +255,9 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 }
 
 class _RenderPortalEntry extends RenderProxyBox {
-  _RenderPortalEntry(this._overlayLink);
+  _RenderPortalEntry(this._overlayLink, {@required bool loosen}) {
+    this.loosen = loosen;
+  }
 
   _OverlayLink _overlayLink;
   _OverlayLink get overlayLink => _overlayLink;
@@ -224,6 +266,15 @@ class _RenderPortalEntry extends RenderProxyBox {
     assert(value.theater != null);
     if (_overlayLink != value) {
       _overlayLink = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool _loosen;
+  bool get loosen => _loosen;
+  set loosen(bool value) {
+    if (value != _loosen) {
+      _loosen = value;
       markNeedsLayout();
     }
   }
@@ -270,7 +321,11 @@ class _RenderPortalEntry extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (branch != null) {
-      branch.layout(BoxConstraints.tight(overlayLink.constraints.biggest));
+      if (loosen) {
+        branch.layout(overlayLink.constraints.loosen());
+      } else {
+        branch.layout(BoxConstraints.tight(overlayLink.constraints.biggest));
+      }
     }
   }
 
