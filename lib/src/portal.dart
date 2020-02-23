@@ -163,59 +163,39 @@ class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
       throw PortalNotFoundError._(widget);
     }
 
+    if (widget.portal == null || widget.portalAnchor == null) {
+      return _PortalEntryTheater(
+        portal: widget.portal,
+        overlayLink: scope.overlayLink,
+        child: widget.child,
+      );
+    }
+
     return Stack(
       children: <Widget>[
-        widget.childAnchor == null
-            ? widget.child
-            : CompositedTransformTarget(
-                link: link,
-                child: widget.child,
-              ),
-        if (widget.portal != null && widget.portalAnchor == null)
-          _PortalEntryTheater(
-            overlayLink: scope.overlayLink,
-            portal: widget.portal,
-            child: const SizedBox.shrink(),
-          )
-        else if (widget.portal != null)
-          Positioned.fill(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return _PortalEntryTheater(
-                  overlayLink: scope.overlayLink,
-                  loosen: true,
-                  portal: MyCompositedTransformFollower(
-                    link: link,
-                    childAnchor: widget.childAnchor,
-                    portalAnchor: widget.portalAnchor,
-                    targetSize: constraints.biggest,
-                    child: widget.portal,
-                  ),
-                  child: const SizedBox.shrink(),
-                );
-              },
-            ),
+        CompositedTransformTarget(
+          link: link,
+          child: widget.child,
+        ),
+        Positioned.fill(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return _PortalEntryTheater(
+                overlayLink: scope.overlayLink,
+                loosen: true,
+                portal: MyCompositedTransformFollower(
+                  link: link,
+                  childAnchor: widget.childAnchor,
+                  portalAnchor: widget.portalAnchor,
+                  targetSize: constraints.biggest,
+                  child: widget.portal,
+                ),
+                child: const SizedBox.shrink(),
+              );
+            },
           ),
+        ),
       ],
-    );
-
-    return _PortalEntryTheater(
-      portal: widget.portalAnchor != null
-          ? MyCompositedTransformFollower(
-              link: link,
-              childAnchor: widget.childAnchor,
-              portalAnchor: widget.portalAnchor,
-              targetSize: Size(100, 100),
-              child: widget.portal,
-            )
-          : widget.portal,
-      overlayLink: scope.overlayLink,
-      child: widget.childAnchor == null
-          ? widget.child
-          : CompositedTransformTarget(
-              link: link,
-              child: widget.child,
-            ),
     );
   }
 }
@@ -225,7 +205,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     Key key,
     @required this.portal,
     @required this.overlayLink,
-    @required this.loosen = false,
+    this.loosen = false,
     @required Widget child,
   })  : assert(child != null),
         assert(overlayLink != null),
@@ -284,11 +264,13 @@ class _RenderPortalEntry extends RenderProxyBox {
   set branch(RenderBox value) {
     if (_branch != null) {
       _overlayLink.overlays.remove(branch);
+      _overlayLink.theater.markNeedsPaint();
       dropChild(_branch);
     }
     _branch = value;
     if (_branch != null) {
       _overlayLink.overlays.add(branch);
+      _overlayLink.theater.markNeedsPaint();
       adoptChild(_branch);
     }
   }
@@ -307,6 +289,7 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.detach();
     if (_branch != null) {
       _overlayLink.overlays.remove(branch);
+      _overlayLink.theater.markNeedsPaint();
       _branch.detach();
     }
   }
