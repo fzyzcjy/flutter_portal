@@ -104,7 +104,9 @@ class RenderPortalTheater extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
-    for (final overlay in overlayLink.overlays) {
+    for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
+      final overlay = overlayLink.overlays.elementAt(i);
+
       context.paintChild(overlay, offset);
     }
   }
@@ -121,7 +123,7 @@ class RenderPortalTheater extends RenderProxyBox {
   }
 }
 
-class PortalEntry<T extends Portal> extends StatefulWidget {
+class PortalEntry extends StatefulWidget {
   PortalEntry({
     Key key,
     bool visible = true,
@@ -131,6 +133,7 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
     @required this.child,
   })  : assert(child != null),
         assert(visible == false || portal != null),
+        assert((childAnchor == null) == (portalAnchor == null)),
         portal = visible ? portal : null,
         super(key: key);
 
@@ -140,7 +143,7 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
   final Widget child;
 
   @override
-  _PortalEntryState<T> createState() => _PortalEntryState<T>();
+  _PortalEntryState createState() => _PortalEntryState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -153,7 +156,7 @@ class PortalEntry<T extends Portal> extends StatefulWidget {
   }
 }
 
-class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
+class _PortalEntryState extends State<PortalEntry> {
   final link = LayerLink();
   @override
   Widget build(BuildContext context) {
