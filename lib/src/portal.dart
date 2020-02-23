@@ -123,17 +123,17 @@ class RenderPortalTheater extends RenderProxyBox {
 class PortalEntry<T extends Portal> extends SingleChildRenderObjectWidget {
   PortalEntry({
     Key key,
-    this.visible = false,
+    bool visible = false,
     this.childAnchor,
     this.portalAnchor,
-    this.portal,
+    Widget portal,
     @required Widget child,
   })  : assert(child != null),
         assert(visible == false || portal != null),
+        portal = visible ? portal : null,
         super(key: key, child: child);
 
   final Widget portal;
-  final bool visible;
   final Alignment childAnchor;
   final Alignment portalAnchor;
 

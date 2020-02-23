@@ -37,7 +37,7 @@ void main() {
 
     expect(find.text('first'), findsNothing);
     expect(find.text('second'), findsOneWidget);
-  }, skip: true);
+  });
   test('PortalEntry requires a child', () {
     expect(
       () => PortalEntry(
@@ -82,15 +82,15 @@ void main() {
     );
     expect(
       tester.getCenter(find.text('firstChild')),
-       const Offset(400, 300),
+      const Offset(400, 300),
     );
     expect(
       tester.getSize(find.text('firstChild')),
-       const Size(140, 14),
+      const Size(140, 14),
     );
   });
   testWidgets(
-      "portals aren't inserted if visible is false, and visible can be changed any time",
+      "portals aren't inserted if mounted is false, and visible can be changed any time",
       (tester) async {
     final portal = ValueNotifier(
       PortalEntry(
@@ -148,7 +148,7 @@ void main() {
       equals(portalChildElement),
       reason: 'the child state must be preserved when toggling `visible`',
     );
-  }, skip: true);
+  });
   testWidgets('Unmounting Portal removes it on PortalProvider synchronously',
       (tester) async {
     final portal = ValueNotifier<Widget>(
