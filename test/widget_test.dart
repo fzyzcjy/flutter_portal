@@ -221,9 +221,11 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portal: const Text('portal', textDirection: TextDirection.ltr),
-            child: const Text('child', textDirection: TextDirection.ltr),
+          child: Center(
+            child: PortalEntry(
+              portal: const Text('portal', textDirection: TextDirection.ltr),
+              child: const Text('child', textDirection: TextDirection.ltr),
+            ),
           ),
         ),
       ),
@@ -231,6 +233,11 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
 
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
+
+    await expectLater(
+      find.byType(Portal),
+      matchesGoldenFile('visible_default.png'),
+    );
   });
   testWidgets(
       'can insert a portal without rebuilding PortalProvider at the same time',
@@ -424,7 +431,7 @@ Error: Could not find a Portal above this PortalEntry<Portal>(portalAnchor: null
       tester.getBottomRight(find.byKey(portalKey)),
       equals(const Offset(800, 600 - 10.0)),
     );
-  }, skip: true);
+  });
 
   testWidgets('defaults to fill if no anchor are specified', (tester) async {
     const portalKey = Key('portal');

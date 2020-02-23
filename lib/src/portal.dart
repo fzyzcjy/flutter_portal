@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_portal/flutter_portal.dart';
+import 'package:flutter_portal/src/custom_follower.dart';
 
 class Portal extends StatefulWidget {
   const Portal({Key key, @required this.child})
@@ -119,62 +121,101 @@ class RenderPortalTheater extends RenderProxyBox {
   }
 }
 
-class PortalEntry<T extends Portal> extends SingleChildRenderObjectWidget {
+class PortalEntry<T extends Portal> extends StatefulWidget {
   PortalEntry({
     Key key,
     bool visible = true,
     this.childAnchor,
     this.portalAnchor,
     Widget portal,
-    @required Widget child,
+    @required this.child,
   })  : assert(child != null),
         assert(visible == false || portal != null),
         portal = visible ? portal : null,
-        super(key: key, child: child);
+        super(key: key);
 
   final Alignment portalAnchor;
   final Alignment childAnchor;
   final Widget portal;
+  final Widget child;
 
   @override
-  RenderObject createRenderObject(BuildContext context) {
-    return RenderPortalEntry(
-      _getOverlayLink(context),
-    );
-  }
+  _PortalEntryState<T> createState() => _PortalEntryState<T>();
 
-  _OverlayLink _getOverlayLink(BuildContext context) {
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor))
+      ..add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor))
+      ..add(DiagnosticsProperty<Widget>('portal', portal))
+      ..add(DiagnosticsProperty<Widget>('child', child));
+  }
+}
+
+class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
+  final link = LayerLink();
+  @override
+  Widget build(BuildContext context) {
     final scope =
         context.dependOnInheritedWidgetOfExactType<_PortalLinkScope>();
     if (scope == null) {
-      throw PortalNotFoundError._(this);
+      throw PortalNotFoundError._(widget);
     }
-    return scope.overlayLink;
+
+    return _PortalEntryTheater(
+      portal: widget.portalAnchor != null
+          ? MyCompositedTransformFollower(
+              link: link,
+              childAnchor: widget.childAnchor,
+              portalAnchor: widget.portalAnchor,
+              targetSize: Size(100, 100),
+              child: widget.portal,
+            )
+          : widget.portal,
+      overlayLink: scope.overlayLink,
+      child: widget.childAnchor == null
+          ? widget.child
+          : CompositedTransformTarget(
+              link: link,
+              child: widget.child,
+            ),
+    );
+  }
+}
+
+class _PortalEntryTheater extends SingleChildRenderObjectWidget {
+  _PortalEntryTheater({
+    Key key,
+    @required this.portal,
+    @required this.overlayLink,
+    @required Widget child,
+  })  : assert(child != null),
+        assert(overlayLink != null),
+        super(key: key, child: child);
+
+  final Widget portal;
+  final _OverlayLink overlayLink;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderPortalEntry(overlayLink);
   }
 
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderPortalEntry renderObject,
+    _RenderPortalEntry renderObject,
   ) {
-    renderObject.overlayLink = _getOverlayLink(context);
+    renderObject.overlayLink = overlayLink;
   }
 
   @override
   SingleChildRenderObjectElement createElement() => PortalEntryElement(this);
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor));
-    properties.add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor));
-    properties.add(DiagnosticsProperty<Widget>('portal', portal));
-    properties.add(DiagnosticsProperty<Widget>('child', child));
-  }
 }
 
-class RenderPortalEntry extends RenderProxyBox {
-  RenderPortalEntry(this._overlayLink);
+class _RenderPortalEntry extends RenderProxyBox {
+  _RenderPortalEntry(this._overlayLink);
 
   _OverlayLink _overlayLink;
   _OverlayLink get overlayLink => _overlayLink;
@@ -255,13 +296,14 @@ class RenderPortalEntry extends RenderProxyBox {
 }
 
 class PortalEntryElement extends SingleChildRenderObjectElement {
-  PortalEntryElement(PortalEntry widget) : super(widget);
+  PortalEntryElement(_PortalEntryTheater widget) : super(widget);
 
   @override
-  PortalEntry get widget => super.widget as PortalEntry;
+  _PortalEntryTheater get widget => super.widget as _PortalEntryTheater;
 
   @override
-  RenderPortalEntry get renderObject => super.renderObject as RenderPortalEntry;
+  _RenderPortalEntry get renderObject =>
+      super.renderObject as _RenderPortalEntry;
 
   Element _branch;
 
@@ -323,7 +365,7 @@ class PortalEntryElement extends SingleChildRenderObjectElement {
   }
 }
 
-/// The error that will be thrown if [PortalEntry] fails to find the specified [Portal].
+/// The error that will be thrown if [_PortalEntryTheater] fails to find the specified [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
   PortalNotFoundError._(this._portalEntry);
 
