@@ -133,17 +133,24 @@ class PortalEntry<T extends Portal> extends SingleChildRenderObjectWidget {
         portal = visible ? portal : null,
         super(key: key, child: child);
 
-  final Widget portal;
-  final Alignment childAnchor;
   final Alignment portalAnchor;
+  final Alignment childAnchor;
+  final Widget portal;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderPortalEntry(
-      context
-          .dependOnInheritedWidgetOfExactType<_PortalLinkScope>()
-          .overlayLink,
+      _getOverlayLink(context),
     );
+  }
+
+  _OverlayLink _getOverlayLink(BuildContext context) {
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<_PortalLinkScope>();
+    if (scope == null) {
+      throw PortalNotFoundError._(this);
+    }
+    return scope.overlayLink;
   }
 
   @override
@@ -151,13 +158,20 @@ class PortalEntry<T extends Portal> extends SingleChildRenderObjectWidget {
     BuildContext context,
     RenderPortalEntry renderObject,
   ) {
-    renderObject.overlayLink = context
-        .dependOnInheritedWidgetOfExactType<_PortalLinkScope>()
-        .overlayLink;
+    renderObject.overlayLink = _getOverlayLink(context);
   }
 
   @override
   SingleChildRenderObjectElement createElement() => PortalEntryElement(this);
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor));
+    properties.add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor));
+    properties.add(DiagnosticsProperty<Widget>('portal', portal));
+    properties.add(DiagnosticsProperty<Widget>('child', child));
+  }
 }
 
 class RenderPortalEntry extends RenderProxyBox {
