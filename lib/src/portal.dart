@@ -242,6 +242,8 @@ class _RenderPortalEntry extends RenderProxyBox {
     this.loosen = loosen;
   }
 
+  bool _needsAddEntryInTheater = false;
+
   _OverlayLink _overlayLink;
   _OverlayLink get overlayLink => _overlayLink;
   set overlayLink(_OverlayLink value) {
@@ -272,17 +274,21 @@ class _RenderPortalEntry extends RenderProxyBox {
     }
     _branch = value;
     if (_branch != null) {
-      _overlayLink.overlays.add(branch);
-      _overlayLink.theater.markNeedsPaint();
+      markNeedsAddEntryInTheater();
       adoptChild(_branch);
     }
+  }
+
+  void markNeedsAddEntryInTheater() {
+    _needsAddEntryInTheater = true;
+    markNeedsLayout();
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
     if (_branch != null) {
-      _overlayLink.overlays.add(branch);
+      markNeedsAddEntryInTheater();
       _branch.attach(owner);
     }
   }
@@ -311,6 +317,11 @@ class _RenderPortalEntry extends RenderProxyBox {
         branch.layout(overlayLink.constraints.loosen());
       } else {
         branch.layout(BoxConstraints.tight(overlayLink.constraints.biggest));
+      }
+      if (_needsAddEntryInTheater) {
+        _needsAddEntryInTheater = false;
+        _overlayLink.overlays.add(branch);
+        _overlayLink.theater.markNeedsPaint();
       }
     }
   }
