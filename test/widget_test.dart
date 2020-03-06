@@ -217,6 +217,46 @@ void main() async {
 Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childAnchor: null, portal: Text, child: Text).
 '''));
   });
+  testWidgets('hiding two entries at once', (tester) async {
+    final notifier = ValueNotifier(true);
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Portal(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: notifier,
+            builder: (c, value, _) {
+              return PortalEntry(
+                visible: value,
+                portal: ColoredBox(color: Colors.red.withAlpha(122)),
+                child: Center(
+                  child: PortalEntry(
+                    visible: value,
+                    portal:
+                        Container(height: 50, width: 50, color: Colors.blue),
+                    portalAnchor: Alignment.bottomCenter,
+                    childAnchor: Alignment.topCenter,
+                    child:
+                        Container(height: 50, width: 50, color: Colors.yellow),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(find.byType(Boilerplate),
+        matchesGoldenFile('hiding_multiple_entries/0.png'));
+
+    notifier.value = false;
+
+    await tester.pump();
+
+    await expectLater(find.byType(Boilerplate),
+        matchesGoldenFile('hiding_multiple_entries/1.png'));
+  });
   testWidgets('visible defaults to true', (tester) async {
     await tester.pumpWidget(
       Boilerplate(
