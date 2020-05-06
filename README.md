@@ -8,7 +8,7 @@ Flutter comes with two classes for manipulating "overlays":
 - [Overlay]
 - [OverlayEntry]
 
-But [OverlayEntry] is very akward to use. As opposed to most of the framework,
+But [OverlayEntry] is very awkward to use. As opposed to most of the framework,
 [OverlayEntry] is **not** a widget (which comes with a nice and clean declarative API).
 
 Instead, is uses an imperative API. This comes with a few drawbacks:
@@ -24,15 +24,11 @@ Instead, is uses an imperative API. This comes with a few drawbacks:
   We basically have to do everything ourselves, usually needing an
   [addPostFrameCallback] which, again, makes the rendering of our overlay one frame late.
 
-- [Overlay.of](https://api.flutter.dev/flutter/widgets/Overlay/of.html) is hardly
-  customizable and O(N). If we want to add our [OverlayEntry] on a specific
-  [Overlay], we may have to rely on [GlobalKey](https://api.flutter.dev/flutter/widgets/GlobalKey-class.html), which is not ideal.
-
 That's where `portal` comes into play.
 
 This library is effectively a reimplementation of [Overlay]/[OverlayEntry], under
 the name [Portal]/[PortalEntry] (the name that React uses for overlays) while
-fixing all the previously mentionned issues.
+fixing all the previously mentioned issues.
 
 ## Install
 
@@ -57,20 +53,20 @@ To use `portal`, we have to rely on two widgets:
   _under_ your overlays.
 
   If you want to display your overlays on the top of _everything_, a good place
-  to insert that [Portal] is under `MaterialApp` but above `Navigator`,
-  by doing the following:
+  to insert that [Portal] is above `MaterialApp`:
 
   ```dart
-  MaterialApp(
-    builder: (_, child) => Portal(child: child),
+  Portal(
+    child: MaterialApp(
+      ...
+    )
   );
   ```
 
   (works for `CupertinoApp` too)
 
-  This way [Portal] will be above your `Navigator` so your overlays will properly
-  render above your routes. But it will be a descendant of `MaterialApp`, so
-  overlays will be able to access `Theme`/`MediaQuery`/...
+  This way [Portal] will render above everything. But you could place it
+  somewhere else to change the clip behavior.
 
 * [PortalEntry] is the equivalent of [OverlayEntry].
 
@@ -191,35 +187,6 @@ This will align the top-center of `child` with the bottom-center of `portal`,
 which renders the following:
 
 <img src="https://raw.githubusercontent.com/rrousselGit/flutter_portal/master/resources/alignment.png" width="200" />
-
-### Target a specific [Portal] with a [PortalEntry]
-
-Sometimes you may have multiple [Portal], and want to add your [PortalEntry] on
-a very specific [Portal].
-
-By default, [PortalEntry] will add its `portal` on the nearest [Portal].
-
-But you can customize this behavior by having subclassing [Portal]:
-
-```dart
-mixin NoOp {}
-/// Fork [Portal] and all its parameters/properties
-class MyPortal = Portal with NoOp; 
-```
-
-Then you can target a custom [Portal] on [PortalEntry] by specifying a generic
-parameter:
-
-```dart
-MyPortal(
-  child: Portal(
-    // adds the portal on MyPortal instead of Portal
-    child: PortalEntry<MyPortal>(
-      ...
-    )
-  ),
-),
-```
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html

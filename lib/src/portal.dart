@@ -1,71 +1,360 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_portal/src/custom_follower.dart';
 
-// extends InheritedWidget instead of StatfulWidget so that PortalProvider
-// can be subclassed to create "scopes".
-class Portal extends InheritedWidget {
-  Portal({
-    Key key,
-    Widget child,
-  })  : assert(child != null),
-        super(key: key, child: child);
+class Portal extends StatefulWidget {
+  const Portal({Key key, @required this.child})
+      : assert(child != null),
+        super(key: key);
 
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) => false;
+  final Widget child;
 
   @override
-  PortalElement createElement() => PortalElement(this);
+  _PortalState createState() => _PortalState();
 }
 
-class PortalElement extends InheritedElement {
-  PortalElement(Portal widget) : super(widget) {
-    final portalTheater = PortalTheater();
-    _theater = PortalTheaterElement(portalTheater);
-    portalTheater._element = _theater;
-  }
+class _PortalState extends State<Portal> {
+  final _OverlayLink overlayLink = _OverlayLink();
 
   @override
-  Portal get widget => super.widget as Portal;
-
-  PortalTheaterElement _theater;
-  // theater is not a child of this Element, but a child of `Portal` instead
-  // We just keep it here to expose it to the main branch.
-  PortalTheaterElement get theater => _theater;
-
-  @override
-  Widget build() {
-    return _Portal(
-      child: super.build(),
-      theater: theater.widget,
+  Widget build(BuildContext context) {
+    return _PortalLinkScope(
+      overlayLink: overlayLink,
+      child: _PortalTheater(
+        overlayLink: overlayLink,
+        child: widget.child,
+      ),
     );
   }
 }
 
-class _Portal extends SingleChildRenderObjectWidget {
-  _Portal({Widget child, this.theater}) : super(child: child);
+class _OverlayLink {
+  RenderPortalTheater theater;
+  BoxConstraints get constraints => theater.constraints;
 
-  final Widget theater;
+  final Set<RenderBox> overlays = {};
+}
+
+class _PortalLinkScope extends InheritedWidget {
+  const _PortalLinkScope({
+    Key key,
+    @required this.overlayLink,
+    @required Widget child,
+  }) : super(key: key, child: child);
+
+  final _OverlayLink overlayLink;
 
   @override
-  _RenderPortal createRenderObject(BuildContext context) {
-    return _RenderPortal();
+  bool updateShouldNotify(_PortalLinkScope oldWidget) {
+    return oldWidget.overlayLink != overlayLink;
+  }
+}
+
+class _PortalTheater extends SingleChildRenderObjectWidget {
+  const _PortalTheater({
+    Key key,
+    @required this.overlayLink,
+    @required Widget child,
+  }) : super(key: key, child: child);
+
+  final _OverlayLink overlayLink;
+
+  @override
+  RenderPortalTheater createRenderObject(BuildContext context) {
+    return RenderPortalTheater(overlayLink);
   }
 
   @override
-  _PortalElement createElement() => _PortalElement(this);
+  void updateRenderObject(
+    BuildContext context,
+    RenderPortalTheater renderObject,
+  ) {
+    renderObject.overlayLink = overlayLink;
+  }
 }
 
-class _PortalElement extends SingleChildRenderObjectElement {
-  _PortalElement(_Portal widget) : super(widget);
+class RenderPortalTheater extends RenderProxyBox {
+  RenderPortalTheater(_OverlayLink _overlayLink) {
+    overlayLink = _overlayLink;
+  }
+
+  _OverlayLink _overlayLink;
+  _OverlayLink get overlayLink => _overlayLink;
+  set overlayLink(_OverlayLink value) {
+    assert(value != null);
+    if (_overlayLink != value) {
+      assert(value.theater == null);
+      _overlayLink?.theater = null;
+      _overlayLink = value;
+      value.theater = this;
+    }
+  }
 
   @override
-  _Portal get widget => super.widget as _Portal;
+  void markNeedsLayout() {
+    for (final overlay in overlayLink.overlays) {
+      overlay.markNeedsLayout();
+    }
+    super.markNeedsLayout();
+  }
 
   @override
-  _RenderPortal get renderObject => super.renderObject as _RenderPortal;
+  void paint(PaintingContext context, Offset offset) {
+    super.paint(context, offset);
+    for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
+      final overlay = overlayLink.overlays.elementAt(i);
+
+      context.paintChild(overlay, offset);
+    }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    for (final overlay in overlayLink.overlays) {
+      if (overlay?.hitTest(result, position: position) ?? false) {
+        return true;
+      }
+    }
+
+    return super.hitTestChildren(result, position: position);
+  }
+}
+
+class PortalEntry extends StatefulWidget {
+  PortalEntry({
+    Key key,
+    bool visible = true,
+    this.childAnchor,
+    this.portalAnchor,
+    Widget portal,
+    @required this.child,
+  })  : assert(child != null),
+        assert(visible == false || portal != null),
+        assert((childAnchor == null) == (portalAnchor == null)),
+        portal = visible ? portal : null,
+        super(key: key);
+
+  final Alignment portalAnchor;
+  final Alignment childAnchor;
+  final Widget portal;
+  final Widget child;
+
+  @override
+  _PortalEntryState createState() => _PortalEntryState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor))
+      ..add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor))
+      ..add(DiagnosticsProperty<Widget>('portal', portal))
+      ..add(DiagnosticsProperty<Widget>('child', child));
+  }
+}
+
+class _PortalEntryState extends State<PortalEntry> {
+  final link = LayerLink();
+  @override
+  Widget build(BuildContext context) {
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<_PortalLinkScope>();
+    if (scope == null) {
+      throw PortalNotFoundError._(widget);
+    }
+
+    if (widget.portal == null || widget.portalAnchor == null) {
+      return _PortalEntryTheater(
+        portal: widget.portal,
+        overlayLink: scope.overlayLink,
+        child: widget.child,
+      );
+    }
+
+    return Stack(
+      children: <Widget>[
+        CompositedTransformTarget(
+          link: link,
+          child: widget.child,
+        ),
+        Positioned.fill(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return _PortalEntryTheater(
+                overlayLink: scope.overlayLink,
+                loosen: true,
+                portal: MyCompositedTransformFollower(
+                  link: link,
+                  childAnchor: widget.childAnchor,
+                  portalAnchor: widget.portalAnchor,
+                  targetSize: constraints.biggest,
+                  child: widget.portal,
+                ),
+                child: const SizedBox.shrink(),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PortalEntryTheater extends SingleChildRenderObjectWidget {
+  _PortalEntryTheater({
+    Key key,
+    @required this.portal,
+    @required this.overlayLink,
+    this.loosen = false,
+    @required Widget child,
+  })  : assert(child != null),
+        assert(overlayLink != null),
+        super(key: key, child: child);
+
+  final Widget portal;
+  final bool loosen;
+  final _OverlayLink overlayLink;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderPortalEntry(overlayLink, loosen: loosen);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderPortalEntry renderObject,
+  ) {
+    renderObject
+      ..overlayLink = overlayLink
+      ..loosen = loosen;
+  }
+
+  @override
+  SingleChildRenderObjectElement createElement() => PortalEntryElement(this);
+}
+
+class _RenderPortalEntry extends RenderProxyBox {
+  _RenderPortalEntry(this._overlayLink, {@required bool loosen}) {
+    this.loosen = loosen;
+  }
+
+  bool _needsAddEntryInTheater = false;
+
+  _OverlayLink _overlayLink;
+  _OverlayLink get overlayLink => _overlayLink;
+  set overlayLink(_OverlayLink value) {
+    assert(value != null);
+    assert(value.theater != null);
+    if (_overlayLink != value) {
+      _overlayLink = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool _loosen;
+  bool get loosen => _loosen;
+  set loosen(bool value) {
+    if (value != _loosen) {
+      _loosen = value;
+      markNeedsLayout();
+    }
+  }
+
+  RenderBox _branch;
+  RenderBox get branch => _branch;
+  set branch(RenderBox value) {
+    if (_branch != null) {
+      _overlayLink.overlays.remove(branch);
+      _overlayLink.theater.markNeedsPaint();
+      dropChild(_branch);
+    }
+    _branch = value;
+    if (_branch != null) {
+      markNeedsAddEntryInTheater();
+      adoptChild(_branch);
+    }
+  }
+
+  void markNeedsAddEntryInTheater() {
+    _needsAddEntryInTheater = true;
+    markNeedsLayout();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    if (_branch != null) {
+      markNeedsAddEntryInTheater();
+      _branch.attach(owner);
+    }
+  }
+
+  @override
+  void detach() {
+    super.detach();
+    if (_branch != null) {
+      _overlayLink.overlays.remove(branch);
+      _overlayLink.theater.markNeedsPaint();
+      _branch.detach();
+    }
+  }
+
+  @override
+  void markNeedsPaint() {
+    super.markNeedsPaint();
+    overlayLink.theater.markNeedsPaint();
+  }
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (branch != null) {
+      if (loosen) {
+        branch.layout(overlayLink.constraints.loosen());
+      } else {
+        branch.layout(BoxConstraints.tight(overlayLink.constraints.biggest));
+      }
+      if (_needsAddEntryInTheater) {
+        _needsAddEntryInTheater = false;
+        _overlayLink.overlays.add(branch);
+        _overlayLink.theater.markNeedsPaint();
+      }
+    }
+  }
+
+  @override
+  void applyPaintTransform(RenderObject child, Matrix4 transform) {
+    if (child == branch) {
+      // ignore all transformations applied between Portal and PortalEntry
+      transform.setFrom(overlayLink.theater.getTransformTo(null));
+    }
+  }
+
+  @override
+  void redepthChildren() {
+    super.redepthChildren();
+    if (branch != null) redepthChild(branch);
+  }
+
+  @override
+  void visitChildren(RenderObjectVisitor visitor) {
+    super.visitChildren(visitor);
+    if (branch != null) visitor(branch);
+  }
+}
+
+class PortalEntryElement extends SingleChildRenderObjectElement {
+  PortalEntryElement(_PortalEntryTheater widget) : super(widget);
+
+  @override
+  _PortalEntryTheater get widget => super.widget as _PortalEntryTheater;
+
+  @override
+  _RenderPortalEntry get renderObject =>
+      super.renderObject as _RenderPortalEntry;
 
   Element _branch;
 
@@ -74,12 +363,13 @@ class _PortalElement extends SingleChildRenderObjectElement {
   @override
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
+    _branch = updateChild(_branch, widget.portal, _branchSlot);
+  }
 
-    renderObject.branchBuilder = () {
-      owner.buildScope(this, () {
-        _branch = updateChild(_branch, widget.theater, _branchSlot);
-      });
-    };
+  @override
+  void update(SingleChildRenderObjectWidget newWidget) {
+    super.update(newWidget);
+    _branch = updateChild(_branch, widget.portal, _branchSlot);
   }
 
   @override
@@ -126,679 +416,7 @@ class _PortalElement extends SingleChildRenderObjectElement {
   }
 }
 
-class _RenderPortal extends RenderProxyBox {
-  bool isPerformingLayout = false;
-
-  RenderBox _branch;
-  RenderBox get branch => _branch;
-  set branch(RenderBox value) {
-    if (_branch != null) dropChild(_branch);
-    _branch = value;
-    if (_branch != null) adoptChild(_branch);
-  }
-
-  void Function() branchBuilder;
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    if (branch != null) branch.attach(owner);
-  }
-
-  @override
-  void detach() {
-    super.detach();
-    if (branch != null) branch.detach();
-  }
-
-  @override
-  void markNeedsLayout() {
-    branch?.markNeedsLayout();
-    super.markNeedsLayout();
-  }
-
-  @override
-  void performLayout() {
-    isPerformingLayout = true;
-    try {
-      child.layout(constraints, parentUsesSize: true);
-      size = child.size;
-
-      if (branchBuilder != null) {
-        invokeLayoutCallback((dynamic _) {
-          branchBuilder();
-        });
-      }
-
-      branch?.layout(BoxConstraints.tight(size));
-    } finally {
-      isPerformingLayout = false;
-    }
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    super.paint(context, offset);
-    if (branch != null) {
-      context.paintChild(branch, offset);
-    }
-  }
-
-  @override
-  void visitChildren(visitor) {
-    super.visitChildren(visitor);
-    if (branch != null) {
-      visitor(branch);
-    }
-  }
-
-  @override
-  void redepthChildren() {
-    super.redepthChildren();
-    if (branch != null) {
-      branch.redepthChildren();
-    }
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    if (branch?.hitTest(result, position: position) ?? false) {
-      return true;
-    }
-
-    return child?.hitTest(result, position: position) ?? false;
-  }
-
-  @override
-  List<DiagnosticsNode> debugDescribeChildren() {
-    return [
-      ...super.debugDescribeChildren(),
-      if (branch != null) branch.toDiagnosticsNode(name: 'branch')
-    ];
-  }
-}
-
-// ignore: must_be_immutable
-class PortalTheater extends RenderObjectWidget {
-  PortalTheaterElement _element;
-  @override
-  PortalTheaterElement createElement() => _element;
-
-  @override
-  RenderPortalTheater createRenderObject(BuildContext context) {
-    return RenderPortalTheater();
-  }
-}
-
-class PortalTheaterElement extends RenderObjectElement {
-  PortalTheaterElement(PortalTheater widget) : super(widget);
-
-  @visibleForTesting
-  final Map<_RenderPortalLink, EntryDetails> entries = {};
-
-  @override
-  PortalTheater get widget => super.widget as PortalTheater;
-
-  @override
-  RenderPortalTheater get renderObject =>
-      super.renderObject as RenderPortalTheater;
-
-  @override
-  void forgetChild(Element child) {
-    super.forgetChild(child);
-    final key = entries.keys.firstWhere((key) {
-      return entries[key].element == child;
-    });
-    assert(key != null);
-    entries.remove(key);
-  }
-
-  @override
-  void mount(Element parent, dynamic newSlot) {
-    super.mount(parent, newSlot);
-    for (final entry in entries.values) {
-      renderObject.addBuilder(entry.builder);
-    }
-  }
-
-  void removeEntry(_RenderPortalLink entryKey) {
-    final removedEntry = entries[entryKey];
-
-    if (removedEntry == null) return;
-
-    removedEntry.portal = null; // removeChildRenderObject will do its job
-    renderObject.markNeedsLayout();
-  }
-
-  void updateEntry(
-    _RenderPortalLink entryKey,
-    Size entrySize,
-    Widget portal,
-    LayerLink link, {
-    Alignment childAnchor,
-    Alignment portalAnchor,
-  }) {
-    entries.putIfAbsent(entryKey, () {
-      final newEntryDetails = EntryDetails(this, entryKey);
-      renderObject?.addBuilder(newEntryDetails.builder);
-      return newEntryDetails;
-    })
-      ..size = entrySize
-      ..portal = portal
-      ..link = link
-      ..childAnchor = childAnchor
-      ..portalAnchor = portalAnchor;
-
-    if (renderObject?.canMarkNeedsLayout ?? false) {
-      renderObject?.markNeedsLayout();
-      // TODO: relayout only the given entry if possible
-      // The difficulty is about only making the entry as needing build
-      // while we need to update its element (curently done through `builders`)
-    }
-  }
-
-  @override
-  void insertChildRenderObject(RenderObject child, _RenderPortalLink slot) {
-    entries[slot].renderObject = child;
-    assert(renderObject.debugValidateChild(child));
-    renderObject.insert(child);
-  }
-
-  @override
-  void moveChildRenderObject(RenderObject child, _RenderPortalLink slot) {
-    assert(false);
-  }
-
-  @override
-  void removeChildRenderObject(RenderObject child) {
-    assert(child.parent == renderObject);
-    final key = entries.keys.firstWhere((key) {
-      return entries[key].renderObject == child;
-    });
-    assert(key != null);
-    final removedEntry = entries.remove(key);
-    renderObject
-      ..removeBuilder(removedEntry.builder)
-      ..remove(child);
-  }
-
-  @override
-  void visitChildren(visitor) {
-    for (final entry in entries.values) {
-      if (entry.element != null) visitor(entry.element);
-    }
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    var i = 0;
-    for (final entry in entries.values) {
-      properties.add(DiagnosticsProperty('entry ${i++}', entry));
-    }
-  }
-}
-
-@visibleForTesting
-class EntryDetails extends DiagnosticableTree with DiagnosticableMixin {
-  EntryDetails(this._owner, this.slot);
-  final PortalTheaterElement _owner;
-  final _RenderPortalLink slot;
-
-  Size size;
-  LayerLink link;
-  Widget portal;
-  Element element;
-  RenderObject renderObject;
-  Alignment childAnchor;
-  Alignment portalAnchor;
-
-  void builder() {
-    _owner.owner.buildScope(_owner, () {
-      // ignore: invalid_use_of_protected_member
-      element = _owner.updateChild(
-        element,
-        portal == null
-            ? null
-            : MyCompositedTransformFollower(
-                targetSize: size,
-                childAnchor: childAnchor,
-                portalAnchor: portalAnchor,
-                link: link,
-                child: portal,
-              ),
-        slot,
-      );
-    });
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty('size', size));
-    properties.add(DiagnosticsProperty('link', link));
-    properties.add(DiagnosticsProperty('element', element));
-    properties.add(DiagnosticsProperty('renderObject', renderObject));
-    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
-    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
-  }
-}
-
-class _PortalTheaterParentData extends ContainerBoxParentData {}
-
-class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
-  const MyCompositedTransformFollower({
-    Key key,
-    @required this.link,
-    this.targetSize,
-    this.childAnchor,
-    this.portalAnchor,
-    Widget child,
-  }) : super(key: key, child: child);
-
-  final Alignment childAnchor;
-  final Alignment portalAnchor;
-  final LayerLink link;
-  final Size targetSize;
-
-  @override
-  MyRenderFollowerLayer createRenderObject(BuildContext context) {
-    return MyRenderFollowerLayer(link: link)
-      ..targetSize = targetSize
-      ..childAnchor = childAnchor
-      ..portalAnchor = portalAnchor;
-  }
-
-  @override
-  void updateRenderObject(
-      BuildContext context, MyRenderFollowerLayer renderObject) {
-    renderObject
-      ..link = link
-      ..targetSize = targetSize
-      ..childAnchor = childAnchor
-      ..portalAnchor = portalAnchor;
-  }
-}
-
-class MyRenderFollowerLayer extends RenderProxyBox {
-  MyRenderFollowerLayer({
-    @required LayerLink link,
-    RenderBox child,
-  })  : _link = link,
-        super(child);
-
-  Alignment _childAnchor;
-  Alignment get childAnchor => _childAnchor;
-  set childAnchor(Alignment childAnchor) {
-    if (childAnchor != _childAnchor) {
-      _childAnchor = childAnchor;
-      markNeedsPaint();
-    }
-  }
-
-  Alignment _portalAnchor;
-  Alignment get portalAnchor => _portalAnchor;
-  set portalAnchor(Alignment portalAnchor) {
-    if (portalAnchor != _portalAnchor) {
-      _portalAnchor = portalAnchor;
-      markNeedsPaint();
-    }
-  }
-
-  LayerLink get link => _link;
-  LayerLink _link;
-  set link(LayerLink value) {
-    if (_link == value) return;
-    if (_link == null || value == null) {
-      markNeedsCompositingBitsUpdate();
-      markNeedsLayoutForSizedByParentChange();
-    }
-    _link = value;
-    markNeedsPaint();
-  }
-
-  Size get targetSize => _targetSize;
-  Size _targetSize;
-  set targetSize(Size value) {
-    assert(value != null);
-    if (_targetSize == value) return;
-    _targetSize = value;
-    markNeedsPaint();
-  }
-
-  @override
-  void detach() {
-    layer = null;
-    super.detach();
-  }
-
-  @override
-  bool get alwaysNeedsCompositing => link != null;
-
-  @override
-  bool get sizedByParent => link == null;
-
-  @override
-  FollowerLayer get layer => super.layer as FollowerLayer;
-
-  Matrix4 getCurrentTransform() {
-    return layer?.getLastTransform() ?? Matrix4.identity();
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {Offset position}) {
-    return hitTestChildren(result, position: position);
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    if (link == null) {
-      return super.hitTestChildren(result, position: position);
-    }
-    return result.addWithPaintTransform(
-      transform: getCurrentTransform(),
-      position: position,
-      hitTest: (BoxHitTestResult result, Offset position) {
-        return super.hitTestChildren(result, position: position);
-      },
-    );
-  }
-
-  @override
-  void performResize() {
-    size = constraints.biggest;
-  }
-
-  @override
-  void performLayout() {
-    if (sizedByParent) {
-      child.layout(BoxConstraints.tight(size));
-    } else {
-      super.performLayout();
-    }
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    if (link == null) {
-      layer = null;
-      super.paint(context, offset);
-      return;
-    }
-
-    final linkedOffset = childAnchor.withinRect(
-          Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
-        ) -
-        portalAnchor.withinRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    if (layer == null) {
-      layer = FollowerLayer(
-        link: link,
-        showWhenUnlinked: false,
-        linkedOffset: linkedOffset,
-      );
-    } else {
-      layer
-        ..link = link
-        ..showWhenUnlinked = false
-        ..linkedOffset = linkedOffset;
-    }
-
-    context.pushLayer(
-      layer,
-      super.paint,
-      Offset.zero,
-      childPaintBounds: const Rect.fromLTRB(
-        // We don't know where we'll end up, so we have no idea what our cull rect should be.
-        double.negativeInfinity,
-        double.negativeInfinity,
-        double.infinity,
-        double.infinity,
-      ),
-    );
-  }
-
-  @override
-  void applyPaintTransform(RenderBox child, Matrix4 transform) {
-    if (link != null) transform.multiply(getCurrentTransform());
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<LayerLink>('link', link));
-    properties.add(
-        TransformProperty('current transform matrix', getCurrentTransform()));
-
-    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
-    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
-    properties.add(DiagnosticsProperty('targetSize', targetSize));
-  }
-}
-
-class RenderPortalTheater extends RenderBox with ContainerRenderObjectMixin {
-  bool get canMarkNeedsLayout =>
-      !isPerformingLayout && !(parent as _RenderPortal).isPerformingLayout;
-
-  bool isPerformingLayout = false;
-  List<VoidCallback> builders = [];
-
-  void addBuilder(VoidCallback builder) {
-    builders.add(builder);
-    if (canMarkNeedsLayout) markNeedsLayout();
-  }
-
-  void removeBuilder(VoidCallback builder) {
-    builders.remove(builder);
-    if (canMarkNeedsLayout) markNeedsLayout();
-  }
-
-  @override
-  void setupParentData(RenderObject child) {
-    if (child.parentData is! _PortalTheaterParentData) {
-      child.parentData = _PortalTheaterParentData();
-    }
-  }
-
-  @override
-  void performLayout() {
-    isPerformingLayout = true;
-    try {
-      size = constraints.biggest;
-
-      final entriesConstraints = BoxConstraints.loose(size);
-
-      // not using for-in because `builders` can be mutated inside the layout callback
-      for (var i = 0; i < builders.length; i++) {
-        final builder = builders[i];
-        invokeLayoutCallback<Constraints>((_) {
-          builder();
-        });
-      }
-
-      for (var child = firstChild; child != null; child = childAfter(child)) {
-        child.layout(entriesConstraints);
-      }
-    } finally {
-      isPerformingLayout = false;
-    }
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    for (var child = firstChild; child != null; child = childAfter(child)) {
-      context.paintChild(child, offset);
-    }
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {Offset position}) {
-    // don't capture click if clicking on the theather but not an entry
-    return hitTestChildren(result, position: position);
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    for (var child = lastChild; child != null; child = childBefore(child)) {
-      if ((child as RenderBox).hitTest(result, position: position)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-}
-
-class PortalEntry<T extends Portal> extends StatefulWidget {
-  PortalEntry({
-    Key key,
-    this.visible = true,
-    this.childAnchor,
-    this.portalAnchor,
-    this.portal,
-    @required this.child,
-  })  : assert(visible == false || portal != null),
-        assert((childAnchor == null && portalAnchor == null) ||
-            (childAnchor != null && portalAnchor != null)),
-        assert(child != null),
-        super(key: key);
-
-  final Widget portal;
-  final Widget child;
-  final Alignment childAnchor;
-  final Alignment portalAnchor;
-  final bool visible;
-
-  @override
-  _PortalEntryState<T> createState() => _PortalEntryState<T>();
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(FlagProperty('visible', value: visible, ifTrue: 'visible'));
-    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
-    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
-    properties.add(DiagnosticsProperty('portal', portal));
-    properties.add(DiagnosticsProperty('child', child));
-  }
-}
-
-class _PortalEntryState<T extends Portal> extends State<PortalEntry<T>> {
-  final LayerLink layerLink = LayerLink();
-
-  @override
-  Widget build(BuildContext context) {
-    return _PortalLink<T>(
-      portalEntry: widget,
-      link: widget.childAnchor != null && widget.portalAnchor != null
-          ? layerLink
-          : null,
-      child: CompositedTransformTarget(
-        link: layerLink,
-        child: widget.child,
-      ),
-    );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty('layerLink', layerLink));
-  }
-}
-
-class _PortalLink<T extends Portal> extends SingleChildRenderObjectWidget {
-  _PortalLink({
-    Key key,
-    @required this.link,
-    @required this.portalEntry,
-    Widget child,
-  }) : super(key: key, child: child);
-
-  final LayerLink link;
-  final PortalEntry portalEntry;
-
-  @override
-  _RenderPortalLink createRenderObject(BuildContext context) {
-    return _RenderPortalLink()
-      ..entry = portalEntry
-      ..link = link
-      ..theater = dependOnTheater(context);
-  }
-
-  PortalTheaterElement dependOnTheater(BuildContext context) {
-    final portalElement =
-        context.getElementForInheritedWidgetOfExactType<T>() as PortalElement;
-    if (portalElement == null) {
-      if (portalEntry.visible) throw PortalNotFoundError<T>._(portalEntry);
-      return null;
-    }
-    context.dependOnInheritedElement(portalElement);
-    return portalElement.theater;
-  }
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderPortalLink renderObject,
-  ) {
-    renderObject
-      ..entry = portalEntry
-      ..link = link
-      ..theater = dependOnTheater(context);
-  }
-}
-
-class _RenderPortalLink extends RenderProxyBox {
-  LayerLink _link;
-  LayerLink get link => _link;
-  set link(LayerLink link) {
-    if (_link != link) {
-      _link = link;
-      markNeedsLayout();
-    }
-  }
-
-  PortalEntry _entry;
-  PortalEntry get entry => _entry;
-  set entry(PortalEntry value) {
-    if (_entry != value) {
-      _entry = value;
-      markNeedsLayout();
-    }
-  }
-
-  PortalTheaterElement _theater;
-  PortalTheaterElement get theater => _theater;
-  set theater(PortalTheaterElement theater) {
-    if (theater != _theater) {
-      _theater = theater;
-      markNeedsLayout();
-    }
-  }
-
-  @override
-  void performLayout() {
-    super.performLayout();
-
-    theater?.updateEntry(
-      this,
-      size,
-      entry.visible ? entry.portal : null,
-      link,
-      childAnchor: entry.childAnchor,
-      portalAnchor: entry.portalAnchor,
-    );
-  }
-
-  @override
-  void detach() {
-    theater?.removeEntry(this);
-    super.detach();
-  }
-}
-
-/// The error that will be thrown if [PortalEntry] fails to find the specified [Portal].
+/// The error that will be thrown if [_PortalEntryTheater] fails to find the specified [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
   PortalNotFoundError._(this._portalEntry);
 
