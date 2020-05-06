@@ -24,10 +24,6 @@ Instead, is uses an imperative API. This comes with a few drawbacks:
   We basically have to do everything ourselves, usually needing an
   [addPostFrameCallback] which, again, makes the rendering of our overlay one frame late.
 
-- [Overlay.of](https://api.flutter.dev/flutter/widgets/Overlay/of.html) is hardly
-  customizable and O(N). If we want to add our [OverlayEntry] on a specific
-  [Overlay], we may have to rely on [GlobalKey](https://api.flutter.dev/flutter/widgets/GlobalKey-class.html), which is not ideal.
-
 That's where `portal` comes into play.
 
 This library is effectively a reimplementation of [Overlay]/[OverlayEntry], under
@@ -191,35 +187,6 @@ This will align the top-center of `child` with the bottom-center of `portal`,
 which renders the following:
 
 <img src="https://raw.githubusercontent.com/rrousselGit/flutter_portal/master/resources/alignment.png" width="200" />
-
-### Target a specific [Portal] with a [PortalEntry]
-
-Sometimes you may have multiple [Portal], and want to add your [PortalEntry] on
-a very specific [Portal].
-
-By default, [PortalEntry] will add its `portal` on the nearest [Portal].
-
-But you can customize this behavior by having subclassing [Portal]:
-
-```dart
-mixin NoOp {}
-/// Fork [Portal] and all its parameters/properties
-class MyPortal = Portal with NoOp; 
-```
-
-Then you can target a custom [Portal] on [PortalEntry] by specifying a generic
-parameter:
-
-```dart
-MyPortal(
-  child: Portal(
-    // adds the portal on MyPortal instead of Portal
-    child: PortalEntry<MyPortal>(
-      ...
-    )
-  ),
-),
-```
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
