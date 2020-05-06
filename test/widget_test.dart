@@ -82,14 +82,19 @@ void main() async {
   });
   testWidgets('Portal synchronously add portals to PortalProvider',
       (tester) async {
+    final firstChild =
+        Container(height: 42, width: 42, color: Colors.green.withOpacity(.5));
+    final firstPortal =
+        Container(height: 42, width: 42, color: Colors.red.withOpacity(.5));
+
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
           child: Center(
             child: PortalEntry(
               visible: true,
-              portal: const Text('firstPortal'),
-              child: const Text('firstChild'),
+              portal: firstPortal,
+              child: firstChild,
             ),
           ),
         ),
@@ -97,11 +102,11 @@ void main() async {
     );
 
     expect(
-      tester.getSize(find.text('firstPortal')),
+      tester.getSize(find.byWidget(firstPortal)),
       const Size(800, 600),
     );
     expect(
-      tester.getCenter(find.text('firstChild')),
+      tester.getCenter(find.byWidget(firstChild)),
       const Offset(400, 300),
     );
 
@@ -169,12 +174,19 @@ void main() async {
   });
   testWidgets('Unmounting Portal removes it on PortalProvider synchronously',
       (tester) async {
+    final child =
+        Container(height: 42, width: 42, color: Colors.red.withOpacity(.5));
+    final newChild =
+        Container(height: 42, width: 42, color: Colors.purple.withOpacity(.5));
+    final portalChild =
+        Container(height: 42, width: 42, color: Colors.yellow.withOpacity(.5));
+
     final portal = ValueNotifier<Widget>(
       Center(
         child: PortalEntry(
           visible: true,
-          portal: const Text('portal'),
-          child: const Center(child: Text('child')),
+          portal: portalChild,
+          child: Center(child: child),
         ),
       ),
     );
@@ -190,15 +202,15 @@ void main() async {
       ),
     );
 
-    expect(find.text('child'), findsOneWidget);
+    expect(find.byWidget(child), findsOneWidget);
 
-    portal.value = const Center(child: Text('newChild'));
+    portal.value = Center(child: newChild);
 
     await tester.pump();
 
-    expect(find.text('child'), findsNothing);
-    expect(find.text('portal'), findsNothing);
-    expect(find.text('newChild'), findsOneWidget);
+    expect(find.byWidget(child), findsNothing);
+    expect(find.byWidget(portalChild), findsNothing);
+    expect(find.byWidget(newChild), findsOneWidget);
 
     await expectLater(find.byType(Portal), matchesGoldenFile('unmounted.png'));
   });
@@ -266,21 +278,26 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
         matchesGoldenFile('hiding_multiple_entries/1.png'));
   });
   testWidgets('visible defaults to true', (tester) async {
+    final child =
+        Container(height: 42, width: 42, color: Colors.red.withOpacity(.5));
+    final portal =
+        Container(height: 42, width: 42, color: Colors.yellow.withOpacity(.5));
+
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
           child: Center(
             child: PortalEntry(
-              portal: const Text('portal', textDirection: TextDirection.ltr),
-              child: const Text('child', textDirection: TextDirection.ltr),
+              portal: portal,
+              child: child,
             ),
           ),
         ),
       ),
     );
 
-    expect(find.text('child'), findsOneWidget);
-    expect(find.text('portal'), findsOneWidget);
+    expect(find.byWidget(child), findsOneWidget);
+    expect(find.byWidget(portal), findsOneWidget);
 
     await expectLater(
       find.byType(Portal),
@@ -290,7 +307,14 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
   testWidgets(
       'can insert a portal without rebuilding PortalProvider at the same time',
       (tester) async {
-    var child = ValueNotifier<Widget>(const Text('first'));
+    final first =
+        Container(height: 42, width: 42, color: Colors.green.withOpacity(.5));
+    final second =
+        Container(height: 42, width: 42, color: Colors.red.withOpacity(.5));
+    final portal =
+        Container(height: 42, width: 42, color: Colors.yellow.withOpacity(.5));
+
+    var child = ValueNotifier<Widget>(first);
     final builder = ValueListenableBuilder<Widget>(
       valueListenable: child,
       builder: (_, child, __) => child,
@@ -304,17 +328,17 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
       ),
     );
 
-    expect(find.text('first'), findsOneWidget);
+    expect(find.byWidget(first), findsOneWidget);
 
     child.value = PortalEntry(
-      portal: const Text('portal'),
-      child: const Text('second'),
+      portal: portal,
+      child: second,
     );
     await tester.pump();
 
-    expect(find.text('first'), findsNothing);
-    expect(find.text('second'), findsOneWidget);
-    expect(find.text('portal'), findsOneWidget);
+    expect(find.byWidget(first), findsNothing);
+    expect(find.byWidget(second), findsOneWidget);
+    expect(find.byWidget(portal), findsOneWidget);
     await expectLater(
       find.byType(Portal),
       matchesGoldenFile('mounted_no_rebuild.png'),
@@ -1128,16 +1152,19 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
     await tester.pumpWidget(
       Portal(
         child: PortalEntry(
-          portal: Container(color: Colors.red),
+          portal: Container(
+            margin: const EdgeInsets.all(10),
+            color: Colors.red,
+          ),
           child: PortalEntry(
             portal: Center(
               child: Container(
-                height: 42,
-                width: 42,
+                height: 30,
+                width: 30,
                 color: Colors.blue,
               ),
             ),
-            child: const Text('child', textDirection: TextDirection.ltr),
+            child: Container(color: Colors.yellow),
           ),
         ),
       ),
