@@ -1033,19 +1033,19 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
   // TODO: clip overflow
   testWidgets('can have multiple portals', (tester) async {
     var topLeft = PortalEntry(
-      portal: Align(alignment: Alignment.topLeft),
+      portal: const Align(alignment: Alignment.topLeft),
       child: Container(),
     );
     var topRight = PortalEntry(
-      portal: Align(alignment: Alignment.topRight),
+      portal: const Align(alignment: Alignment.topRight),
       child: Container(),
     );
     var bottomRight = PortalEntry(
-      portal: Align(alignment: Alignment.bottomRight),
+      portal: const Align(alignment: Alignment.bottomRight),
       child: Container(),
     );
     var bottomLeft = PortalEntry(
-      portal: Align(alignment: Alignment.bottomLeft),
+      portal: const Align(alignment: Alignment.bottomLeft),
       child: Container(),
     );
 

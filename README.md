@@ -8,7 +8,7 @@ Flutter comes with two classes for manipulating "overlays":
 - [Overlay]
 - [OverlayEntry]
 
-But [OverlayEntry] is very akward to use. As opposed to most of the framework,
+But [OverlayEntry] is very awkward to use. As opposed to most of the framework,
 [OverlayEntry] is **not** a widget (which comes with a nice and clean declarative API).
 
 Instead, is uses an imperative API. This comes with a few drawbacks:
@@ -32,7 +32,7 @@ That's where `portal` comes into play.
 
 This library is effectively a reimplementation of [Overlay]/[OverlayEntry], under
 the name [Portal]/[PortalEntry] (the name that React uses for overlays) while
-fixing all the previously mentionned issues.
+fixing all the previously mentioned issues.
 
 ## Install
 
@@ -57,20 +57,20 @@ To use `portal`, we have to rely on two widgets:
   _under_ your overlays.
 
   If you want to display your overlays on the top of _everything_, a good place
-  to insert that [Portal] is under `MaterialApp` but above `Navigator`,
-  by doing the following:
+  to insert that [Portal] is above `MaterialApp`:
 
   ```dart
-  MaterialApp(
-    builder: (_, child) => Portal(child: child),
+  Portal(
+    child: MaterialApp(
+      ...
+    )
   );
   ```
 
   (works for `CupertinoApp` too)
 
-  This way [Portal] will be above your `Navigator` so your overlays will properly
-  render above your routes. But it will be a descendant of `MaterialApp`, so
-  overlays will be able to access `Theme`/`MediaQuery`/...
+  This way [Portal] will render above everything. But you could place it
+  somewhere else to change the clip behavior.
 
 * [PortalEntry] is the equivalent of [OverlayEntry].
 

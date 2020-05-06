@@ -53,7 +53,7 @@ class _ClapButtonState extends State<ClapButton> {
       ),
       child: RaisedButton(
         onPressed: _clap,
-        child: Icon(Icons.plus_one),
+        child: const Icon(Icons.plus_one),
       ),
     );
   }
