@@ -228,16 +228,24 @@ Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childA
             builder: (c, value, _) {
               return PortalEntry(
                 visible: value,
-                portal: ColoredBox(color: Colors.red.withAlpha(122)),
+                portal: Container(
+                  color: Colors.red.withAlpha(122),
+                ),
                 child: Center(
                   child: PortalEntry(
                     visible: value,
-                    portal:
-                        Container(height: 50, width: 50, color: Colors.blue),
+                    portal: Container(
+                      height: 50,
+                      width: 50,
+                      color: Colors.blue,
+                    ),
                     portalAnchor: Alignment.bottomCenter,
                     childAnchor: Alignment.topCenter,
-                    child:
-                        Container(height: 50, width: 50, color: Colors.yellow),
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      color: Colors.yellow,
+                    ),
                   ),
                 ),
               );
