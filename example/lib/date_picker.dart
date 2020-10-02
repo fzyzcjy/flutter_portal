@@ -3,7 +3,7 @@ import 'package:flutter_portal/flutter_portal.dart';
 
 // A minimalistic date picker
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class DeclarativeDatePicker extends StatelessWidget {
   const DeclarativeDatePicker({
@@ -51,23 +51,29 @@ class DeclarativeDatePicker extends StatelessWidget {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       builder: (_, child) => Portal(child: child),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Example'),
-        ),
+        appBar: AppBar(title: const Text('Example')),
         body: LayoutBuilder(
-            builder: (_, __) =>
-                LayoutBuilder(builder: (_, __) => DatePickerUsageExample())),
+          builder: (_, __) {
+            return LayoutBuilder(builder: (_, __) {
+              return const DatePickerUsageExample();
+            });
+          },
+        ),
       ),
     );
   }
 }
 
 class DatePickerUsageExample extends StatefulWidget {
+  const DatePickerUsageExample({Key key}) : super(key: key);
+
   @override
   _DatePickerUsageExampleState createState() => _DatePickerUsageExampleState();
 }

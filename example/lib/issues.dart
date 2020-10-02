@@ -5,10 +5,12 @@ import 'package:flutter_portal/flutter_portal.dart';
 // This implements Medium's clap button
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     debugPaintLayerBordersEnabled = false;
@@ -23,13 +25,13 @@ class MyApp extends StatelessWidget {
           child: PortalEntry(
             portalAnchor: Alignment.center,
             childAnchor: Alignment.center,
-            portal: Material(
+            portal: const Material(
               elevation: 9999,
               shadowColor: Colors.transparent,
-              child: Container(
+              child: SizedBox(
                 height: 800,
                 width: 100,
-                child: const Material(
+                child: Material(
                   elevation: 2,
                   child: Text('21'),
                 ),

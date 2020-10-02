@@ -3,9 +3,11 @@ import 'package:flutter_portal/flutter_portal.dart';
 
 // a contextual menu
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
         body: Container(
           padding: const EdgeInsets.all(10),
           alignment: Alignment.centerLeft,
-          child: ContextualMenuExample(),
+          child: const ContextualMenuExample(),
         ),
       ),
     );
@@ -25,20 +27,20 @@ class MyApp extends StatelessWidget {
 }
 
 class ContextualMenuExample extends StatefulWidget {
-  ContextualMenuExample({Key key}) : super(key: key);
+  const ContextualMenuExample({Key key}) : super(key: key);
 
   @override
   _ContextualMenuExampleState createState() => _ContextualMenuExampleState();
 }
 
 class _ContextualMenuExampleState extends State<ContextualMenuExample> {
-  bool showMenu = false;
+  bool _showMenu = false;
 
   @override
   Widget build(BuildContext context) {
     return ModalEntry(
-      visible: showMenu,
-      onClose: () => setState(() => showMenu = false),
+      visible: _showMenu,
+      onClose: () => setState(() => _showMenu = false),
       childAnchor: Alignment.topRight,
       menuAnchor: Alignment.topLeft,
       menu: const Menu(
@@ -54,7 +56,7 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
         ],
       ),
       child: RaisedButton(
-        onPressed: () => setState(() => showMenu = true),
+        onPressed: () => setState(() => _showMenu = true),
         child: const Text('show menu'),
       ),
     );

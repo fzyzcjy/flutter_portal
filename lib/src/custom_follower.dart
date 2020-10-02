@@ -1,7 +1,9 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+/// @nodoc
 class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
+  /// @nodoc
   const MyCompositedTransformFollower({
     Key key,
     @required this.link,
@@ -11,9 +13,16 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     Widget child,
   }) : super(key: key, child: child);
 
+  /// @nodoc
   final Alignment childAnchor;
+
+  /// @nodoc
   final Alignment portalAnchor;
+
+  /// @nodoc
   final LayerLink link;
+
+  /// @nodoc
   final Size targetSize;
 
   @override
@@ -33,9 +42,22 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
       ..childAnchor = childAnchor
       ..portalAnchor = portalAnchor;
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor));
+    properties.add(
+      DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor),
+    );
+    properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
+  }
 }
 
+/// @nodoc
 class MyRenderFollowerLayer extends RenderProxyBox {
+  /// @nodoc
   MyRenderFollowerLayer({
     @required LayerLink link,
     RenderBox child,
@@ -43,6 +65,8 @@ class MyRenderFollowerLayer extends RenderProxyBox {
         super(child);
 
   Alignment _childAnchor;
+
+  /// @nodoc
   Alignment get childAnchor => _childAnchor;
   set childAnchor(Alignment childAnchor) {
     if (childAnchor != _childAnchor) {
@@ -52,6 +76,8 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   Alignment _portalAnchor;
+
+  /// @nodoc
   Alignment get portalAnchor => _portalAnchor;
   set portalAnchor(Alignment portalAnchor) {
     if (portalAnchor != _portalAnchor) {
@@ -60,10 +86,14 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     }
   }
 
-  LayerLink get link => _link;
   LayerLink _link;
+
+  /// @nodoc
+  LayerLink get link => _link;
   set link(LayerLink value) {
-    if (_link == value) return;
+    if (_link == value) {
+      return;
+    }
     if (_link == null || value == null) {
       markNeedsCompositingBitsUpdate();
       markNeedsLayoutForSizedByParentChange();
@@ -72,11 +102,15 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     markNeedsPaint();
   }
 
-  Size get targetSize => _targetSize;
   Size _targetSize;
+
+  /// @nodoc
+  Size get targetSize => _targetSize;
   set targetSize(Size value) {
-    assert(value != null);
-    if (_targetSize == value) return;
+    assert(value != null, 'targetSize cannot be null');
+    if (_targetSize == value) {
+      return;
+    }
     _targetSize = value;
     markNeedsPaint();
   }
@@ -96,6 +130,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   @override
   FollowerLayer get layer => super.layer as FollowerLayer;
 
+  /// @nodoc
   Matrix4 getCurrentTransform() {
     return layer?.getLastTransform() ?? Matrix4.identity();
   }
@@ -113,7 +148,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     return result.addWithPaintTransform(
       transform: getCurrentTransform(),
       position: position,
-      hitTest: (BoxHitTestResult result, Offset position) {
+      hitTest: (result, position) {
         return super.hitTestChildren(result, position: position);
       },
     );
@@ -175,7 +210,9 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void applyPaintTransform(RenderBox child, Matrix4 transform) {
-    if (link != null) transform.multiply(getCurrentTransform());
+    if (link != null) {
+      transform.multiply(getCurrentTransform());
+    }
   }
 
   @override

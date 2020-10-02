@@ -5,9 +5,11 @@ import 'package:flutter_portal/flutter_portal.dart';
 
 // This implements Medium's clap button
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,16 +18,14 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Example'),
         ),
-        body: Center(
-          child: ClapButton(),
-        ),
+        body: const Center(child: ClapButton()),
       ),
     );
   }
 }
 
 class ClapButton extends StatefulWidget {
-  ClapButton({Key key}) : super(key: key);
+  const ClapButton({Key key}) : super(key: key);
 
   @override
   _ClapButtonState createState() => _ClapButtonState();
@@ -47,7 +47,7 @@ class _ClapButtonState extends State<ClapButton> {
         elevation: 8,
         borderRadius: BorderRadius.circular(40),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: Text('$clapCount'),
         ),
       ),
