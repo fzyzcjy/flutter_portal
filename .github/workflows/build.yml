@@ -8,9 +8,6 @@ jobs:
 
     strategy:
       matrix:
-        package:
-          - .
-          - example
         channel:
           - dev
 
@@ -23,16 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ${{ matrix.package }}
 
       - name: Check format
         run: flutter format --set-exit-if-changed .
-        working-directory: ${{ matrix.package }}
 
       - name: Analyze
         run: flutter analyze
-        working-directory: ${{ matrix.package }}
 
       - name: Run tests
         run: flutter test
-        working-directory: ${{ matrix.package }}
