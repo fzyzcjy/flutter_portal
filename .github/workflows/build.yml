@@ -10,7 +10,7 @@ jobs:
       matrix:
         package:
           - .
-          - /example
+          - example
         channel:
           - dev
 
