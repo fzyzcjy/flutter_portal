@@ -1,3 +1,7 @@
+# 0.2.0
+
+- Update to support latest Flutter version
+
 # 0.1.0
 
 - Changed the algorithm behind how portals/overlays are rendered.\

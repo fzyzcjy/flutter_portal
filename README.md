@@ -38,7 +38,7 @@ First, you will need to add `portal` to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_portal: ^0.0.1
+  flutter_portal: ^0.2.0
 ```
 
 Then, run `flutter packages get` in your terminal.
