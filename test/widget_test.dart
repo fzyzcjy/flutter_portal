@@ -325,8 +325,7 @@ Future<void> main() async {
     expect(find.text('portal'), findsNothing);
   });
 
-  testWidgets('child does not lose state when hiding portal',
-      (tester) async {
+  testWidgets('child does not lose state when hiding portal', (tester) async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
@@ -373,7 +372,7 @@ Future<void> main() async {
       childElement,
     );
   });
- 
+
   testWidgets('child does not lose state when hiding portal (anchors)',
       (tester) async {
     await tester.pumpWidget(
