@@ -5,6 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -32,6 +33,401 @@ Future<ByteData> fetchFont() async {
 Future<void> main() async {
   final fontLoader = FontLoader('Roboto')..addFont(fetchFont());
   await fontLoader.load();
+
+  testWidgets('can optionally delay close with a Duration', (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 6),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('portal'), findsNothing);
+  });
+
+  testWidgets('can optionally delay close with a Duration (anchors)',
+      (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            childAnchor: Alignment.center,
+            portalAnchor: Alignment.center,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 6),
+            childAnchor: Alignment.center,
+            portalAnchor: Alignment.center,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('portal'), findsNothing);
+  });
+
+  testWidgets('handles dispose before timer end', (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(Container());
+
+    await tester.pump(const Duration(seconds: 5));
+  });
+
+  testWidgets('can update portal during close', (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal2'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsNothing);
+    expect(find.text('portal2'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 20),
+            portal: Text('portal3'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal2'), findsNothing);
+    expect(find.text('portal3'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(find.text('portal3'), findsNothing);
+  });
+
+  testWidgets('can cancel leave timer by reverting visible', (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(Container());
+  });
+
+  testWidgets(
+      'visible false > true > false resets the timer and works properly',
+      (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            closeDuration: Duration(seconds: 5),
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+
+    expect(find.text('portal'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(find.text('portal'), findsNothing);
+  });
+
+  testWidgets('child does not lose state when hiding portal',
+      (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    final childElement = tester.element(find.text('child'));
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.element(find.text('child')),
+      childElement,
+    );
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.element(find.text('child')),
+      childElement,
+    );
+  });
+ 
+  testWidgets('child does not lose state when hiding portal (anchors)',
+      (tester) async {
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            portalAnchor: Alignment.center,
+            childAnchor: Alignment.center,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    final childElement = tester.element(find.text('child'));
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            visible: false,
+            portalAnchor: Alignment.center,
+            childAnchor: Alignment.center,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.element(find.text('child')),
+      childElement,
+    );
+
+    await tester.pumpWidget(
+      const Boilerplate(
+        child: Portal(
+          child: PortalEntry(
+            portalAnchor: Alignment.center,
+            childAnchor: Alignment.center,
+            portal: Text('portal'),
+            child: Text('child'),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.element(find.text('child')),
+      childElement,
+    );
+  });
 
   testWidgets('PortalProvider updates child', (tester) async {
     await tester.pumpWidget(
@@ -217,6 +613,7 @@ Future<void> main() async {
   testWidgets('throws if no PortalEntry were found', (tester) async {
     await tester.pumpWidget(
       const PortalEntry(
+        closeDuration: Duration(seconds: 5),
         portal: Text('portal', textDirection: TextDirection.ltr),
         child: Text('child', textDirection: TextDirection.ltr),
       ),
@@ -224,9 +621,14 @@ Future<void> main() async {
 
     final dynamic exception = tester.takeException();
     expect(exception, isA<PortalNotFoundError>());
-    expect(exception.toString(), equals('''
-Error: Could not find a Portal above this PortalEntry(portalAnchor: null, childAnchor: null, portal: Text, child: Text).
-'''));
+    expect(
+      exception.toString(),
+      equals('Error: Could not find a Portal above this '
+          'PortalEntry('
+          'portalAnchor: null, childAnchor: null, '
+          'closeDuration: 0:00:05.000000, '
+          'portal: Text, child: Text).\n'),
+    );
   });
 
   testWidgets('hiding two entries at once', (tester) async {

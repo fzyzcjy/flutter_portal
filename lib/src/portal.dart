@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -139,21 +141,24 @@ class _RenderPortalTheater extends RenderProxyBox {
 class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key key,
-    bool visible = true,
+    this.visible = true,
     this.childAnchor,
     this.portalAnchor,
-    Widget portal,
+    this.portal,
+    this.closeDuration,
     @required this.child,
   })  : assert(child != null),
         assert(visible == false || portal != null),
         assert((childAnchor == null) == (portalAnchor == null)),
-        portal = visible ? portal : null,
         super(key: key);
 
+  // ignore: diagnostic_describe_all_properties, conflicts with closeDuration
+  final bool visible;
   final Alignment portalAnchor;
   final Alignment childAnchor;
   final Widget portal;
   final Widget child;
+  final Duration closeDuration;
 
   @override
   _PortalEntryState createState() => _PortalEntryState();
@@ -164,6 +169,7 @@ class PortalEntry extends StatefulWidget {
     properties
       ..add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor))
       ..add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor))
+      ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portal', portal))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
@@ -171,6 +177,35 @@ class PortalEntry extends StatefulWidget {
 
 class _PortalEntryState extends State<PortalEntry> {
   final _link = LayerLink();
+  bool _visible;
+  Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _visible = widget.visible;
+  }
+
+  @override
+  void didUpdateWidget(PortalEntry oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.visible) {
+      if (!oldWidget.visible && _visible) {
+        // rebuild when the portal is in progress of being hidden
+      } else if (oldWidget.visible && widget.closeDuration != null) {
+        _timer?.cancel();
+        _timer = Timer(widget.closeDuration, () {
+          setState(() => _visible = false);
+        });
+      } else {
+        _visible = false;
+      }
+    } else {
+      _timer?.cancel();
+      _timer = null;
+      _visible = widget.visible;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,9 +215,9 @@ class _PortalEntryState extends State<PortalEntry> {
       throw PortalNotFoundError._(widget);
     }
 
-    if (widget.portal == null || widget.portalAnchor == null) {
+    if (widget.portalAnchor == null) {
       return _PortalEntryTheater(
-        portal: widget.portal,
+        portal: _visible ? widget.portal : null,
         overlayLink: scope._overlayLink,
         child: widget.child,
       );
@@ -194,26 +229,33 @@ class _PortalEntryState extends State<PortalEntry> {
           link: _link,
           child: widget.child,
         ),
-        Positioned.fill(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return _PortalEntryTheater(
-                overlayLink: scope._overlayLink,
-                loosen: true,
-                portal: MyCompositedTransformFollower(
-                  link: _link,
-                  childAnchor: widget.childAnchor,
-                  portalAnchor: widget.portalAnchor,
-                  targetSize: constraints.biggest,
-                  child: widget.portal,
-                ),
-                child: const SizedBox.shrink(),
-              );
-            },
+        if (_visible)
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return _PortalEntryTheater(
+                  overlayLink: scope._overlayLink,
+                  loosen: true,
+                  portal: MyCompositedTransformFollower(
+                    link: _link,
+                    childAnchor: widget.childAnchor,
+                    portalAnchor: widget.portalAnchor,
+                    targetSize: constraints.biggest,
+                    child: widget.portal,
+                  ),
+                  child: const SizedBox.shrink(),
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
 

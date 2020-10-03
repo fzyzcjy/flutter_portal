@@ -1,3 +1,36 @@
+# Unreleased
+
+- Fixed a bug where changing the visibility of a portal destroys the state of `child`
+- Adding a way to delay the disappearance of a portal entry:
+
+  ```dart
+  PortalEntry(
+    visible: visible,
+    closeDuration: Duration(seconds: 2),
+    portal: ...,
+    child: ...
+  )
+  ```
+
+  With this code, when `visible` changes to `false`, the portal will stay
+  visible for an extra 2 seconds.
+
+  This can be useful to implement leave animations.
+  For example, the following implement a fade-out transition:
+
+  ```dart
+  PortalEntry(
+    visible: visible,
+    closeDuration: Duration(seconds: 2),
+    portal: AnimatedOpacity(
+      duration: Duration(seconds: 2),
+      opacity: visible ? 1 : 0,
+      child: Container(color: Colors.red),
+    ),
+    child: ...
+  )
+  ```
+
 # 0.2.0
 
 - Update to support latest Flutter version
