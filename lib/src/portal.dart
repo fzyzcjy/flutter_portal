@@ -213,12 +213,12 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   }
 /// }
 /// ```
-/// 
+///
 /// Then, we need to insert our [PortalEntry] in the widget tree.
-/// 
+///
 /// We want our contextual menu to render right next to our [RaisedButton].
 /// As such, our [PortalEntry] should be the parent of [RaisedButton] like so:
-/// 
+///
 /// ```dart
 /// Center(
 ///   child: PortalEntry(
@@ -230,10 +230,10 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   ),
 /// )
 /// ```
-/// 
+///
 /// We can pass our menu to [PortalEntry]:
-/// 
-/// 
+///
+///
 /// ```dart
 /// PortalEntry(
 ///   visible: true,
@@ -252,18 +252,18 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   child: RaiseButton(...),
 /// )
 /// ```
-/// 
+///
 /// At this stage, you may notice two things:
-/// 
+///
 /// - our menu is full-screen
 /// - our menu is always visible (because `visible` is _true_)
-/// 
-/// Let's fix the full-screen issue first and change our code so that our 
+///
+/// Let's fix the full-screen issue first and change our code so that our
 /// menu renders on the _right_ of our [RaisedButton].
-/// 
+///
 /// To align our menu around our button, we can specify the `childAnchor` and
 /// `portalAnchor` parameters:
-/// 
+///
 /// ```dart
 /// PortalEntry(
 ///   visible: true,
@@ -273,37 +273,37 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   child: RaiseButton(...),
 /// )
 /// ```
-/// 
+///
 /// What this code means is, this will align the top-left of our menu with the
 /// top-right or the [RaisedButton].
 /// With this, our menu is no-longer full-screen and is now located to the right
 /// of our button.
-/// 
+///
 /// Finally, we can update our code such that the menu show only when clicking
 /// on the button.
-/// 
+///
 /// To do that, we need to declare a new boolean inside our [StatefulWidget],
 /// that says whether the menu is open or not:
-/// 
+///
 /// ```dart
 /// class _MenuExampleState extends State<MenuExample> {
 ///   bool isMenuOpen = false;
 ///   ...
 /// }
 /// ```
-/// 
+///
 /// We then pass this `isMenuOpen` variable to our [PortalEntry]:
-/// 
+///
 /// ```dart
 /// PortalEntry(
 ///   visible: isMenuOpen,
 ///   ...
 /// )
 /// ```
-/// 
+///
 /// Then, inside the `onPressed` callback of our [RaisedButton], we can
 /// update this `isMenuOpen` variable:
-/// 
+///
 /// ```dart
 /// RaisedButton(
 ///   onPressed: () {
@@ -314,15 +314,15 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   child: Text('show menu'),
 /// ),
 /// ```
-/// 
-/// 
+///
+///
 /// One final step is to close the menu when the user clicks randomly outside
 /// of the menu.
-/// 
+///
 /// This can be implemented with a second [PortalEntry] combined with [GestureDetector]
 /// like so:
-/// 
-/// 
+///
+///
 /// ```dart
 /// Center(
 ///   child: PortalEntry(
