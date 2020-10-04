@@ -12,13 +12,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (_, child) => Portal(child: child),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Example'),
+    return Portal(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Example'),
+          ),
+          body: const Center(child: ClapButton()),
         ),
-        body: const Center(child: ClapButton()),
       ),
     );
   }

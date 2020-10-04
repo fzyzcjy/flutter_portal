@@ -3,32 +3,40 @@
 
 ## Motivation
 
-Flutter comes with two classes for manipulating "overlays":
+A common use-case for UIs is to show "overlays". They come in all shapes and forms:
 
-- [Overlay]
-- [OverlayEntry]
+- tooltips
+- contextual menus,
+- dialogs
+- etc
 
-But [OverlayEntry] is very awkward to use. As opposed to most of the framework,
-[OverlayEntry] is **not** a widget (which comes with a nice and clean declarative API).
+In Flutter, these are usually shown by using [Overlay]/[OverlayEntry].
+The problem is, [OverlayEntry] is **not** a widget, and is manipulated using
+imperative code.
 
-Instead, is uses an imperative API. This comes with a few drawbacks:
+This has a few issues:
 
-- a widget's life-cycle (like `initState`) _cannot_ add/remove synchronously an
-  [OverlayEntry].
+- Implementing a custom tooltip/contextual menu is difficult.
+  It is not trivial to align the tooltip/menu next to a widget.
 
-  This means the first rendering of our entry is effectively one frame late.
+- When our application is killed by the OS, the state of our modals are not restored.
+  There are _some_ way to to that, but it is signicantly harder than using `RestorableProperty`.
 
-- It is difficult to align an [OverlayEntry] around a non-overlay widget
-  (for example for a contextual menu).
+- It causes issues with `Theme` and other context-based variables.
+  For some confusing reasons, it is possible that the theme obtained by `Theme.of`
+  inside dialogs/menus is different from the theme of the widget that showed these overlays.
 
-  We basically have to do everything ourselves, usually needing an
-  [addPostFrameCallback] which, again, makes the rendering of our overlay one frame late.
+Flutter_portal tries to fix all of these:
 
-That's where `portal` comes into play.
+- It has built-in support for aligning an overlay next to a UI component.
+  You can create a custom contextual menu from scratch in a few lines of code.
 
-This library is effectively a reimplementation of [Overlay]/[OverlayEntry], under
-the name [Portal]/[PortalEntry] (the name that React uses for overlays) while
-fixing all the previously mentioned issues.
+- Overlays are now showed declaratively, by inserting them in the widget tree.
+  This makes showing an overlay as simple as doing a `setState` – which combines
+  nicely with `RestorableProperty`.
+
+- The overlay has access to the same Theme and the different providers than
+  the widget that showed the overlay.
 
 ## Install
 
@@ -43,150 +51,194 @@ dependencies:
 
 Then, run `flutter packages get` in your terminal.
 
+## Examples
+
+Make sure to check-out the `examples` folder for examples on how to use flutter_portal.
+
+| Contextual menu                                                                                                                                                      | Onboarding view    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| <img width="300px" alt="Screenshot 2020-10-04 at 22 20 30" src="https://user-images.githubusercontent.com/20165741/95027357-d21ae500-068f-11eb-8ab5-ddfe4c474f73.png"> | <img src="https://user-images.githubusercontent.com/20165741/95027648-1d35f780-0692-11eb-8315-5ca8b7f6ad9e.gif" alt="Discovery example" style="300px">
+ |
+
+
 ## Usage
 
-To use `portal`, we have to rely on two widgets:
+### Add the [Portal] widget
 
-- [Portal], the equivalent of [Overlay].
+Before doing anything, you must insert the [Portal] widget in your widget tree.
+This widget enabled flutter_portal in your project.
 
-  This widget will need to be inserted above the widget that needs to render
-  _under_ your overlays.
-
-  If you want to display your overlays on the top of _everything_, a good place
-  to insert that [Portal] is above `MaterialApp`:
-
-  ```dart
-  Portal(
-    child: MaterialApp(
-      ...
-    )
-  );
-  ```
-
-  (works for `CupertinoApp` too)
-
-  This way [Portal] will render above everything. But you could place it
-  somewhere else to change the clip behavior.
-
-* [PortalEntry] is the equivalent of [OverlayEntry].
-
-  As opposed to [OverlayEntry], using `portal` then [PortalEntry] is a widget,
-  and is therefore placed inside your widget tree (so the `build` method).
-
-  Consider the following [OverlayEntry] example:
-
-  ```dart
-  class Example extends StatefulWidget {
-    const Example({Key key, this.title}) : super(key: key);
-
-    final String title;
-    @override
-    _ExampleState createState() => _ExampleState();
-  }
-
-  class _ExampleState extends State<Example> {
-    OverlayEntry entry;
-
-    @override
-    void initState() {
-      super.initState();
-      entry = OverlayEntry(
-        builder: (context) {
-          return Text(widget.title);
-        },
-      );
-
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        Overlay.of(context).insert(entry);
-      });
-    }
-
-    @override
-    void dispose() {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        entry.remove();
-      });
-      super.dispose();
-    }
-
-    @override
-    void didUpdateWidget(Example oldWidget) {
-      super.didUpdateWidget(oldWidget);
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        entry.markNeedsBuild();
-      });
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return const Text('whatever');
-    }
-  }
-  ```
-
-  Using [PortalEntry] instead, we would write:
-
-  ```dart
-  class Example extends StatelessWidget {
-    const Example({Key key, this.title}) : super(key: key);
-    final String title;
-
-    @override
-    Widget build(BuildContext context) {
-      return PortalEntry(
-        portal: Align(
-          alignment: Alignment.topLeft,
-          child: Text(title)
-        ),
-        child: const Text('whatever'),
-      );
-    }
-  }
-  ```
-
-  These two examples are identical in behavior:
-
-  - When mounting our `Example` widget, an overlay is added, which is later
-    removed when the widget is removed from the tree.
-  - the content of that overlay is a `Text`, that may change over time based
-    on a `title` variable.
-
-  On the other hand, there's a difference:
-  Using [PortalEntry] does **not** rely on [addPostFrameCallback].
-
-  As such, inserting/updating our `Example` widget _immediatly_ inserts/updates the overlay, whereas using [OverlayEntry] the update is late by one frame.
-
-### Aligning the overlay around a widget
-
-Sometimes, we want to align our overlay around another widget.
-[PortalEntry] comes with built-in support for this kind of feature.
-
-For example, consider that we have a `Text` centered in our app:
+You can place this [Portal] above `MaterialApp` or near the root of a route:
 
 ```dart
-Center(
-  child: Text('whatever'),
+Portal(
+  child: MaterialApp(
+    ...
+  )
 )
 ```
 
-If we wanted to add an overlay that is aligned on the top center of our `Text`,
-we would write:
+### Showing a contextual menu
+
+In this example, we will see how we can use flutter_portal to show a menu
+after clicking on a `RaisedButton`.
+The menu will be aligned to the left of our button.
+
+First, we need to create a `StatefulWidget` that renders our `RaisedButton`:
+
+```dart
+class MenuExample extends StatefulWidget {
+  @override
+  _MenuExampleState createState() => _MenuExampleState();
+}
+
+class _MenuExampleState extends State<MenuExample> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: RaisedButton(
+          onPressed: () {},
+          child: Text('show menu'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+<img src="https://user-images.githubusercontent.com/20165741/95027014-3ee0b000-068d-11eb-8c65-a7a5ad8b71bd.png" alt="image" style="width=300px">
+
+Then, we need to insert our [PortalEntry] in the widget tree.
+
+We want our contextual menu to render right next to our `RaisedButton`.
+As such, our [PortalEntry] should be the parent of `RaisedButton` like so:
 
 ```dart
 Center(
   child: PortalEntry(
-    portalAnchor: Alignment.bottomCenter,
-    childAnchor: Alignment.topCenter,
-    portal: Card(child: Text('portal')),
-    child: Text('whatever'),
+    visible: // TODO
+    portal: // TODO
+    child: RaisedButton(
+      ...
+    ),
   ),
 )
 ```
 
-This will align the top-center of `child` with the bottom-center of `portal`,
-which renders the following:
+We can pass our menu to [PortalEntry]:
 
-<img src="https://raw.githubusercontent.com/rrousselGit/flutter_portal/master/resources/alignment.png" width="200" />
+```dart
+PortalEntry(
+  visible: true,
+  portal: Material(
+    elevation: 8,
+    child: IntrinsicWidth(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(title: Text('option 1')),
+          ListTile(title: Text('option 2')),
+        ],
+      ),
+    ),
+  ),
+  child: RaiseButton(...),
+)
+```
+
+<img width="300px" alt="Screenshot 2020-10-04 at 22 07 12" src="https://user-images.githubusercontent.com/20165741/95027128-20c77f80-068e-11eb-9de9-5e35dd1e47de.png">
+
+At this stage, you may notice two things:
+
+- our menu is full-screen
+- our menu is always visible (because `visible` is _true_)
+
+Let's fix the full-screen issue first and change our code so that our
+menu renders on the _right_ of our `RaisedButton`.
+
+To align our menu around our button, we can specify the `childAnchor` and
+`portalAnchor` parameters:
+
+```dart
+PortalEntry(
+  visible: true,
+  portalAnchor: Alignment.topLeft,
+  childAnchor: Alignment.topRight,
+  portal: Material(...),
+  child: RaiseButton(...),
+)
+```
+
+<img width="300px" alt="Screenshot 2020-10-04 at 22 16 02" src="https://user-images.githubusercontent.com/20165741/95027278-32f5ed80-068f-11eb-9cef-c1e5c00cf1d4.png">
+
+What this code means is, this will align the top-left of our menu with the
+top-right or the `RaisedButton`.
+With this, our menu is no-longer full-screen and is now located to the right
+of our button.
+
+Finally, we can update our code such that the menu show only when clicking
+on the button.
+
+To do that, we need to declare a new boolean inside our `StatefulWidget`,
+that says whether the menu is open or not:
+
+```dart
+class _MenuExampleState extends State<MenuExample> {
+  bool isMenuOpen = false;
+  ...
+}
+```
+
+We then pass this `isMenuOpen` variable to our [PortalEntry]:
+
+```dart
+PortalEntry(
+  visible: isMenuOpen,
+  ...
+)
+```
+
+Then, inside the `onPressed` callback of our `RaisedButton`, we can
+update this `isMenuOpen` variable:
+
+```dart
+RaisedButton(
+  onPressed: () {
+    setState(() {
+      isMenuOpen = true;
+    });
+  },
+  child: Text('show menu'),
+),
+```
+
+One final step is to close the menu when the user clicks randomly outside
+of the menu.
+
+This can be implemented with a second [PortalEntry] combined with [GestureDetector]
+like so:
+
+```dart
+Center(
+  child: PortalEntry(
+    visible: isMenuOpen,
+    portal: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          isMenuOpen = false;
+        });
+      },
+    ),
+    child: PortalEntry(
+      // our previous PortalEntry
+      portal: Material(...)
+      child: RaisedButton(...),
+    ),
+  ),
+)
+```
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html

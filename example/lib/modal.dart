@@ -17,20 +17,21 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (context, child) => Portal(child: child),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Discovery example')),
-        body: Center(
-          child: Modal(
-            visible: showModal,
-            modal: const Dialog(
-              child: Text('Hello world'),
-            ),
-            onClose: () => setState(() => showModal = false),
-            child: RaisedButton(
-              onPressed: () => setState(() => showModal = true),
-              child: const Text('Show modal'),
+    return Portal(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Discovery example')),
+          body: Center(
+            child: Modal(
+              visible: showModal,
+              modal: const Dialog(
+                child: Text('Hello world'),
+              ),
+              onClose: () => setState(() => showModal = false),
+              child: RaisedButton(
+                onPressed: () => setState(() => showModal = true),
+                child: const Text('Show modal'),
+              ),
             ),
           ),
         ),

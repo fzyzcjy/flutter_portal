@@ -1,5 +1,7 @@
 # Unreleased
 
+- Improved the dart-doc of Portal and PortalEntry
+- Added and improved the examples
 - Fixed a bug where changing the visibility of a portal destroys the state of `child`
 - Adding a way to delay the disappearance of a portal entry:
 

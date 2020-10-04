@@ -7,6 +7,40 @@ import 'package:flutter/widgets.dart';
 
 import 'custom_follower.dart';
 
+/// The widget where a [PortalEntry] is rendered.
+///
+/// [Portal] can be considered as a reimplementation of [Overlay] to allow
+/// adding an [OverlayEntry] (now named [PortalEntry]) declaratively.
+///
+/// [Portal] widget is used in co-ordination with [PortalEntry] widget to show
+/// some content _above_ another content.
+/// This is similar to [Stack] in principle, with the difference that [PortalEntry]
+/// does not have to be a direct child of [Portal] and can instead be placed
+/// anywhere in the widget tree.
+///
+/// In most situations, [Portal] can be placed directly above [MaterialApp]:
+///
+/// ```dart
+/// Portal(
+///   child: MaterialApp(
+///   ),
+/// );
+/// ```
+///
+/// This allows an overlay to renders above _everything_ including all routes.
+/// That can be useful to show a snackbar between pages.
+///
+/// You can optionally add a [Portal] inside your page:
+///
+/// ```dart
+/// Portal(
+///   child: Scaffold(
+///   ),
+/// )
+/// ```
+///
+/// This way, your modals/snackbars will stop being visible when a new route
+/// is pushed.
 class Portal extends StatefulWidget {
   const Portal({Key key, @required this.child})
       : assert(child != null),
@@ -138,6 +172,177 @@ class _RenderPortalTheater extends RenderProxyBox {
   }
 }
 
+/// A widget that renders its content in a different location of the widget tree.
+///
+/// In short, you can use [PortalEntry] to show dialogs, tooltips, contextual menus, ...
+/// You can then control the visibility of these overlays with a simple `setState`.
+///
+/// The benefits of using [PortalEntry] over [Overlay]/[OverlayEntry] are multiple:
+/// - [PortalEntry] is easier to manipulate
+/// - It allows aligning your menus/tooltips next to a button easily
+/// - It combines nicely with state-management solutions and the "state-restoration"
+///   framework. For example, combined with [RestorableProperty], when the application
+///   is killed then re-opened, modals/menus would be restored.
+///
+/// For [PortalEntry] to work, make sure to insert [Portal] higher in the widget-tree.
+///
+/// ## Contextual menu example
+///
+/// In this example, we will see how we can use [PortalEntry] to show a menu
+/// after clicking on a [RaisedButton].
+///
+/// First, we need to create a [StatefulWidget] that renders our [RaisedButton]:
+///
+/// ```dart
+/// class MenuExample extends StatefulWidget {
+///   @override
+///   _MenuExampleState createState() => _MenuExampleState();
+/// }
+///
+/// class _MenuExampleState extends State<MenuExample> {
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       body: Center(
+///         child: RaisedButton(
+///           onPressed: () {},
+///           child: Text('show menu'),
+///         ),
+///       ),
+///     );
+///   }
+/// }
+/// ```
+/// 
+/// Then, we need to insert our [PortalEntry] in the widget tree.
+/// 
+/// We want our contextual menu to render right next to our [RaisedButton].
+/// As such, our [PortalEntry] should be the parent of [RaisedButton] like so:
+/// 
+/// ```dart
+/// Center(
+///   child: PortalEntry(
+///     visible: // TODO
+///     portal: // TODO
+///     child: RaisedButton(
+///       ...
+///     ),
+///   ),
+/// )
+/// ```
+/// 
+/// We can pass our menu to [PortalEntry]:
+/// 
+/// 
+/// ```dart
+/// PortalEntry(
+///   visible: true,
+///   portal: Material(
+///     elevation: 8,
+///     child: IntrinsicWidth(
+///       child: Column(
+///         mainAxisSize: MainAxisSize.min,
+///         children: [
+///           ListTile(title: Text('option 1')),
+///           ListTile(title: Text('option 2')),
+///         ],
+///       ),
+///     ),
+///   ),
+///   child: RaiseButton(...),
+/// )
+/// ```
+/// 
+/// At this stage, you may notice two things:
+/// 
+/// - our menu is full-screen
+/// - our menu is always visible (because `visible` is _true_)
+/// 
+/// Let's fix the full-screen issue first and change our code so that our 
+/// menu renders on the _right_ of our [RaisedButton].
+/// 
+/// To align our menu around our button, we can specify the `childAnchor` and
+/// `portalAnchor` parameters:
+/// 
+/// ```dart
+/// PortalEntry(
+///   visible: true,
+///   portalAnchor: Alignment.topLeft,
+///   childAnchor: Alignment.topRight,
+///   portal: Material(...),
+///   child: RaiseButton(...),
+/// )
+/// ```
+/// 
+/// What this code means is, this will align the top-left of our menu with the
+/// top-right or the [RaisedButton].
+/// With this, our menu is no-longer full-screen and is now located to the right
+/// of our button.
+/// 
+/// Finally, we can update our code such that the menu show only when clicking
+/// on the button.
+/// 
+/// To do that, we need to declare a new boolean inside our [StatefulWidget],
+/// that says whether the menu is open or not:
+/// 
+/// ```dart
+/// class _MenuExampleState extends State<MenuExample> {
+///   bool isMenuOpen = false;
+///   ...
+/// }
+/// ```
+/// 
+/// We then pass this `isMenuOpen` variable to our [PortalEntry]:
+/// 
+/// ```dart
+/// PortalEntry(
+///   visible: isMenuOpen,
+///   ...
+/// )
+/// ```
+/// 
+/// Then, inside the `onPressed` callback of our [RaisedButton], we can
+/// update this `isMenuOpen` variable:
+/// 
+/// ```dart
+/// RaisedButton(
+///   onPressed: () {
+///     setState(() {
+///       isMenuOpen = true;
+///     });
+///   },
+///   child: Text('show menu'),
+/// ),
+/// ```
+/// 
+/// 
+/// One final step is to close the menu when the user clicks randomly outside
+/// of the menu.
+/// 
+/// This can be implemented with a second [PortalEntry] combined with [GestureDetector]
+/// like so:
+/// 
+/// 
+/// ```dart
+/// Center(
+///   child: PortalEntry(
+///     visible: isMenuOpen,
+///     portal: GestureDetector(
+///       behavior: HitTestBehavior.opaque,
+///       onTap: () {
+///         setState(() {
+///           isMenuOpen = false;
+///         });
+///       },
+///     ),
+///     child: PortalEntry(
+///       // our previous PortalEntry
+///       portal: Material(...)
+///       child: RaisedButton(...),
+///     ),
+///   ),
+/// )
+/// ```
 class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key key,
@@ -498,7 +703,7 @@ class _PortalEntryElement extends SingleChildRenderObjectElement {
   }
 }
 
-/// The error that will be thrown if [_PortalEntryTheater] fails to find the specified [Portal].
+/// The error that will be thrown if [PortalEntry] fails to find a [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
   PortalNotFoundError._(this._portalEntry);
 

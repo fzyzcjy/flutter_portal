@@ -55,16 +55,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (_, child) => Portal(child: child),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Example')),
-        body: LayoutBuilder(
-          builder: (_, __) {
-            return LayoutBuilder(builder: (_, __) {
-              return const DatePickerUsageExample();
-            });
-          },
+    return Portal(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Example')),
+          body: LayoutBuilder(
+            builder: (_, __) {
+              return LayoutBuilder(builder: (_, __) {
+                return const DatePickerUsageExample();
+              });
+            },
+          ),
         ),
       ),
     );

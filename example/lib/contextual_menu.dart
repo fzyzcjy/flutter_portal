@@ -10,16 +10,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (_, child) => Portal(child: child),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Example'),
-        ),
-        body: Container(
-          padding: const EdgeInsets.all(10),
-          alignment: Alignment.centerLeft,
-          child: const ContextualMenuExample(),
+    return Portal(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Example'),
+          ),
+          body: Container(
+            padding: const EdgeInsets.all(10),
+            alignment: Alignment.centerLeft,
+            child: const ContextualMenuExample(),
+          ),
         ),
       ),
     );
@@ -38,26 +39,28 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ModalEntry(
-      visible: _showMenu,
-      onClose: () => setState(() => _showMenu = false),
-      childAnchor: Alignment.topRight,
-      menuAnchor: Alignment.topLeft,
-      menu: const Menu(
-        children: [
-          PopupMenuItem<void>(
-            height: 42,
-            child: Text('first'),
-          ),
-          PopupMenuItem<void>(
-            height: 42,
-            child: Text('second'),
-          ),
-        ],
-      ),
-      child: RaisedButton(
-        onPressed: () => setState(() => _showMenu = true),
-        child: const Text('show menu'),
+    return Center(
+      child: ModalEntry(
+        visible: _showMenu,
+        onClose: () => setState(() => _showMenu = false),
+        childAnchor: Alignment.topRight,
+        menuAnchor: Alignment.topLeft,
+        menu: const Menu(
+          children: [
+            PopupMenuItem<void>(
+              height: 42,
+              child: Text('first'),
+            ),
+            PopupMenuItem<void>(
+              height: 42,
+              child: Text('second'),
+            ),
+          ],
+        ),
+        child: RaisedButton(
+          onPressed: () => setState(() => _showMenu = true),
+          child: const Text('show menu'),
+        ),
       ),
     );
   }

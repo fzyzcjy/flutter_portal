@@ -18,30 +18,31 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (context, child) => Portal(child: child),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Discovery example')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('You have clicked the button this many times:'),
-              Text('$count', style: Theme.of(context).textTheme.headline4),
-              RaisedButton(
-                onPressed: () => setState(() => showDiscovery = true),
-                child: const Text('Show discovery'),
-              )
-            ],
+    return Portal(
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Discovery example')),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('You have clicked the button this many times:'),
+                Text('$count', style: Theme.of(context).textTheme.headline4),
+                RaisedButton(
+                  onPressed: () => setState(() => showDiscovery = true),
+                  child: const Text('Show discovery'),
+                )
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: Discovery(
-          visible: showDiscovery,
-          description: const Text('Click to increment the counter'),
-          onClose: () => setState(() => showDiscovery = false),
-          child: FloatingActionButton(
-            onPressed: _increment,
-            child: const Icon(Icons.add),
+          floatingActionButton: Discovery(
+            visible: showDiscovery,
+            description: const Text('Click to increment the counter'),
+            onClose: () => setState(() => showDiscovery = false),
+            child: FloatingActionButton(
+              onPressed: _increment,
+              child: const Icon(Icons.add),
+            ),
           ),
         ),
       ),
