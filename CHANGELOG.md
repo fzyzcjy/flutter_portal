@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.0
 
 - Improved the dart-doc of Portal and PortalEntry
 - Added and improved the examples
