@@ -55,11 +55,9 @@ Then, run `flutter packages get` in your terminal.
 
 Make sure to check-out the `examples` folder for examples on how to use flutter_portal.
 
-| Contextual menu                                                                                                                                                      | Onboarding view    |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| <img width="300px" alt="Screenshot 2020-10-04 at 22 20 30" src="https://user-images.githubusercontent.com/20165741/95027357-d21ae500-068f-11eb-8ab5-ddfe4c474f73.png"> | <img src="https://user-images.githubusercontent.com/20165741/95027648-1d35f780-0692-11eb-8315-5ca8b7f6ad9e.gif" alt="Discovery example" style="300px">
- |
-
+| Contextual menu                                                                                                                                                        | Onboarding view                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <img width="300px" alt="Screenshot 2020-10-04 at 22 20 30" src="https://user-images.githubusercontent.com/20165741/95027357-d21ae500-068f-11eb-8ab5-ddfe4c474f73.png"> | <img src="https://user-images.githubusercontent.com/20165741/95027648-1d35f780-0692-11eb-8315-5ca8b7f6ad9e.gif" alt="Discovery example" style="300px"> |
 
 ## Usage
 
