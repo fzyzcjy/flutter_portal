@@ -141,7 +141,7 @@ PortalEntry(
       ),
     ),
   ),
-  child: RaiseButton(...),
+  child: RaisedButton(...),
 )
 ```
 
@@ -164,7 +164,7 @@ PortalEntry(
   portalAnchor: Alignment.topLeft,
   childAnchor: Alignment.topRight,
   portal: Material(...),
-  child: RaiseButton(...),
+  child: RaisedButton(...),
 )
 ```
 
