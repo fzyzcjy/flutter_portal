@@ -70,4 +70,3 @@ linter:
 
     public_member_api_docs: false
     prefer_asserts_with_message: false
-    
