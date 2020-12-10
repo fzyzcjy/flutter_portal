@@ -115,7 +115,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   Size get targetSize => _targetSize;
   set targetSize(Size value) {
-    assert(value != null, 'targetSize cannot be null');
     if (_targetSize == value) {
       return;
     }

@@ -43,8 +43,7 @@ import 'custom_follower.dart';
 /// is pushed.
 class Portal extends StatefulWidget {
   const Portal({Key? key, required this.child})
-      : assert(child != null),
-        super(key: key);
+      : super(key: key);
 
   final Widget child;
 
@@ -122,7 +121,6 @@ class _RenderPortalTheater extends RenderProxyBox {
   _OverlayLink _overlayLink;
   _OverlayLink get overlayLink => _overlayLink;
   set overlayLink(_OverlayLink value) {
-    assert(value != null, 'overlayLink cannot be null');
     if (_overlayLink != value) {
       assert(
         value.theater == null,
@@ -352,8 +350,7 @@ class PortalEntry extends StatefulWidget {
     this.portal,
     this.closeDuration,
     required this.child,
-  })   : assert(child != null),
-        assert(visible == false || portal != null),
+  })   : assert(visible == false || portal != null),
         assert((childAnchor == null) == (portalAnchor == null)),
         super(key: key);
 
@@ -471,9 +468,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     required this.overlayLink,
     this.loosen = false,
     required Widget child,
-  })   : assert(child != null, 'child cannot be null'),
-        assert(overlayLink != null, 'overlayLink cannot be null'),
-        super(key: key, child: child);
+  })   : super(key: key, child: child);
 
   final Widget? portal;
   final bool loosen;
