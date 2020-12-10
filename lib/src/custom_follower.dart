@@ -102,10 +102,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     if (_link == value) {
       return;
     }
-    if (_link == null || value == null) {
-      markNeedsCompositingBitsUpdate();
-      markNeedsLayoutForSizedByParentChange();
-    }
     _link = value;
     markNeedsPaint();
   }
@@ -129,10 +125,10 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  bool get alwaysNeedsCompositing => link != null;
+  bool get alwaysNeedsCompositing => true;
 
   @override
-  bool get sizedByParent => link == null;
+  bool get sizedByParent => false;
 
   @override
   FollowerLayer? get layer => super.layer as FollowerLayer?;
@@ -149,9 +145,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    if (link == null) {
-      return super.hitTestChildren(result, position: position);
-    }
     return result.addWithPaintTransform(
       transform: getCurrentTransform(),
       position: position,
@@ -177,12 +170,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (link == null) {
-      layer = null;
-      super.paint(context, offset);
-      return;
-    }
-
     final linkedOffset = childAnchor.withinRect(
           Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
         ) -

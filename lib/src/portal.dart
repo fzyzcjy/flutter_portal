@@ -70,7 +70,7 @@ class _OverlayLink {
   _RenderPortalTheater? theater;
   BoxConstraints? get constraints => theater?.constraints;
 
-  final Set<RenderBox?> overlays = {};
+  final Set<RenderBox> overlays = {};
 }
 
 class _PortalLinkScope extends InheritedWidget {
@@ -135,7 +135,7 @@ class _RenderPortalTheater extends RenderProxyBox {
   @override
   void markNeedsLayout() {
     for (final overlay in overlayLink.overlays) {
-      overlay!.markNeedsLayout();
+      overlay.markNeedsLayout();
     }
     super.markNeedsLayout();
   }
@@ -144,7 +144,7 @@ class _RenderPortalTheater extends RenderProxyBox {
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
     for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
-      final overlay = overlayLink.overlays.elementAt(i)!;
+      final overlay = overlayLink.overlays.elementAt(i);
 
       context.paintChild(overlay, offset);
     }
@@ -153,7 +153,7 @@ class _RenderPortalTheater extends RenderProxyBox {
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     for (final overlay in overlayLink.overlays) {
-      if (overlay?.hitTest(result, position: position) ?? false) {
+      if (overlay.hitTest(result, position: position)) {
         return true;
       }
     }
@@ -583,7 +583,7 @@ class _RenderPortalEntry extends RenderProxyBox {
       }
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
-        _overlayLink.overlays.add(branch);
+        _overlayLink.overlays.add(branch!);
         _overlayLink.theater!.markNeedsPaint();
       }
     }
