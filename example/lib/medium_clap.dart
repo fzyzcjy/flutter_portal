@@ -8,7 +8,7 @@ import 'package:flutter_portal/flutter_portal.dart';
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 }
 
 class ClapButton extends StatefulWidget {
-  const ClapButton({Key key}) : super(key: key);
+  const ClapButton({Key? key}) : super(key: key);
 
   @override
   _ClapButtonState createState() => _ClapButtonState();
@@ -35,7 +35,7 @@ class ClapButton extends StatefulWidget {
 class _ClapButtonState extends State<ClapButton> {
   int clapCount = 0;
   bool hasClappedRecently = false;
-  Timer resetHasClappedRecentlyTimer;
+  Timer? resetHasClappedRecentlyTimer;
 
   @override
   Widget build(BuildContext context) {
