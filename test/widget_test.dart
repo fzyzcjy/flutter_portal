@@ -15,11 +15,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_portal/flutter_portal.dart';
-import 'package:mockito/mockito.dart';
 
 Future<ByteData> fetchFont() async {
   final roboto = File.fromUri(
-    Uri.parse('${Directory.current.path}/../assets/Roboto-Regular.ttf'),
+    Uri.file('${Directory.current.path}/../assets/Roboto-Regular.ttf'),
   );
   final bytes = Uint8List.fromList(await roboto.readAsBytes());
   return ByteData.view(bytes.buffer);
@@ -452,16 +451,6 @@ Future<void> main() async {
 
     expect(find.text('first'), findsNothing);
     expect(find.text('second'), findsOneWidget);
-  });
-
-  test('PortalEntry requires a child', () {
-    expect(
-      () => PortalEntry(
-        portal: Container(),
-        child: null,
-      ),
-      throwsAssertionError,
-    );
   });
 
   test('PortalEntry requires portal if visible is true ', () {
@@ -1227,7 +1216,7 @@ Future<void> main() async {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        builder: (_, child) => Portal(child: child),
+        builder: (_, child) => Portal(child: child!),
         home: const PortalEntry(
           portal: Text('portal'),
           child: Text('child'),
@@ -1243,7 +1232,7 @@ Future<void> main() async {
       (tester) async {
     await tester.pumpWidget(
       CupertinoApp(
-        builder: (_, child) => Portal(child: child),
+        builder: (_, child) => Portal(child: child!),
         home: const PortalEntry(
           portal: Text('portal'),
           child: Text('child'),
@@ -1280,7 +1269,7 @@ Future<void> main() async {
   });
 
   testWidgets(
-      'both entry and modal rebuilds withint the same frame with layoutbuilder between portal and entry',
+      'both entry and modal rebuilds within the same frame with layoutbuilder between portal and entry',
       (tester) async {
     final entryNotifier = ValueNotifier(0);
     final mainNotifier = ValueNotifier(0);
@@ -1317,8 +1306,8 @@ Future<void> main() async {
 
     expect(find.text('0'), findsOneWidget);
     expect(find.text('0 0'), findsOneWidget);
-    verify(entryBuild(0, 0)).called(1);
-    verifyNoMoreInteractions(entryBuild);
+    expect(entryBuild.calls, [EntryBuildSpyCall(0, 0)]);
+    entryBuild.calls.clear();
 
     mainNotifier.value++;
     entryNotifier.value++;
@@ -1326,11 +1315,8 @@ Future<void> main() async {
 
     expect(find.text('1'), findsOneWidget);
     expect(find.text('1 1'), findsOneWidget);
-    verifyInOrder([
-      entryBuild(0, 1),
-      entryBuild(1, 1),
-    ]);
-    verifyNoMoreInteractions(entryBuild);
+    expect(
+        entryBuild.calls, [EntryBuildSpyCall(0, 1), EntryBuildSpyCall(1, 1)]);
   });
 
   testWidgets('layout builder between portal and entry on first build',
@@ -1588,9 +1574,9 @@ Future<void> main() async {
 }
 
 class Boilerplate extends StatelessWidget {
-  const Boilerplate({Key key, this.child}) : super(key: key);
+  const Boilerplate({Key? key, this.child}) : super(key: key);
 
-  final Widget child;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -1606,6 +1592,25 @@ class Boilerplate extends StatelessWidget {
 mixin Noop {}
 class TestPortal = Portal with Noop;
 
-class EntryBuildSpy extends Mock {
-  void call(int value1, int value2);
+class EntryBuildSpyCall {
+  const EntryBuildSpyCall(this.value1, this.value2);
+
+  final int value1;
+  final int value2;
+
+  bool operator ==(dynamic o) =>
+      o is EntryBuildSpyCall && o.value1 == value1 && o.value2 == value2;
+
+  @override
+  String toString() {
+    return 'EntryBuildSpyCall($value1, $value2)';
+  }
+}
+
+class EntryBuildSpy {
+  final List<EntryBuildSpyCall> calls = [];
+
+  void call(int value1, int value2) {
+    calls.add(EntryBuildSpyCall(value1, value2));
+  }
 }
