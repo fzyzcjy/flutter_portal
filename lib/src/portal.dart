@@ -379,14 +379,8 @@ class PortalEntry extends StatefulWidget {
 
 class _PortalEntryState extends State<PortalEntry> {
   final _link = LayerLink();
-  late bool _visible;
+  late bool _visible = widget.visible;
   Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _visible = widget.visible;
-  }
 
   @override
   void didUpdateWidget(PortalEntry oldWidget) {
