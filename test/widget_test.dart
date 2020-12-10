@@ -1306,7 +1306,7 @@ Future<void> main() async {
 
     expect(find.text('0'), findsOneWidget);
     expect(find.text('0 0'), findsOneWidget);
-    expect(entryBuild.calls, [EntryBuildSpyCall(0, 0)]);
+    expect(entryBuild.calls, const [EntryBuildSpyCall(0, 0)]);
     entryBuild.calls.clear();
 
     mainNotifier.value++;
@@ -1315,8 +1315,8 @@ Future<void> main() async {
 
     expect(find.text('1'), findsOneWidget);
     expect(find.text('1 1'), findsOneWidget);
-    expect(
-        entryBuild.calls, [EntryBuildSpyCall(0, 1), EntryBuildSpyCall(1, 1)]);
+    expect(entryBuild.calls,
+        const [EntryBuildSpyCall(0, 1), EntryBuildSpyCall(1, 1)]);
   });
 
   testWidgets('layout builder between portal and entry on first build',
@@ -1592,14 +1592,19 @@ class Boilerplate extends StatelessWidget {
 mixin Noop {}
 class TestPortal = Portal with Noop;
 
+@immutable
 class EntryBuildSpyCall {
   const EntryBuildSpyCall(this.value1, this.value2);
 
   final int value1;
   final int value2;
 
+  @override
   bool operator ==(dynamic o) =>
       o is EntryBuildSpyCall && o.value1 == value1 && o.value2 == value2;
+
+  @override
+  int get hashCode => hashValues(value1, value2);
 
   @override
   String toString() {
