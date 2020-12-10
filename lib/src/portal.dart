@@ -42,7 +42,7 @@ import 'custom_follower.dart';
 /// This way, your modals/snackbars will stop being visible when a new route
 /// is pushed.
 class Portal extends StatefulWidget {
-  const Portal({Key key, @required this.child})
+  const Portal({Key? key, required this.child})
       : assert(child != null),
         super(key: key);
 
@@ -68,18 +68,18 @@ class _PortalState extends State<Portal> {
 }
 
 class _OverlayLink {
-  _RenderPortalTheater theater;
-  BoxConstraints get constraints => theater.constraints;
+  _RenderPortalTheater? theater;
+  BoxConstraints? get constraints => theater?.constraints;
 
-  final Set<RenderBox> overlays = {};
+  final Set<RenderBox?> overlays = {};
 }
 
 class _PortalLinkScope extends InheritedWidget {
   const _PortalLinkScope({
-    Key key,
-    @required _OverlayLink overlayLink,
-    @required Widget child,
-  })  : _overlayLink = overlayLink,
+    Key? key,
+    required _OverlayLink overlayLink,
+    required Widget child,
+  })   : _overlayLink = overlayLink,
         super(key: key, child: child);
 
   final _OverlayLink _overlayLink;
@@ -92,10 +92,10 @@ class _PortalLinkScope extends InheritedWidget {
 
 class _PortalTheater extends SingleChildRenderObjectWidget {
   const _PortalTheater({
-    Key key,
-    @required _OverlayLink overlayLink,
-    @required Widget child,
-  })  : _overlayLink = overlayLink,
+    Key? key,
+    required _OverlayLink overlayLink,
+    required Widget child,
+  })   : _overlayLink = overlayLink,
         super(key: key, child: child);
 
   final _OverlayLink _overlayLink;
@@ -115,8 +115,8 @@ class _PortalTheater extends SingleChildRenderObjectWidget {
 }
 
 class _RenderPortalTheater extends RenderProxyBox {
-  _RenderPortalTheater(_OverlayLink _overlayLink) {
-    overlayLink = _overlayLink;
+  _RenderPortalTheater(this._overlayLink) {
+    _overlayLink.theater = this;
   }
 
   _OverlayLink _overlayLink;
@@ -128,7 +128,7 @@ class _RenderPortalTheater extends RenderProxyBox {
         value.theater == null,
         'overlayLink already assigned to another portal',
       );
-      _overlayLink?.theater = null;
+      _overlayLink.theater = null;
       _overlayLink = value;
       value.theater = this;
     }
@@ -137,7 +137,7 @@ class _RenderPortalTheater extends RenderProxyBox {
   @override
   void markNeedsLayout() {
     for (final overlay in overlayLink.overlays) {
-      overlay.markNeedsLayout();
+      overlay!.markNeedsLayout();
     }
     super.markNeedsLayout();
   }
@@ -146,14 +146,14 @@ class _RenderPortalTheater extends RenderProxyBox {
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
     for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
-      final overlay = overlayLink.overlays.elementAt(i);
+      final overlay = overlayLink.overlays.elementAt(i)!;
 
       context.paintChild(overlay, offset);
     }
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     for (final overlay in overlayLink.overlays) {
       if (overlay?.hitTest(result, position: position) ?? false) {
         return true;
@@ -345,25 +345,25 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// ```
 class PortalEntry extends StatefulWidget {
   const PortalEntry({
-    Key key,
+    Key? key,
     this.visible = true,
     this.childAnchor,
     this.portalAnchor,
     this.portal,
     this.closeDuration,
-    @required this.child,
-  })  : assert(child != null),
+    required this.child,
+  })   : assert(child != null),
         assert(visible == false || portal != null),
         assert((childAnchor == null) == (portalAnchor == null)),
         super(key: key);
 
   // ignore: diagnostic_describe_all_properties, conflicts with closeDuration
   final bool visible;
-  final Alignment portalAnchor;
-  final Alignment childAnchor;
-  final Widget portal;
+  final Alignment? portalAnchor;
+  final Alignment? childAnchor;
+  final Widget? portal;
   final Widget child;
-  final Duration closeDuration;
+  final Duration? closeDuration;
 
   @override
   _PortalEntryState createState() => _PortalEntryState();
@@ -382,8 +382,8 @@ class PortalEntry extends StatefulWidget {
 
 class _PortalEntryState extends State<PortalEntry> {
   final _link = LayerLink();
-  bool _visible;
-  Timer _timer;
+  late bool _visible;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -399,7 +399,7 @@ class _PortalEntryState extends State<PortalEntry> {
         // rebuild when the portal is in progress of being hidden
       } else if (oldWidget.visible && widget.closeDuration != null) {
         _timer?.cancel();
-        _timer = Timer(widget.closeDuration, () {
+        _timer = Timer(widget.closeDuration!, () {
           setState(() => _visible = false);
         });
       } else {
@@ -443,8 +443,8 @@ class _PortalEntryState extends State<PortalEntry> {
                   loosen: true,
                   portal: MyCompositedTransformFollower(
                     link: _link,
-                    childAnchor: widget.childAnchor,
-                    portalAnchor: widget.portalAnchor,
+                    childAnchor: widget.childAnchor!,
+                    portalAnchor: widget.portalAnchor!,
                     targetSize: constraints.biggest,
                     child: widget.portal,
                   ),
@@ -466,16 +466,16 @@ class _PortalEntryState extends State<PortalEntry> {
 
 class _PortalEntryTheater extends SingleChildRenderObjectWidget {
   const _PortalEntryTheater({
-    Key key,
-    @required this.portal,
-    @required this.overlayLink,
+    Key? key,
+    required this.portal,
+    required this.overlayLink,
     this.loosen = false,
-    @required Widget child,
-  })  : assert(child != null, 'child cannot be null'),
+    required Widget child,
+  })   : assert(child != null, 'child cannot be null'),
         assert(overlayLink != null, 'overlayLink cannot be null'),
         super(key: key, child: child);
 
-  final Widget portal;
+  final Widget? portal;
   final bool loosen;
   final _OverlayLink overlayLink;
 
@@ -507,16 +507,15 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 }
 
 class _RenderPortalEntry extends RenderProxyBox {
-  _RenderPortalEntry(this._overlayLink, {@required bool loosen}) {
-    this.loosen = loosen;
-  }
+  _RenderPortalEntry(this._overlayLink, {required bool loosen})
+      : assert(_overlayLink.theater != null),
+        _loosen = loosen;
 
   bool _needsAddEntryInTheater = false;
 
   _OverlayLink _overlayLink;
   _OverlayLink get overlayLink => _overlayLink;
   set overlayLink(_OverlayLink value) {
-    assert(value != null);
     assert(value.theater != null);
     if (_overlayLink != value) {
       _overlayLink = value;
@@ -533,18 +532,18 @@ class _RenderPortalEntry extends RenderProxyBox {
     }
   }
 
-  RenderBox _branch;
-  RenderBox get branch => _branch;
-  set branch(RenderBox value) {
+  RenderBox? _branch;
+  RenderBox? get branch => _branch;
+  set branch(RenderBox? value) {
     if (_branch != null) {
       _overlayLink.overlays.remove(branch);
-      _overlayLink.theater.markNeedsPaint();
-      dropChild(_branch);
+      _overlayLink.theater!.markNeedsPaint();
+      dropChild(_branch!);
     }
     _branch = value;
     if (_branch != null) {
       markNeedsAddEntryInTheater();
-      adoptChild(_branch);
+      adoptChild(_branch!);
     }
   }
 
@@ -558,7 +557,7 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.attach(owner);
     if (_branch != null) {
       markNeedsAddEntryInTheater();
-      _branch.attach(owner);
+      _branch!.attach(owner);
     }
   }
 
@@ -567,15 +566,15 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.detach();
     if (_branch != null) {
       _overlayLink.overlays.remove(branch);
-      _overlayLink.theater.markNeedsPaint();
-      _branch.detach();
+      _overlayLink.theater!.markNeedsPaint();
+      _branch!.detach();
     }
   }
 
   @override
   void markNeedsPaint() {
     super.markNeedsPaint();
-    overlayLink.theater.markNeedsPaint();
+    overlayLink.theater!.markNeedsPaint();
   }
 
   @override
@@ -583,14 +582,14 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.performLayout();
     if (branch != null) {
       if (loosen) {
-        branch.layout(overlayLink.constraints.loosen());
+        branch!.layout(overlayLink.constraints!.loosen());
       } else {
-        branch.layout(BoxConstraints.tight(overlayLink.constraints.biggest));
+        branch!.layout(BoxConstraints.tight(overlayLink.constraints!.biggest));
       }
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
         _overlayLink.overlays.add(branch);
-        _overlayLink.theater.markNeedsPaint();
+        _overlayLink.theater!.markNeedsPaint();
       }
     }
   }
@@ -599,7 +598,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
     if (child == branch) {
       // ignore all transformations applied between Portal and PortalEntry
-      transform.setFrom(overlayLink.theater.getTransformTo(null));
+      transform.setFrom(overlayLink.theater!.getTransformTo(null));
     }
   }
 
@@ -607,7 +606,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   void redepthChildren() {
     super.redepthChildren();
     if (branch != null) {
-      redepthChild(branch);
+      redepthChild(branch!);
     }
   }
 
@@ -615,7 +614,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   void visitChildren(RenderObjectVisitor visitor) {
     super.visitChildren(visitor);
     if (branch != null) {
-      visitor(branch);
+      visitor(branch!);
     }
   }
 
@@ -639,12 +638,12 @@ class _PortalEntryElement extends SingleChildRenderObjectElement {
   _RenderPortalEntry get renderObject =>
       super.renderObject as _RenderPortalEntry;
 
-  Element _branch;
+  Element? _branch;
 
   final _branchSlot = 42;
 
   @override
-  void mount(Element parent, dynamic newSlot) {
+  void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
     _branch = updateChild(_branch, widget.portal, _branchSlot);
   }
@@ -659,7 +658,7 @@ class _PortalEntryElement extends SingleChildRenderObjectElement {
   void visitChildren(ElementVisitor visitor) {
     // branch first so that it is unmounted before the main tree
     if (_branch != null) {
-      visitor(_branch);
+      visitor(_branch!);
     }
     super.visitChildren(visitor);
   }
