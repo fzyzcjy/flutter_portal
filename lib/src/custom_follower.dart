@@ -160,15 +160,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  void performLayout() {
-    if (sizedByParent) {
-      child!.layout(BoxConstraints.tight(size));
-    } else {
-      super.performLayout();
-    }
-  }
-
-  @override
   void paint(PaintingContext context, Offset offset) {
     final linkedOffset = childAnchor.withinRect(
           Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
