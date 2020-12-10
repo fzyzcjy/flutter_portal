@@ -42,8 +42,7 @@ import 'custom_follower.dart';
 /// This way, your modals/snackbars will stop being visible when a new route
 /// is pushed.
 class Portal extends StatefulWidget {
-  const Portal({Key? key, required this.child})
-      : super(key: key);
+  const Portal({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 
@@ -462,7 +461,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     required this.overlayLink,
     this.loosen = false,
     required Widget child,
-  })   : super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   final Widget? portal;
   final bool loosen;
