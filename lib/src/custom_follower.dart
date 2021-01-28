@@ -37,7 +37,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, MyRenderFollowerLayer renderObject) {
+    BuildContext context,
+    MyRenderFollowerLayer renderObject,
+  ) {
     renderObject
       ..link = link
       ..targetSize = targetSize
