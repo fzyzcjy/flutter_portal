@@ -1,5 +1,5 @@
 name: flutter_portal
-version: 0.3.0
+version: 0.4.0-nullsafety.0
 description: Overlay/OverlayEntry, but implemented as a widget for a declarative API.
 homepage: https://github.com/rrousselGit/flutter_portal
 authors:

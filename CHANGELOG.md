@@ -1,3 +1,7 @@
+# 0.4.0-nullsafety.0
+
+Migrated to null-safety (thanks to @Jjagg!)
+
 # 0.3.0
 
 - Improved the dart-doc of Portal and PortalEntry
