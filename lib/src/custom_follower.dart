@@ -5,12 +5,12 @@ import 'package:flutter/widgets.dart';
 class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   /// @nodoc
   const MyCompositedTransformFollower({
-    Key key,
-    @required this.link,
-    this.targetSize,
-    this.childAnchor,
-    this.portalAnchor,
-    Widget child,
+    Key? key,
+    required this.link,
+    required this.targetSize,
+    required this.childAnchor,
+    required this.portalAnchor,
+    Widget? child,
   }) : super(key: key, child: child);
 
   /// @nodoc
@@ -27,15 +27,19 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
 
   @override
   MyRenderFollowerLayer createRenderObject(BuildContext context) {
-    return MyRenderFollowerLayer(link: link)
-      ..targetSize = targetSize
-      ..childAnchor = childAnchor
-      ..portalAnchor = portalAnchor;
+    return MyRenderFollowerLayer(
+      childAnchor: childAnchor,
+      portalAnchor: portalAnchor,
+      link: link,
+      targetSize: targetSize,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, MyRenderFollowerLayer renderObject) {
+    BuildContext context,
+    MyRenderFollowerLayer renderObject,
+  ) {
     renderObject
       ..link = link
       ..targetSize = targetSize
@@ -59,9 +63,15 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
 class MyRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   MyRenderFollowerLayer({
-    @required LayerLink link,
-    RenderBox child,
-  })  : _link = link,
+    required LayerLink link,
+    required Size targetSize,
+    required Alignment childAnchor,
+    required Alignment portalAnchor,
+    RenderBox? child,
+  })  : _childAnchor = childAnchor,
+        _portalAnchor = portalAnchor,
+        _link = link,
+        _targetSize = targetSize,
         super(child);
 
   Alignment _childAnchor;
@@ -94,10 +104,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     if (_link == value) {
       return;
     }
-    if (_link == null || value == null) {
-      markNeedsCompositingBitsUpdate();
-      markNeedsLayoutForSizedByParentChange();
-    }
     _link = value;
     markNeedsPaint();
   }
@@ -107,7 +113,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   Size get targetSize => _targetSize;
   set targetSize(Size value) {
-    assert(value != null, 'targetSize cannot be null');
     if (_targetSize == value) {
       return;
     }
@@ -122,13 +127,13 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  bool get alwaysNeedsCompositing => link != null;
+  bool get alwaysNeedsCompositing => true;
 
   @override
-  bool get sizedByParent => link == null;
+  bool get sizedByParent => false;
 
   @override
-  FollowerLayer get layer => super.layer as FollowerLayer;
+  FollowerLayer? get layer => super.layer as FollowerLayer?;
 
   /// @nodoc
   Matrix4 getCurrentTransform() {
@@ -136,15 +141,12 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  bool hitTest(BoxHitTestResult result, {Offset position}) {
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
     return hitTestChildren(result, position: position);
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    if (link == null) {
-      return super.hitTestChildren(result, position: position);
-    }
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     return result.addWithPaintTransform(
       transform: getCurrentTransform(),
       position: position,
@@ -160,22 +162,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  void performLayout() {
-    if (sizedByParent) {
-      child.layout(BoxConstraints.tight(size));
-    } else {
-      super.performLayout();
-    }
-  }
-
-  @override
   void paint(PaintingContext context, Offset offset) {
-    if (link == null) {
-      layer = null;
-      super.paint(context, offset);
-      return;
-    }
-
     final linkedOffset = childAnchor.withinRect(
           Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
         ) -
@@ -188,14 +175,14 @@ class MyRenderFollowerLayer extends RenderProxyBox {
         linkedOffset: linkedOffset,
       );
     } else {
-      layer
+      layer!
         ..link = link
         ..showWhenUnlinked = false
         ..linkedOffset = linkedOffset;
     }
 
     context.pushLayer(
-      layer,
+      layer!,
       super.paint,
       Offset.zero,
       childPaintBounds: const Rect.fromLTRB(
@@ -210,9 +197,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void applyPaintTransform(RenderBox child, Matrix4 transform) {
-    if (link != null) {
-      transform.multiply(getCurrentTransform());
-    }
+    transform.multiply(getCurrentTransform());
   }
 
   @override

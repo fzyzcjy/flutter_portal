@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
               children: [
                 const Text('You have clicked the button this many times:'),
                 Text('$count', style: Theme.of(context).textTheme.headline4),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () => setState(() => showDiscovery = true),
                   child: const Text('Show discovery'),
                 )
@@ -59,11 +59,11 @@ class _MyAppState extends State<MyApp> {
 
 class Discovery extends StatelessWidget {
   const Discovery({
-    Key key,
-    @required this.visible,
-    @required this.onClose,
-    @required this.description,
-    @required this.child,
+    Key? key,
+    required this.visible,
+    required this.onClose,
+    required this.description,
+    required this.child,
   }) : super(key: key);
 
   final Widget child;
@@ -102,7 +102,7 @@ class Discovery extends StatelessWidget {
               left: 50,
               width: 200,
               child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headline5!,
                 child: TweenAnimationBuilder<double>(
                   duration: kThemeAnimationDuration,
                   curve: Curves.easeOut,
@@ -157,10 +157,10 @@ class HolePainter extends CustomPainter {
 
 class Barrier extends StatelessWidget {
   const Barrier({
-    Key key,
-    @required this.onClose,
-    @required this.visible,
-    @required this.child,
+    Key? key,
+    required this.onClose,
+    required this.visible,
+    required this.child,
   }) : super(key: key);
 
   final Widget child;
@@ -189,4 +189,13 @@ class Barrier extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// Non-nullable version of ColorTween.
+class ColorTween extends Tween<Color> {
+  ColorTween({required Color begin, required Color end})
+      : super(begin: begin, end: end);
+
+  @override
+  Color lerp(double t) => Color.lerp(begin, end, t)!;
 }

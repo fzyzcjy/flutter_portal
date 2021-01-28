@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('Hello world'),
               ),
               onClose: () => setState(() => showModal = false),
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () => setState(() => showModal = true),
                 child: const Text('Show modal'),
               ),
@@ -42,11 +42,11 @@ class _MyAppState extends State<MyApp> {
 
 class Modal extends StatelessWidget {
   const Modal({
-    Key key,
-    @required this.visible,
-    @required this.onClose,
-    @required this.modal,
-    @required this.child,
+    Key? key,
+    required this.visible,
+    required this.onClose,
+    required this.modal,
+    required this.child,
   }) : super(key: key);
 
   final Widget child;
@@ -85,10 +85,10 @@ class Modal extends StatelessWidget {
 
 class Barrier extends StatelessWidget {
   const Barrier({
-    Key key,
-    @required this.onClose,
-    @required this.visible,
-    @required this.child,
+    Key? key,
+    required this.onClose,
+    required this.visible,
+    required this.child,
   }) : super(key: key);
 
   final Widget child;
@@ -117,4 +117,13 @@ class Barrier extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// Non-nullable version of ColorTween.
+class ColorTween extends Tween<Color> {
+  ColorTween({required Color begin, required Color end})
+      : super(begin: begin, end: end);
+
+  @override
+  Color lerp(double t) => Color.lerp(begin, end, t)!;
 }

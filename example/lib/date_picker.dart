@@ -7,11 +7,11 @@ void main() => runApp(const MyApp());
 
 class DeclarativeDatePicker extends StatelessWidget {
   const DeclarativeDatePicker({
-    Key key,
-    this.visible,
-    this.onDismissed,
-    this.onClose,
-    this.child,
+    Key? key,
+    required this.visible,
+    required this.onDismissed,
+    required this.onClose,
+    required this.child,
   }) : super(key: key);
 
   final bool visible;
@@ -36,7 +36,7 @@ class DeclarativeDatePicker extends StatelessWidget {
             child: Center(
               child: Card(
                 elevation: 16,
-                child: RaisedButton(
+                child: ElevatedButton(
                   onPressed: () => onClose(DateTime.now()),
                   child: const Text('today'),
                 ),
@@ -51,7 +51,7 @@ class DeclarativeDatePicker extends StatelessWidget {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +73,14 @@ class MyApp extends StatelessWidget {
 }
 
 class DatePickerUsageExample extends StatefulWidget {
-  const DatePickerUsageExample({Key key}) : super(key: key);
+  const DatePickerUsageExample({Key? key}) : super(key: key);
 
   @override
   _DatePickerUsageExampleState createState() => _DatePickerUsageExampleState();
 }
 
 class _DatePickerUsageExampleState extends State<DatePickerUsageExample> {
-  DateTime pickedDate;
+  DateTime? pickedDate;
   bool showDatePicker = false;
 
   @override
@@ -94,7 +94,7 @@ class _DatePickerUsageExampleState extends State<DatePickerUsageExample> {
         }),
         onDismissed: () => setState(() => showDatePicker = false),
         child: pickedDate == null
-            ? RaisedButton(
+            ? ElevatedButton(
                 onPressed: () => setState(() => showDatePicker = true),
                 child: const Text('pick a date'),
               )
