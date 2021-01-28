@@ -186,9 +186,9 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// ## Contextual menu example
 ///
 /// In this example, we will see how we can use [PortalEntry] to show a menu
-/// after clicking on a [RaisedButton].
+/// after clicking on a [ElevatedButton].
 ///
-/// First, we need to create a [StatefulWidget] that renders our [RaisedButton]:
+/// First, we need to create a [StatefulWidget] that renders our [ElevatedButton]:
 ///
 /// ```dart
 /// class MenuExample extends StatefulWidget {
@@ -201,7 +201,7 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   Widget build(BuildContext context) {
 ///     return Scaffold(
 ///       body: Center(
-///         child: RaisedButton(
+///         child: ElevatedButton(
 ///           onPressed: () {},
 ///           child: Text('show menu'),
 ///         ),
@@ -213,15 +213,15 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///
 /// Then, we need to insert our [PortalEntry] in the widget tree.
 ///
-/// We want our contextual menu to render right next to our [RaisedButton].
-/// As such, our [PortalEntry] should be the parent of [RaisedButton] like so:
+/// We want our contextual menu to render right next to our [ElevatedButton].
+/// As such, our [PortalEntry] should be the parent of [ElevatedButton] like so:
 ///
 /// ```dart
 /// Center(
 ///   child: PortalEntry(
-///     visible: // TODO
-///     portal: // TODO
-///     child: RaisedButton(
+///     visible: // <todo>
+///     portal: // <todo>
+///     child: ElevatedButton(
 ///       ...
 ///     ),
 ///   ),
@@ -256,7 +256,7 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// - our menu is always visible (because `visible` is _true_)
 ///
 /// Let's fix the full-screen issue first and change our code so that our
-/// menu renders on the _right_ of our [RaisedButton].
+/// menu renders on the _right_ of our [ElevatedButton].
 ///
 /// To align our menu around our button, we can specify the `childAnchor` and
 /// `portalAnchor` parameters:
@@ -272,7 +272,7 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// ```
 ///
 /// What this code means is, this will align the top-left of our menu with the
-/// top-right or the [RaisedButton].
+/// top-right or the [ElevatedButton].
 /// With this, our menu is no-longer full-screen and is now located to the right
 /// of our button.
 ///
@@ -298,11 +298,11 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// )
 /// ```
 ///
-/// Then, inside the `onPressed` callback of our [RaisedButton], we can
+/// Then, inside the `onPressed` callback of our [ElevatedButton], we can
 /// update this `isMenuOpen` variable:
 ///
 /// ```dart
-/// RaisedButton(
+/// ElevatedButton(
 ///   onPressed: () {
 ///     setState(() {
 ///       isMenuOpen = true;
@@ -335,7 +335,7 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///     child: PortalEntry(
 ///       // our previous PortalEntry
 ///       portal: Material(...)
-///       child: RaisedButton(...),
+///       child: ElevatedButton(...),
 ///     ),
 ///   ),
 /// )

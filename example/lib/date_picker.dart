@@ -36,7 +36,7 @@ class DeclarativeDatePicker extends StatelessWidget {
             child: Center(
               child: Card(
                 elevation: 16,
-                child: RaisedButton(
+                child: ElevatedButton(
                   onPressed: () => onClose(DateTime.now()),
                   child: const Text('today'),
                 ),
@@ -94,7 +94,7 @@ class _DatePickerUsageExampleState extends State<DatePickerUsageExample> {
         }),
         onDismissed: () => setState(() => showDatePicker = false),
         child: pickedDate == null
-            ? RaisedButton(
+            ? ElevatedButton(
                 onPressed: () => setState(() => showDatePicker = true),
                 child: const Text('pick a date'),
               )

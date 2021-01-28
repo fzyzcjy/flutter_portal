@@ -12,11 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
       matrix:
         channel:
           - dev
-          - stable
+          # - stable
 
     steps:
       - uses: actions/checkout@v2

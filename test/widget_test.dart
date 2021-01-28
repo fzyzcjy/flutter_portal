@@ -746,11 +746,11 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: PortalEntry(
-            portal: RaisedButton(
+            portal: ElevatedButton(
               onPressed: () => portalClickCount++,
               child: const Text('portal'),
             ),
-            child: RaisedButton(
+            child: ElevatedButton(
               onPressed: () => childClickCount++,
               child: const Text('child'),
             ),
@@ -778,11 +778,11 @@ Future<void> main() async {
             child: PortalEntry(
               portalAnchor: Alignment.bottomCenter,
               childAnchor: Alignment.topCenter,
-              portal: RaisedButton(
+              portal: ElevatedButton(
                 onPressed: () => portalClickCount++,
                 child: const Text('portal'),
               ),
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () => childClickCount++,
                 child: const Text('child'),
               ),

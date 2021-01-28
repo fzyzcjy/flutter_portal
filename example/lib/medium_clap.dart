@@ -64,7 +64,7 @@ class _ClapButtonState extends State<ClapButton> {
           child: Text('$clapCount'),
         ),
       ),
-      child: RaisedButton(
+      child: ElevatedButton(
         onPressed: _clap,
         child: const Icon(Icons.plus_one),
       ),

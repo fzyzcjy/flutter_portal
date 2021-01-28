@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('Hello world'),
               ),
               onClose: () => setState(() => showModal = false),
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () => setState(() => showModal = true),
                 child: const Text('Show modal'),
               ),

@@ -57,7 +57,7 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
             ),
           ],
         ),
-        child: RaisedButton(
+        child: ElevatedButton(
           onPressed: () => setState(() => _showMenu = true),
           child: const Text('show menu'),
         ),

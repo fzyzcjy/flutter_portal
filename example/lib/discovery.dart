@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
               children: [
                 const Text('You have clicked the button this many times:'),
                 Text('$count', style: Theme.of(context).textTheme.headline4),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () => setState(() => showDiscovery = true),
                   child: const Text('Show discovery'),
                 )
