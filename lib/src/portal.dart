@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,22 @@ class _OverlayLink {
   _RenderPortalTheater? theater;
   BoxConstraints? get constraints => theater?.constraints;
 
-  final Set<RenderBox> overlays = {};
+  final LinkedHashSet<RenderBox> _overlays = LinkedHashSet.identity();
+  final LinkedHashSet<RenderBox> _newOverlays = LinkedHashSet.identity();
+
+  void addOverlay(RenderBox overlay) => _newOverlays.add(overlay);
+  void removeOverlay(RenderBox? overlay) {
+    _overlays.remove(overlay);
+    _newOverlays.remove(overlay);
+  }
+
+  Iterable<RenderBox> get overlays {
+    while (_newOverlays.isNotEmpty) {
+      _overlays.add(_newOverlays.last);
+      _newOverlays.remove(_newOverlays.last);
+    }
+    return _overlays;
+  }
 }
 
 class _PortalLinkScope extends InheritedWidget {
@@ -142,16 +158,15 @@ class _RenderPortalTheater extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
-    for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
-      final overlay = overlayLink.overlays.elementAt(i);
-
+    for (final overlay in overlayLink.overlays) {
       context.paintChild(overlay, offset);
     }
   }
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    for (final overlay in overlayLink.overlays) {
+    for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
+      final overlay = overlayLink.overlays.elementAt(i);
       if (overlay.hitTest(result, position: position)) {
         return true;
       }
@@ -524,7 +539,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   RenderBox? get branch => _branch;
   set branch(RenderBox? value) {
     if (_branch != null) {
-      _overlayLink.overlays.remove(branch);
+      _overlayLink.removeOverlay(branch);
       _overlayLink.theater!.markNeedsPaint();
       dropChild(_branch!);
     }
@@ -553,7 +568,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   void detach() {
     super.detach();
     if (_branch != null) {
-      _overlayLink.overlays.remove(branch);
+      _overlayLink.removeOverlay(branch);
       _overlayLink.theater!.markNeedsPaint();
       _branch!.detach();
     }
@@ -576,7 +591,7 @@ class _RenderPortalEntry extends RenderProxyBox {
       }
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
-        _overlayLink.overlays.add(branch!);
+        _overlayLink.addOverlay(branch!);
         _overlayLink.theater!.markNeedsPaint();
       }
     }
