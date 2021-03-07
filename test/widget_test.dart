@@ -1571,6 +1571,57 @@ Future<void> main() async {
     await expectLater(
         find.byType(Portal), matchesGoldenFile('paint_order.jpg'));
   });
+
+  testWidgets('portal in portal with anchors', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    final visibleChild = ValueNotifier(false);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: Portal(
+          child: PortalEntry(
+            childAnchor: Alignment.center,
+            portalAnchor: Alignment.topLeft,
+            portal: ValueListenableBuilder<bool>(
+              valueListenable: visibleChild,
+              builder: (_, visibleChild, __) => PortalEntry(
+                visible: visibleChild,
+                childAnchor: Alignment.center,
+                portalAnchor: Alignment.topLeft,
+                portal: Container(
+                  height: 30,
+                  width: 30,
+                  color: Colors.blue,
+                ),
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            child: Center(
+              child: Container(
+                height: 30,
+                width: 30,
+                color: Colors.yellow,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    visibleChild.value = true;
+
+    await tester.pump();
+
+    await expectLater(
+        find.byType(Portal), matchesGoldenFile('portal_in_portal.png'));
+  });
 }
 
 class Boilerplate extends StatelessWidget {
