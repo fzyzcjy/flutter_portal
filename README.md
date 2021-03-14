@@ -1,6 +1,15 @@
 [![Build Status](https://travis-ci.org/rrousselGit/flutter_portal.svg?branch=master)](https://travis-ci.org/rrousselGit/flutter_portal)
 [![pub package](https://img.shields.io/pub/v/flutter_portal.svg)](https://pub.dartlang.org/packages/flutter_portal) [![codecov](https://codecov.io/gh/rrousselGit/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/flutter_portal)
 
+## Call for maintainer
+
+
+I (@rrousselGit) am sadly unable to maintain flutter_portal at the moment due to a lack of time, and would like to find
+a new maintainer.  
+If you are interested in taking over flutter_portal, open an issue saying that you are interested or reach out to me at darky12s@gmail.com.
+
+Thanks!
+
 ## Motivation
 
 A common use-case for UIs is to show "overlays". They come in all shapes and forms:
