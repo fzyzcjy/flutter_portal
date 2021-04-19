@@ -77,7 +77,7 @@ class _PortalLinkScope extends InheritedWidget {
     Key? key,
     required _OverlayLink overlayLink,
     required Widget child,
-  })   : _overlayLink = overlayLink,
+  })  : _overlayLink = overlayLink,
         super(key: key, child: child);
 
   final _OverlayLink _overlayLink;
@@ -93,7 +93,7 @@ class _PortalTheater extends SingleChildRenderObjectWidget {
     Key? key,
     required _OverlayLink overlayLink,
     required Widget child,
-  })   : _overlayLink = overlayLink,
+  })  : _overlayLink = overlayLink,
         super(key: key, child: child);
 
   final _OverlayLink _overlayLink;
@@ -349,7 +349,7 @@ class PortalEntry extends StatefulWidget {
     this.portal,
     this.closeDuration,
     required this.child,
-  })   : assert(visible == false || portal != null),
+  })  : assert(visible == false || portal != null),
         assert((childAnchor == null) == (portalAnchor == null)),
         super(key: key);
 
