@@ -18,6 +18,28 @@ abstract class Anchor {
 }
 
 @immutable
+class FullScreen implements Anchor {
+  const FullScreen();
+
+  @override
+  BoxConstraints getSourceConstraints(
+    BoxConstraints constraints,
+    Rect targetRect,
+  ) {
+    return BoxConstraints.tight(constraints.biggest);
+  }
+
+  @override
+  Offset getSourceOffset({
+    required Size sourceSize,
+    required Rect targetRect,
+    required Rect overlayRect,
+  }) {
+    return Offset.zero;
+  }
+}
+
+@immutable
 class Aligned implements Anchor {
   const Aligned({
     required this.source,

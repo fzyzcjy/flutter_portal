@@ -345,10 +345,7 @@ class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key? key,
     this.visible = true,
-    this.anchor = const Aligned(
-      target: Alignment.bottomRight,
-      source: Alignment.topRight,
-    ),
+    this.anchor = const FullScreen(),
     this.portal,
     this.closeDuration,
     required this.child,
@@ -408,6 +405,16 @@ class _PortalEntryState extends State<PortalEntry> {
         context.dependOnInheritedWidgetOfExactType<_PortalLinkScope>();
     if (scope == null) {
       throw PortalNotFoundError._(widget);
+    }
+
+    if (widget.anchor is FullScreen) {
+      return _PortalEntryTheater(
+        portal: _visible ? widget.portal : null,
+        anchor: widget.anchor,
+        targetSize: Size.zero,
+        overlayLink: scope._overlayLink,
+        child: widget.child,
+      );
     }
 
     return Stack(
