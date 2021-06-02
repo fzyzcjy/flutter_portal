@@ -42,8 +42,10 @@ class _ClapButtonState extends State<ClapButton> {
     return PortalEntry(
       visible: hasClappedRecently,
       // aligns the top-center of `child` with the bottom-center of `portal`
-      childAnchor: Alignment.topCenter,
-      portalAnchor: Alignment.bottomCenter,
+      anchor: const Aligned(
+        target: Alignment.topCenter,
+        source: Alignment.bottomCenter,
+      ),
       closeDuration: kThemeChangeDuration,
       portal: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: hasClappedRecently ? 1 : 0),

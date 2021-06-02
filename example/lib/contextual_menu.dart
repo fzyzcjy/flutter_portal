@@ -117,8 +117,10 @@ class ModalEntry extends StatelessWidget {
       child: PortalEntry(
         visible: visible,
         portal: menu,
-        portalAnchor: menuAnchor,
-        childAnchor: childAnchor,
+        anchor: const Aligned(
+          target: Alignment.center,
+          source: Alignment.center,
+        ),
         child: IgnorePointer(
           ignoring: visible,
           child: child,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'anchor.dart';
 import 'custom_follower.dart';
 
 /// The widget where a [PortalEntry] is rendered.
@@ -344,19 +345,16 @@ class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key? key,
     this.visible = true,
-    this.childAnchor,
-    this.portalAnchor,
+    this.anchor,
     this.portal,
     this.closeDuration,
     required this.child,
   })  : assert(visible == false || portal != null),
-        assert((childAnchor == null) == (portalAnchor == null)),
         super(key: key);
 
   // ignore: diagnostic_describe_all_properties, conflicts with closeDuration
   final bool visible;
-  final Alignment? portalAnchor;
-  final Alignment? childAnchor;
+  final Anchor? anchor;
   final Widget? portal;
   final Widget child;
   final Duration? closeDuration;
@@ -368,8 +366,7 @@ class PortalEntry extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor))
-      ..add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor))
+      ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portal', portal))
       ..add(DiagnosticsProperty<Widget>('child', child));
@@ -410,7 +407,7 @@ class _PortalEntryState extends State<PortalEntry> {
       throw PortalNotFoundError._(widget);
     }
 
-    if (widget.portalAnchor == null) {
+    if (widget.anchor == null) {
       return _PortalEntryTheater(
         portal: _visible ? widget.portal : null,
         overlayLink: scope._overlayLink,
@@ -433,8 +430,7 @@ class _PortalEntryState extends State<PortalEntry> {
                   loosen: true,
                   portal: MyCompositedTransformFollower(
                     link: _link,
-                    childAnchor: widget.childAnchor!,
-                    portalAnchor: widget.portalAnchor!,
+                    anchor: widget.anchor!,
                     targetSize: constraints.biggest,
                     child: widget.portal,
                   ),

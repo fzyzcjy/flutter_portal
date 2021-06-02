@@ -12,9 +12,9 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_portal/flutter_portal.dart';
 
 Future<ByteData> fetchFont() async {
   final roboto = File.fromUri(
@@ -79,8 +79,10 @@ Future<void> main() async {
         child: Portal(
           child: PortalEntry(
             closeDuration: Duration(seconds: 5),
-            childAnchor: Alignment.center,
-            portalAnchor: Alignment.center,
+            anchor: Aligned(
+              target: Alignment.center,
+              source: Alignment.center,
+            ),
             portal: Text('portal'),
             child: Text('child'),
           ),
@@ -96,8 +98,7 @@ Future<void> main() async {
           child: PortalEntry(
             visible: false,
             closeDuration: Duration(seconds: 6),
-            childAnchor: Alignment.center,
-            portalAnchor: Alignment.center,
+            anchor: Aligned.center,
             portal: Text('portal'),
             child: Text('child'),
           ),
@@ -378,8 +379,7 @@ Future<void> main() async {
       const Boilerplate(
         child: Portal(
           child: PortalEntry(
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
+            anchor: Aligned.center,
             portal: Text('portal'),
             child: Text('child'),
           ),
@@ -394,8 +394,7 @@ Future<void> main() async {
         child: Portal(
           child: PortalEntry(
             visible: false,
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
+            anchor: Aligned.center,
             portal: Text('portal'),
             child: Text('child'),
           ),
@@ -412,8 +411,7 @@ Future<void> main() async {
       const Boilerplate(
         child: Portal(
           child: PortalEntry(
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
+            anchor: Aligned.center,
             portal: Text('portal'),
             child: Text('child'),
           ),
@@ -613,7 +611,7 @@ Future<void> main() async {
       exception.toString(),
       equals('Error: Could not find a Portal above this '
           'PortalEntry('
-          'portalAnchor: null, childAnchor: null, '
+          'anchor: null, '
           'closeDuration: 0:00:05.000000, '
           'portal: Text, child: Text).\n'),
     );
@@ -641,8 +639,10 @@ Future<void> main() async {
                       width: 50,
                       color: Colors.blue,
                     ),
-                    portalAnchor: Alignment.bottomCenter,
-                    childAnchor: Alignment.topCenter,
+                    anchor: const Aligned(
+                      source: Alignment.bottomCenter,
+                      target: Alignment.topCenter,
+                    ),
                     child: Container(
                       height: 50,
                       width: 50,
@@ -776,8 +776,10 @@ Future<void> main() async {
           // center the entry otherwise the portal is outside the screen
           child: Center(
             child: PortalEntry(
-              portalAnchor: Alignment.bottomCenter,
-              childAnchor: Alignment.topCenter,
+              anchor: const Aligned(
+                source: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
               portal: ElevatedButton(
                 onPressed: () => portalClickCount++,
                 child: const Text('portal'),
@@ -813,8 +815,8 @@ Future<void> main() async {
           child: Align(
             alignment: Alignment.topLeft,
             child: PortalEntry(
-              portalAnchor: Alignment.topLeft,
-              childAnchor: Alignment.bottomLeft,
+              anchor: Aligned(
+                  source: Alignment.topLeft, target: Alignment.bottomLeft),
               portal: SizedBox(key: portalKey, height: 42, width: 24),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
@@ -845,8 +847,10 @@ Future<void> main() async {
           child: Align(
             alignment: Alignment.topRight,
             child: PortalEntry(
-              portalAnchor: Alignment.topRight,
-              childAnchor: Alignment.bottomRight,
+              anchor: Aligned(
+                source: Alignment.topRight,
+                target: Alignment.bottomRight,
+              ),
               portal: SizedBox(key: portalKey, height: 24, width: 42),
               child: SizedBox(key: childKey, height: 20, width: 20),
             ),
@@ -880,8 +884,10 @@ Future<void> main() async {
           child: Align(
             alignment: Alignment.bottomRight,
             child: PortalEntry(
-              childAnchor: Alignment.topRight,
-              portalAnchor: Alignment.bottomRight,
+              anchor: Aligned(
+                source: Alignment.bottomRight,
+                target: Alignment.topRight,
+              ),
               portal: SizedBox(key: portalKey, height: 20, width: 20),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
@@ -995,8 +1001,10 @@ Future<void> main() async {
         child: Portal(
           child: Center(
             child: PortalEntry(
-              childAnchor: Alignment.bottomCenter,
-              portalAnchor: Alignment.topCenter,
+              anchor: const Aligned(
+                source: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
               portal: GestureDetector(
                 key: portalKey,
                 onTap: () => portalClickCount++,
@@ -1090,8 +1098,10 @@ Future<void> main() async {
         child: Portal(
           child: Center(
             child: PortalEntry(
-              childAnchor: Alignment.topCenter,
-              portalAnchor: Alignment.bottomCenter,
+              anchor: const Aligned(
+                source: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
               portal: portal,
               child: child,
             ),
@@ -1242,30 +1252,6 @@ Future<void> main() async {
 
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
-  });
-
-  testWidgets('if one anchor is null, the other one must be', (tester) async {
-    expect(
-      () => PortalEntry(
-        childAnchor: Alignment.center,
-        portal: Container(),
-        child: Container(),
-      ),
-      throwsAssertionError,
-    );
-    expect(
-      () => PortalEntry(
-        portalAnchor: Alignment.center,
-        portal: Container(),
-        child: Container(),
-      ),
-      throwsAssertionError,
-    );
-
-    PortalEntry(
-      portal: Container(),
-      child: Container(),
-    );
   });
 
   testWidgets(

@@ -1,6 +1,8 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'anchor.dart';
+
 /// @nodoc
 class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   /// @nodoc
@@ -8,16 +10,12 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     required this.targetSize,
-    required this.childAnchor,
-    required this.portalAnchor,
+    required this.anchor,
     Widget? child,
   }) : super(key: key, child: child);
 
   /// @nodoc
-  final Alignment childAnchor;
-
-  /// @nodoc
-  final Alignment portalAnchor;
+  final Anchor anchor;
 
   /// @nodoc
   final LayerLink link;
@@ -28,8 +26,7 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   @override
   MyRenderFollowerLayer createRenderObject(BuildContext context) {
     return MyRenderFollowerLayer(
-      childAnchor: childAnchor,
-      portalAnchor: portalAnchor,
+      anchor: anchor,
       link: link,
       targetSize: targetSize,
     );
@@ -43,17 +40,13 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     renderObject
       ..link = link
       ..targetSize = targetSize
-      ..childAnchor = childAnchor
-      ..portalAnchor = portalAnchor;
+      ..anchor = anchor;
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Alignment>('childAnchor', childAnchor));
-    properties.add(
-      DiagnosticsProperty<Alignment>('portalAnchor', portalAnchor),
-    );
+    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
   }
@@ -65,33 +58,20 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   MyRenderFollowerLayer({
     required LayerLink link,
     required Size targetSize,
-    required Alignment childAnchor,
-    required Alignment portalAnchor,
+    required Anchor anchor,
     RenderBox? child,
-  })  : _childAnchor = childAnchor,
-        _portalAnchor = portalAnchor,
+  })  : _anchor = anchor,
         _link = link,
         _targetSize = targetSize,
         super(child);
 
-  Alignment _childAnchor;
+  Anchor _anchor;
 
   /// @nodoc
-  Alignment get childAnchor => _childAnchor;
-  set childAnchor(Alignment childAnchor) {
-    if (childAnchor != _childAnchor) {
-      _childAnchor = childAnchor;
-      markNeedsPaint();
-    }
-  }
-
-  Alignment _portalAnchor;
-
-  /// @nodoc
-  Alignment get portalAnchor => _portalAnchor;
-  set portalAnchor(Alignment portalAnchor) {
-    if (portalAnchor != _portalAnchor) {
-      _portalAnchor = portalAnchor;
+  Anchor get anchor => _anchor;
+  set anchor(Anchor value) {
+    if (_anchor != value) {
+      _anchor = value;
       markNeedsPaint();
     }
   }
@@ -163,10 +143,17 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final linkedOffset = childAnchor.withinRect(
-          Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
-        ) -
-        portalAnchor.withinRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final linkedOffset = anchor.getSourceOffset(
+      sourceSize: size,
+      targetRect: Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
+      overlayRect: const Rect.fromLTRB(
+        // We don't know where we'll end up, so we have no idea what our cull rect should be.
+        0,
+        0,
+        double.infinity,
+        double.infinity,
+      ),
+    );
 
     if (layer == null) {
       layer = FollowerLayer(
@@ -207,8 +194,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
 
-    properties.add(DiagnosticsProperty('childAnchor', childAnchor));
-    properties.add(DiagnosticsProperty('portalAnchor', portalAnchor));
+    properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
   }
 }
