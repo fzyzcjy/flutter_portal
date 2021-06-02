@@ -52,7 +52,7 @@ class Portal extends StatefulWidget {
 }
 
 class _PortalState extends State<Portal> {
-  final _overlayLink = _OverlayLink();
+  final _overlayLink = OverlayLink();
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class _PortalState extends State<Portal> {
   }
 }
 
-class _OverlayLink {
+class OverlayLink {
   _RenderPortalTheater? theater;
   BoxConstraints? get constraints => theater?.constraints;
 
@@ -76,12 +76,12 @@ class _OverlayLink {
 class _PortalLinkScope extends InheritedWidget {
   const _PortalLinkScope({
     Key? key,
-    required _OverlayLink overlayLink,
+    required OverlayLink overlayLink,
     required Widget child,
   })  : _overlayLink = overlayLink,
         super(key: key, child: child);
 
-  final _OverlayLink _overlayLink;
+  final OverlayLink _overlayLink;
 
   @override
   bool updateShouldNotify(_PortalLinkScope oldWidget) {
@@ -92,12 +92,12 @@ class _PortalLinkScope extends InheritedWidget {
 class _PortalTheater extends SingleChildRenderObjectWidget {
   const _PortalTheater({
     Key? key,
-    required _OverlayLink overlayLink,
+    required OverlayLink overlayLink,
     required Widget child,
   })  : _overlayLink = overlayLink,
         super(key: key, child: child);
 
-  final _OverlayLink _overlayLink;
+  final OverlayLink _overlayLink;
 
   @override
   _RenderPortalTheater createRenderObject(BuildContext context) {
@@ -118,9 +118,9 @@ class _RenderPortalTheater extends RenderProxyBox {
     _overlayLink.theater = this;
   }
 
-  _OverlayLink _overlayLink;
-  _OverlayLink get overlayLink => _overlayLink;
-  set overlayLink(_OverlayLink value) {
+  OverlayLink _overlayLink;
+  OverlayLink get overlayLink => _overlayLink;
+  set overlayLink(OverlayLink value) {
     if (_overlayLink != value) {
       assert(
         value.theater == null,
@@ -165,7 +165,7 @@ class _RenderPortalTheater extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(
-      DiagnosticsProperty<_OverlayLink>('overlayLink', overlayLink),
+      DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink),
     );
   }
 }
@@ -428,12 +428,14 @@ class _PortalEntryState extends State<PortalEntry> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final targetSize = constraints.biggest;
+
                 return _PortalEntryTheater(
                   overlayLink: scope._overlayLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
                   portal: MyCompositedTransformFollower(
                     link: _link,
+                    overlayLink: scope._overlayLink,
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     child: widget.portal,
@@ -466,7 +468,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 
   final Widget? portal;
   final Anchor anchor;
-  final _OverlayLink overlayLink;
+  final OverlayLink overlayLink;
   final Size targetSize;
 
   @override
@@ -497,7 +499,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
     properties.add(
-      DiagnosticsProperty<_OverlayLink>('overlayLink', overlayLink),
+      DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink),
     );
   }
 }
@@ -511,9 +513,9 @@ class _RenderPortalEntry extends RenderProxyBox {
 
   bool _needsAddEntryInTheater = false;
 
-  _OverlayLink _overlayLink;
-  _OverlayLink get overlayLink => _overlayLink;
-  set overlayLink(_OverlayLink value) {
+  OverlayLink _overlayLink;
+  OverlayLink get overlayLink => _overlayLink;
+  set overlayLink(OverlayLink value) {
     assert(value.theater != null);
     if (_overlayLink != value) {
       _overlayLink = value;
@@ -629,7 +631,7 @@ class _RenderPortalEntry extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-        .add(DiagnosticsProperty<_OverlayLink>('overlayLink', overlayLink));
+        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
     properties.add(DiagnosticsProperty<RenderBox>('branch', branch));

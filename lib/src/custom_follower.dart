@@ -2,6 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'anchor.dart';
+import 'portal.dart';
 
 /// @nodoc
 class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
@@ -9,6 +10,7 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   const MyCompositedTransformFollower({
     Key? key,
     required this.link,
+    required this.overlayLink,
     required this.targetSize,
     required this.anchor,
     Widget? child,
@@ -21,6 +23,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final LayerLink link;
 
   /// @nodoc
+  final OverlayLink overlayLink;
+
+  /// @nodoc
   final Size targetSize;
 
   @override
@@ -28,6 +33,7 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     return MyRenderFollowerLayer(
       anchor: anchor,
       link: link,
+      overlayLink: overlayLink,
       targetSize: targetSize,
     );
   }
@@ -39,6 +45,7 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   ) {
     renderObject
       ..link = link
+      ..overlayLink = overlayLink
       ..targetSize = targetSize
       ..anchor = anchor;
   }
@@ -57,11 +64,13 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   MyRenderFollowerLayer({
     required LayerLink link,
+    required OverlayLink overlayLink,
     required Size targetSize,
     required Anchor anchor,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
+        _overlayLink = overlayLink,
         _targetSize = targetSize,
         super(child);
 
@@ -85,6 +94,16 @@ class MyRenderFollowerLayer extends RenderProxyBox {
       return;
     }
     _link = value;
+    markNeedsPaint();
+  }
+
+  OverlayLink _overlayLink;
+  OverlayLink get overlayLink => _overlayLink;
+  set overlayLink(OverlayLink value) {
+    if (_overlayLink == value) {
+      return;
+    }
+    _overlayLink = value;
     markNeedsPaint();
   }
 
