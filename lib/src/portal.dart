@@ -345,7 +345,10 @@ class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key? key,
     this.visible = true,
-    this.anchor,
+    this.anchor = const Aligned(
+      target: Alignment.bottomRight,
+      source: Alignment.topRight,
+    ),
     this.portal,
     this.closeDuration,
     required this.child,
@@ -354,7 +357,7 @@ class PortalEntry extends StatefulWidget {
 
   // ignore: diagnostic_describe_all_properties, conflicts with closeDuration
   final bool visible;
-  final Anchor? anchor;
+  final Anchor anchor;
   final Widget? portal;
   final Widget child;
   final Duration? closeDuration;
@@ -407,14 +410,6 @@ class _PortalEntryState extends State<PortalEntry> {
       throw PortalNotFoundError._(widget);
     }
 
-    if (widget.anchor == null) {
-      return _PortalEntryTheater(
-        portal: _visible ? widget.portal : null,
-        overlayLink: scope._overlayLink,
-        child: widget.child,
-      );
-    }
-
     return Stack(
       children: <Widget>[
         CompositedTransformTarget(
@@ -425,13 +420,15 @@ class _PortalEntryState extends State<PortalEntry> {
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final targetSize = constraints.biggest;
                 return _PortalEntryTheater(
                   overlayLink: scope._overlayLink,
-                  loosen: true,
+                  anchor: widget.anchor,
+                  targetSize: targetSize,
                   portal: MyCompositedTransformFollower(
                     link: _link,
-                    anchor: widget.anchor!,
-                    targetSize: constraints.biggest,
+                    anchor: widget.anchor,
+                    targetSize: targetSize,
                     child: widget.portal,
                   ),
                   child: const SizedBox.shrink(),
@@ -455,17 +452,23 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
     Key? key,
     required this.portal,
     required this.overlayLink,
-    this.loosen = false,
+    required this.anchor,
+    required this.targetSize,
     required Widget child,
   }) : super(key: key, child: child);
 
   final Widget? portal;
-  final bool loosen;
+  final Anchor anchor;
   final _OverlayLink overlayLink;
+  final Size targetSize;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPortalEntry(overlayLink, loosen: loosen);
+    return _RenderPortalEntry(
+      overlayLink,
+      anchor: anchor,
+      targetSize: targetSize,
+    );
   }
 
   @override
@@ -475,7 +478,8 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
   ) {
     renderObject
       ..overlayLink = overlayLink
-      ..loosen = loosen;
+      ..anchor = anchor
+      ..targetSize = targetSize;
   }
 
   @override
@@ -483,7 +487,8 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<bool>('loosen', loosen));
+    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
+    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
     properties.add(
       DiagnosticsProperty<_OverlayLink>('overlayLink', overlayLink),
     );
@@ -491,9 +496,11 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 }
 
 class _RenderPortalEntry extends RenderProxyBox {
-  _RenderPortalEntry(this._overlayLink, {required bool loosen})
+  _RenderPortalEntry(this._overlayLink,
+      {required Anchor anchor, required Size targetSize})
       : assert(_overlayLink.theater != null),
-        _loosen = loosen;
+        _anchor = anchor,
+        _targetSize = targetSize;
 
   bool _needsAddEntryInTheater = false;
 
@@ -507,11 +514,20 @@ class _RenderPortalEntry extends RenderProxyBox {
     }
   }
 
-  bool _loosen;
-  bool get loosen => _loosen;
-  set loosen(bool value) {
-    if (value != _loosen) {
-      _loosen = value;
+  Anchor _anchor;
+  Anchor get anchor => _anchor;
+  set anchor(Anchor value) {
+    if (value != _anchor) {
+      _anchor = value;
+      markNeedsLayout();
+    }
+  }
+
+  Size _targetSize;
+  Size get targetSize => _targetSize;
+  set targetSize(Size value) {
+    if (value != _targetSize) {
+      _targetSize = value;
       markNeedsLayout();
     }
   }
@@ -565,11 +581,11 @@ class _RenderPortalEntry extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (branch != null) {
-      if (loosen) {
-        branch!.layout(overlayLink.constraints!.loosen());
-      } else {
-        branch!.layout(BoxConstraints.tight(overlayLink.constraints!.biggest));
-      }
+      final constraints = anchor.getSourceConstraints(
+        overlayLink.constraints!,
+        Offset.zero & targetSize,
+      );
+      branch!.layout(constraints);
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
         _overlayLink.overlays.add(branch!);
@@ -607,7 +623,8 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties
         .add(DiagnosticsProperty<_OverlayLink>('overlayLink', overlayLink));
-    properties.add(DiagnosticsProperty<bool>('loosen', loosen));
+    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
+    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
     properties.add(DiagnosticsProperty<RenderBox>('branch', branch));
   }
 }

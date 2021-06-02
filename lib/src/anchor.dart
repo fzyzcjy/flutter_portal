@@ -85,17 +85,17 @@ class Aligned implements Anchor {
   }
 
   @override
-  bool operator ==(Object object) {
-    if (identical(this, object)) {
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
       return true;
     }
-    if (object is! Aligned) {
+    if (other is! Aligned) {
       return false;
     }
-    return source == object.source &&
-        target == object.target &&
-        offset == object.offset &&
-        backup == object.backup;
+    return source == other.source &&
+        target == other.target &&
+        offset == other.offset &&
+        backup == other.backup;
   }
 
   @override
