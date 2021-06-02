@@ -1,18 +1,24 @@
-name: flutter_portal
-version: 0.4.0
-description: Overlay/OverlayEntry, but implemented as a widget for a declarative API.
-homepage: https://github.com/rrousselGit/flutter_portal
-authors:
-  - Remi Rousselet <darky12s@gmail.com>
-
-environment:
-  sdk: '>=2.12.0 <3.0.0'
-  flutter: '>=1.21.0'
-
-dependencies:
-  flutter:
-    sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+}```<#  $
+}}# $
+}}}#name: 
+}}}¶# $ flutter_portal
+}}}#$ version: 0.4.0
+}}#description: Overlay/OverlayEntry, but implemented as a widget for a declarative API.
+}#$ homepage: 'https://github.com/rrousselGit/flutter_portal
+}}#authors:
+}}}#  $- Remi Rousselet <darky12s@gmail.com>
+}}¶# $
+}#$
+}}# 
+}}}#environment:
+}}}}#$'$#$ sdk: '>=2.12.0 <3.0.0'
+}}}#   $
+}}#  $  flutter: '>=1.21.0'
+}# $
+}}#$'$#dependencies:
+}}}# $ flutter:
+}}}}#$ sdk: 'flutter
+}}}#$'$# dev
+}}#$ dev_dependencies:
+}#$  flutter_test:
+}}#$    sdk: 'flutter> ```
