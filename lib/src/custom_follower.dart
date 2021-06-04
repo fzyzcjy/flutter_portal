@@ -55,6 +55,8 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties
+        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
   }
 }
@@ -210,6 +212,8 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties
+        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
 

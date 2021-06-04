@@ -611,7 +611,7 @@ Future<void> main() async {
       exception.toString(),
       equals('Error: Could not find a Portal above this '
           'PortalEntry('
-          'anchor: Instance of \'FullScreen\', '
+          "anchor: Instance of 'FullScreen', "
           'closeDuration: 0:00:05.000000, '
           'portal: Text, child: Text).\n'),
     );
