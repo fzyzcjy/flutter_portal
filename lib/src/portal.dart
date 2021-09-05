@@ -145,7 +145,6 @@ class _RenderPortalTheater extends RenderProxyBox {
     super.paint(context, offset);
     for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
       final overlay = overlayLink.overlays.elementAt(i);
-
       context.paintChild(overlay, offset);
     }
   }
@@ -345,7 +344,7 @@ class PortalEntry extends StatefulWidget {
   const PortalEntry({
     Key? key,
     this.visible = true,
-    this.anchor = const FullScreen(),
+    this.anchor = const Filled(),
     this.portal,
     this.closeDuration,
     required this.child,
@@ -407,7 +406,7 @@ class _PortalEntryState extends State<PortalEntry> {
       throw PortalNotFoundError._(widget);
     }
 
-    if (widget.anchor is FullScreen) {
+    if (widget.anchor is Filled) {
       return _PortalEntryTheater(
         portal: _visible ? widget.portal : null,
         anchor: widget.anchor,
@@ -591,8 +590,8 @@ class _RenderPortalEntry extends RenderProxyBox {
     super.performLayout();
     if (branch != null) {
       final constraints = anchor.getSourceConstraints(
-        overlayLink.constraints!,
-        Offset.zero & targetSize,
+        overlayConstraints: overlayLink.constraints!,
+        targetRect: Offset.zero & targetSize,
       );
       branch!.layout(constraints);
       if (_needsAddEntryInTheater) {
