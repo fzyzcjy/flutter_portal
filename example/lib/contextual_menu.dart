@@ -76,15 +76,12 @@ class Menu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10),
-      child: Card(
-        elevation: 8,
-        child: IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
+    return Card(
+      elevation: 8,
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
         ),
       ),
     );
@@ -118,8 +115,14 @@ class ModalEntry extends StatelessWidget {
         visible: visible,
         portal: menu,
         anchor: const Aligned(
-          target: Alignment.center,
-          source: Alignment.center,
+          source: Alignment.topLeft,
+          target: Alignment.bottomLeft,
+          widthFactor: 1,
+          backup: Aligned(
+            source: Alignment.bottomLeft,
+            target: Alignment.topLeft,
+            widthFactor: 1,
+          ),
         ),
         child: IgnorePointer(
           ignoring: visible,
