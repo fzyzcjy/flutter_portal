@@ -31,7 +31,7 @@ abstract class Anchor {
   /// element should be anchored to. This must be the same value that is passed
   /// to [getSourceConstraints].
   ///
-  /// The [overlayRect] represents the bounds of the full available space to
+  /// The [theaterRect] represents the bounds of the full available space to
   /// place the source element in. Note that this is also relative to the top
   /// left of the [targetRect].
   /// This means that every offset going into or coming out of this function are
@@ -47,13 +47,13 @@ abstract class Anchor {
   /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
   ///
   ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetRect].
-  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [overlayRect].
+  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [theaterRect].
   ///  * `Size(30, 30)` for the [sourceSize].
   ///  * `Offset(20, 20)` as the return value.
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
-    required Rect overlayRect,
+    required Rect theaterRect,
   });
 }
 
@@ -75,7 +75,7 @@ class Filled implements Anchor {
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
-    required Rect overlayRect,
+    required Rect theaterRect,
   }) {
     return Offset.zero;
   }
@@ -144,7 +144,7 @@ class Aligned implements Anchor {
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
-    required Rect overlayRect,
+    required Rect theaterRect,
   }) {
     final sourceRect = (Offset.zero & sourceSize).alignedTo(
       targetRect,
@@ -153,13 +153,13 @@ class Aligned implements Anchor {
       offset: offset,
     );
 
-    if (!overlayRect.fullyContains(sourceRect)) {
+    if (!theaterRect.fullyContains(sourceRect)) {
       final backup = this.backup;
       if (backup != null) {
         return backup.getSourceOffset(
           sourceSize: sourceSize,
           targetRect: targetRect,
-          overlayRect: overlayRect,
+          theaterRect: theaterRect,
         );
       }
     }

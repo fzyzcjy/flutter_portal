@@ -12,7 +12,7 @@ void main() {
     BoxConstraints? constraintsOverlayConstraints;
     Size? offsetSourceSize;
     Rect? offsetTargetRect;
-    Rect? offsetOverlayRect;
+    Rect? offsetTheaterRect;
     final anchor = _TestAnchor(
       constraints: const BoxConstraints(
         minWidth: 42,
@@ -24,10 +24,10 @@ void main() {
         constraintsTargetRect = targetRect;
         constraintsOverlayConstraints = overlayConstraints;
       },
-      onGetSourceOffset: (sourceSize, targetRect, overlayRect) {
+      onGetSourceOffset: (sourceSize, targetRect, theaterRect) {
         offsetSourceSize = sourceSize;
         offsetTargetRect = targetRect;
-        offsetOverlayRect = overlayRect;
+        offsetTheaterRect = theaterRect;
       },
     );
 
@@ -68,7 +68,7 @@ void main() {
     );
     expect(constraintsTargetRect, offsetTargetRect);
     expect(offsetSourceSize, const Size(42, 42));
-    expect(offsetOverlayRect, Offset.zero & const Size(100, 100));
+    expect(offsetTheaterRect, Offset.zero & const Size(100, 100));
   });
 
   testWidgets('$Aligned defers to backup if needed', (tester) async {
@@ -150,7 +150,7 @@ class _TestAnchor implements Anchor {
   final void Function(
     Size sourceSize,
     Rect targetRect,
-    Rect overlayRect,
+    Rect theaterRect,
   ) onGetSourceOffset;
 
   @override
@@ -166,9 +166,9 @@ class _TestAnchor implements Anchor {
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
-    required Rect overlayRect,
+    required Rect theaterRect,
   }) {
-    onGetSourceOffset(sourceSize, targetRect, overlayRect);
+    onGetSourceOffset(sourceSize, targetRect, theaterRect);
     return Offset.zero;
   }
 }
@@ -194,13 +194,13 @@ class _TestAligned extends Aligned {
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
-    required Rect overlayRect,
+    required Rect theaterRect,
   }) {
     onGetSourceOffset();
     return super.getSourceOffset(
       sourceSize: sourceSize,
       targetRect: targetRect,
-      overlayRect: overlayRect,
+      theaterRect: theaterRect,
     );
   }
 }

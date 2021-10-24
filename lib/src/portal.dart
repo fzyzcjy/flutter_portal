@@ -68,6 +68,7 @@ class _PortalState extends State<Portal> {
 
 class OverlayLink {
   _RenderPortalTheater? theater;
+
   BoxConstraints? get constraints => theater?.constraints;
 
   final Set<RenderBox> overlays = {};
@@ -119,7 +120,9 @@ class _RenderPortalTheater extends RenderProxyBox {
   }
 
   OverlayLink _overlayLink;
+
   OverlayLink get overlayLink => _overlayLink;
+
   set overlayLink(OverlayLink value) {
     if (_overlayLink != value) {
       assert(
@@ -432,7 +435,7 @@ class _PortalEntryState extends State<PortalEntry> {
                   overlayLink: scope._overlayLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
-                  portal: MyCompositedTransformFollower(
+                  portal: CustomCompositedTransformFollower(
                     link: _link,
                     overlayLink: scope._overlayLink,
                     anchor: widget.anchor,
@@ -492,6 +495,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 
   @override
   SingleChildRenderObjectElement createElement() => _PortalEntryElement(this);
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
@@ -513,7 +517,9 @@ class _RenderPortalEntry extends RenderProxyBox {
   bool _needsAddEntryInTheater = false;
 
   OverlayLink _overlayLink;
+
   OverlayLink get overlayLink => _overlayLink;
+
   set overlayLink(OverlayLink value) {
     assert(value.theater != null);
     if (_overlayLink != value) {
@@ -523,7 +529,9 @@ class _RenderPortalEntry extends RenderProxyBox {
   }
 
   Anchor _anchor;
+
   Anchor get anchor => _anchor;
+
   set anchor(Anchor value) {
     if (value != _anchor) {
       _anchor = value;
@@ -532,7 +540,9 @@ class _RenderPortalEntry extends RenderProxyBox {
   }
 
   Size _targetSize;
+
   Size get targetSize => _targetSize;
+
   set targetSize(Size value) {
     if (value != _targetSize) {
       _targetSize = value;
@@ -541,7 +551,9 @@ class _RenderPortalEntry extends RenderProxyBox {
   }
 
   RenderBox? _branch;
+
   RenderBox? get branch => _branch;
+
   set branch(RenderBox? value) {
     if (_branch != null) {
       _overlayLink.overlays.remove(branch);

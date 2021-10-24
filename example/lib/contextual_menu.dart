@@ -40,7 +40,7 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ModalEntry(
+      child: _ModalEntry(
         visible: _showMenu,
         onClose: () => setState(() => _showMenu = false),
         childAnchor: Alignment.topRight,
@@ -88,8 +88,8 @@ class Menu extends StatelessWidget {
   }
 }
 
-class ModalEntry extends StatelessWidget {
-  const ModalEntry({
+class _ModalEntry extends StatelessWidget {
+  const _ModalEntry({
     Key? key,
     required this.onClose,
     required this.menu,

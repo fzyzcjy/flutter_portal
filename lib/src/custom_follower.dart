@@ -5,9 +5,9 @@ import 'anchor.dart';
 import 'portal.dart';
 
 /// @nodoc
-class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
+class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   /// @nodoc
-  const MyCompositedTransformFollower({
+  const CustomCompositedTransformFollower({
     Key? key,
     required this.link,
     required this.overlayLink,
@@ -29,8 +29,8 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Size targetSize;
 
   @override
-  MyRenderFollowerLayer createRenderObject(BuildContext context) {
-    return MyRenderFollowerLayer(
+  RenderFollowerLayer createRenderObject(BuildContext context) {
+    return RenderFollowerLayer(
       anchor: anchor,
       link: link,
       overlayLink: overlayLink,
@@ -41,7 +41,7 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    MyRenderFollowerLayer renderObject,
+    RenderFollowerLayer renderObject,
   ) {
     renderObject
       ..link = link
@@ -62,9 +62,9 @@ class MyCompositedTransformFollower extends SingleChildRenderObjectWidget {
 }
 
 /// @nodoc
-class MyRenderFollowerLayer extends RenderProxyBox {
+class RenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
-  MyRenderFollowerLayer({
+  RenderFollowerLayer({
     required LayerLink link,
     required OverlayLink overlayLink,
     required Size targetSize,
@@ -161,17 +161,24 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    assert(
+      overlayLink.theater != null,
+      'The theater must be set in the OverlayLink when the '
+      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
+      'Therefore, it must not be null in any child PortalEntry.',
+    );
+    final theater = overlayLink.theater!;
+
+    // In order to compute the theater rect, we must first offset (shift) it by
+    // the position of the top-left corner of the target in the coordinate space
+    // of the theater since we are working with it relative to the target.
+    final theaterShift = -localToGlobal(link.leader!.offset);
+    final theaterRect = theaterShift & theater.size;
     final linkedOffset = anchor.getSourceOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
       sourceSize: size,
       targetRect: Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
-      overlayRect: const Rect.fromLTRB(
-        // We don't know where we'll end up, so we have no idea what our cull rect should be.
-        0,
-        0,
-        double.infinity,
-        double.infinity,
-      ),
+      theaterRect: theaterRect,
     );
 
     if (layer == null) {
