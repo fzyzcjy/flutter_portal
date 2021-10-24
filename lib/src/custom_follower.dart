@@ -80,6 +80,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   /// @nodoc
   Anchor get anchor => _anchor;
+
   set anchor(Anchor value) {
     if (_anchor != value) {
       _anchor = value;
@@ -91,6 +92,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   /// @nodoc
   LayerLink get link => _link;
+
   set link(LayerLink value) {
     if (_link == value) {
       return;
@@ -100,7 +102,9 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   OverlayLink _overlayLink;
+
   OverlayLink get overlayLink => _overlayLink;
+
   set overlayLink(OverlayLink value) {
     if (_overlayLink == value) {
       return;
@@ -113,6 +117,7 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   /// @nodoc
   Size get targetSize => _targetSize;
+
   set targetSize(Size value) {
     if (_targetSize == value) {
       return;
@@ -129,9 +134,6 @@ class MyRenderFollowerLayer extends RenderProxyBox {
 
   @override
   bool get alwaysNeedsCompositing => true;
-
-  @override
-  bool get sizedByParent => false;
 
   @override
   FollowerLayer? get layer => super.layer as FollowerLayer?;
@@ -158,13 +160,9 @@ class MyRenderFollowerLayer extends RenderProxyBox {
   }
 
   @override
-  void performResize() {
-    size = constraints.biggest;
-  }
-
-  @override
   void paint(PaintingContext context, Offset offset) {
     final linkedOffset = anchor.getSourceOffset(
+      // The size is set in performLayout of the RenderProxyBoxMixin.
       sourceSize: size,
       targetRect: Rect.fromLTWH(0, 0, targetSize.width, targetSize.height),
       overlayRect: const Rect.fromLTRB(
