@@ -14,11 +14,9 @@ void main() {
     Rect? offsetTargetRect;
     Rect? offsetTheaterRect;
     final anchor = _TestAnchor(
-      constraints: const BoxConstraints(
-        minWidth: 42,
-        maxWidth: 42,
-        minHeight: 42,
-        maxHeight: 42,
+      constraints: const BoxConstraints.tightFor(
+        width: 42,
+        height: 42,
       ),
       onGetSourceConstraints: (targetRect, overlayConstraints) {
         constraintsTargetRect = targetRect;
@@ -37,20 +35,30 @@ void main() {
           child: SizedBox(
             width: 100,
             height: 100,
-            child: Portal(
-              child: Center(
-                child: SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: PortalEntry(
-                    anchor: anchor,
-                    portal: const SizedBox(
-                      width: 30,
-                      height: 30,
-                    ),
-                    child: const SizedBox(
-                      width: 20,
-                      height: 20,
+            child: ColoredBox(
+              color: Colors.green,
+              child: Portal(
+                child: Center(
+                  child: ColoredBox(
+                    color: Colors.white,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: PortalEntry(
+                        anchor: anchor,
+                        portal: const ColoredBox(
+                          color: Colors.red,
+                        ),
+                        child: const Center(
+                          child: ColoredBox(
+                            color: Colors.black,
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -68,7 +76,7 @@ void main() {
     );
     expect(constraintsTargetRect, offsetTargetRect);
     expect(offsetSourceSize, const Size(42, 42));
-    expect(offsetTheaterRect, Offset.zero & const Size(100, 100));
+    expect(offsetTheaterRect, const Offset(-25, -25) & const Size(100, 100));
   });
 
   testWidgets('$Aligned defers to backup if needed', (tester) async {
