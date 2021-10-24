@@ -15,11 +15,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 
 Future<ByteData> fetchFont() async {
-  final roboto = File.fromUri(
-    Uri.file('${Directory.current.path}/../assets/Roboto-Regular.ttf'),
-  );
+  final Uri fontUri;
+  if (p.basename(Directory.current.path) == 'test') {
+    fontUri =
+        Uri.file('${Directory.current.path}/../assets/Roboto-Regular.ttf');
+  } else {
+    // We assume the test command is executed from the project root.
+    fontUri = Uri.file('assets/Roboto-Regular.ttf');
+  }
+
+  final roboto = File.fromUri(fontUri);
   final bytes = Uint8List.fromList(await roboto.readAsBytes());
   return ByteData.view(bytes.buffer);
 }
@@ -611,7 +619,7 @@ Future<void> main() async {
       exception.toString(),
       equals('Error: Could not find a Portal above this '
           'PortalEntry('
-          "anchor: Instance of 'FullScreen', "
+          "anchor: Instance of 'Filled', "
           'closeDuration: 0:00:05.000000, '
           'portal: Text, child: Text).\n'),
     );
@@ -1576,6 +1584,7 @@ class Boilerplate extends StatelessWidget {
 }
 
 mixin Noop {}
+
 class TestPortal = Portal with Noop;
 
 @immutable
