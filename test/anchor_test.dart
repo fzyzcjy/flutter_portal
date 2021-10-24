@@ -72,9 +72,11 @@ void main() {
   });
 
   testWidgets('$Aligned defers to backup if needed', (tester) async {
+    var offsetAccessed = false;
     final backupAligned = _TestAligned(
       source: Alignment.bottomLeft,
       target: Alignment.topLeft,
+      onGetSourceOffset: () => offsetAccessed = true,
     );
     final entry = PortalEntry(
       anchor: Aligned(
@@ -110,7 +112,7 @@ void main() {
       ),
     ));
 
-    expect(backupAligned.offsetAccessed, false);
+    expect(offsetAccessed, false);
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -128,7 +130,7 @@ void main() {
       ),
     ));
 
-    expect(backupAligned.offsetAccessed, true);
+    expect(offsetAccessed, true);
   });
 }
 
@@ -172,12 +174,13 @@ class _TestAnchor implements Anchor {
 }
 
 class _TestAligned extends Aligned {
-  _TestAligned({
+  const _TestAligned({
     required Alignment source,
     required Alignment target,
     Offset offset = Offset.zero,
     double? widthFactor,
     double? heightFactor,
+    required this.onGetSourceOffset,
   }) : super(
             source: source,
             target: target,
@@ -185,7 +188,7 @@ class _TestAligned extends Aligned {
             widthFactor: widthFactor,
             heightFactor: heightFactor);
 
-  bool offsetAccessed = false;
+  final VoidCallback onGetSourceOffset;
 
   @override
   Offset getSourceOffset({
@@ -193,7 +196,7 @@ class _TestAligned extends Aligned {
     required Rect targetRect,
     required Rect overlayRect,
   }) {
-    offsetAccessed = true;
+    onGetSourceOffset();
     return super.getSourceOffset(
       sourceSize: sourceSize,
       targetRect: targetRect,
