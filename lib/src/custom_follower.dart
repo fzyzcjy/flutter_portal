@@ -29,8 +29,8 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Size targetSize;
 
   @override
-  RenderFollowerLayer createRenderObject(BuildContext context) {
-    return RenderFollowerLayer(
+  CustomRenderFollowerLayer createRenderObject(BuildContext context) {
+    return CustomRenderFollowerLayer(
       anchor: anchor,
       link: link,
       overlayLink: overlayLink,
@@ -41,7 +41,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderFollowerLayer renderObject,
+    CustomRenderFollowerLayer renderObject,
   ) {
     renderObject
       ..link = link
@@ -62,9 +62,10 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 }
 
 /// @nodoc
-class RenderFollowerLayer extends RenderProxyBox {
+@visibleForTesting
+class CustomRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
-  RenderFollowerLayer({
+  CustomRenderFollowerLayer({
     required LayerLink link,
     required OverlayLink overlayLink,
     required Size targetSize,
@@ -172,7 +173,12 @@ class RenderFollowerLayer extends RenderProxyBox {
     // In order to compute the theater rect, we must first offset (shift) it by
     // the position of the top-left corner of the target in the coordinate space
     // of the theater since we are working with it relative to the target.
-    final theaterShift = -localToGlobal(link.leader!.offset);
+    final theaterShift = -localToGlobal(
+      // We know that the leader is not null at this point because of our
+      // CompositedTransformTarget implementation that ensures the leader is set
+      // in the paint call of CustomRenderTargetLayer.
+      link.leader!.offset,
+    );
     final theaterRect = theaterShift & theater.size;
     final linkedOffset = anchor.getSourceOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
