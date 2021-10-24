@@ -3,49 +3,7 @@ import 'package:flutter_portal/flutter_portal.dart';
 
 // a contextual menu
 
-void main() {
-  runApp(MaterialApp(
-    home: Scaffold(
-      body: Center(
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: ColoredBox(
-            color: Colors.green,
-            child: Portal(
-              child: Center(
-                child: ColoredBox(
-                  color: Colors.white,
-                  child: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: PortalEntry(
-                      anchor: _TestAnchor(),
-                      portal: const ColoredBox(
-                        color: Colors.red,
-                      ),
-                      child: const Center(
-                        child: ColoredBox(
-                          color: Colors.black,
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  ));
-}
-
-// void main() => runApp(const MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -172,24 +130,5 @@ class _ModalEntry extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _TestAnchor implements Anchor {
-  @override
-  BoxConstraints getSourceConstraints({
-    required Rect targetRect,
-    required BoxConstraints overlayConstraints,
-  }) {
-    return const BoxConstraints.tightFor(width: 42, height: 42);
-  }
-
-  @override
-  Offset getSourceOffset({
-    required Size sourceSize,
-    required Rect targetRect,
-    required Rect theaterRect,
-  }) {
-    return Offset.zero;
   }
 }
