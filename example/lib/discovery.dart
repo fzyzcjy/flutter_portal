@@ -86,7 +86,7 @@ class Discovery extends StatelessWidget {
         portal: Stack(
           children: [
             CustomPaint(
-              painter: HolePainter(Theme.of(context).accentColor),
+              painter: HolePainter(Theme.of(context).colorScheme.secondary),
               child: TweenAnimationBuilder<double>(
                 duration: kThemeAnimationDuration,
                 curve: Curves.easeOut,
