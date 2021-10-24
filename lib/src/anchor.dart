@@ -6,22 +6,50 @@ import 'package:flutter/rendering.dart';
 ///
 /// Independent of the underlying rendering implementation.
 abstract class Anchor {
-  /// Return the layout constraints that are given to the source element given:
-  /// - [targetRect] the bounds of the element which the source element should
-  /// be anchored to. No assumptions should be made about the coordinate space.
-  /// - [overlayConstraints] the available space to render the source element
+  /// Returns the layout constraints that are given to the source element.
+  ///
+  /// The [targetRect] represents the bounds of the element which the source
+  /// element should be anchored to. This must be the same value that is passed
+  /// to [getSourceOffset]. No assumptions should be made about the coordinate
+  /// space, i.e. only the size of the target should be considered.
+  ///
+  /// The [overlayConstraints] represent the full available space to place the
+  /// source element in. This is irrespective of where the target is positioned
+  /// within the full available space.
   BoxConstraints getSourceConstraints({
     required Rect targetRect,
     required BoxConstraints overlayConstraints,
   });
 
-  /// Return the offset at which to position the source element in relation to
-  /// to the top-left corner of [targetRect] given:
-  /// - [sourceSize] the final calculated size of the source element
-  /// - [targetRect] the bounds of the element which the source should be
-  /// anchored to. Should be the same value passed in from [getSourceConstraints]
-  /// - [overlayRect] the bounds of the full available space to render the
-  /// source element
+  /// Returns the offset at which to position the source element in relation to
+  /// to the top left of the [targetRect].
+  ///
+  /// The [sourceSize] is the final size of the source element after layout
+  /// based on the source constraints determined by [getSourceConstraints].
+  ///
+  /// The [targetRect] represents the bounds of the element which the source
+  /// element should be anchored to. This must be the same value that is passed
+  /// to [getSourceConstraints].
+  ///
+  /// The [overlayRect] represents the bounds of the full available space to
+  /// place the source element in. Note that this is also relative to the top
+  /// left of the [targetRect].
+  /// This means that every offset going into or coming out of this function are
+  /// relative to the top-left corner of the target.
+  ///
+  /// ## Example
+  ///
+  /// In this example, our source element has a size of `Size(30, 30)` and
+  /// should be anchored to the bottom right of the target.
+  ///
+  /// If we assume the full available space starts at absolute `(0, 0)` and
+  /// spans to absolute `(100, 100)` and the target rect starts at absolute
+  /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
+  ///
+  ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetRect].
+  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [overlayRect].
+  ///  * `Size(30, 30)` for the [sourceSize].
+  ///  * `Offset(20, 20)` as the return value.
   Offset getSourceOffset({
     required Size sourceSize,
     required Rect targetRect,
