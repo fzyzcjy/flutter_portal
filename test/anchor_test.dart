@@ -96,11 +96,9 @@ void main() {
         width: 20,
         height: 20,
       ),
-      child: const Center(
-        child: SizedBox(
-          width: 10,
-          height: 10,
-        ),
+      child: const SizedBox(
+        width: 10,
+        height: 10,
       ),
     );
 

@@ -203,5 +203,20 @@ extension _RectAnchorExt on Rect {
   /// If the [rect] has any part that lies outside of this parent
   /// false will be returned
   bool fullyContains(Rect rect) =>
-      contains(rect.topLeft) && contains(rect.bottomRight);
+      containsIncludingBottomAndRightEdge(rect.topLeft) &&
+      containsIncludingBottomAndRightEdge(rect.bottomRight);
+
+  /// Whether the point specified by the given offset (which is assumed to be
+  /// relative to the origin) lies between the left and right and the top and
+  /// bottom edges of this rectangle.
+  ///
+  /// This is like [contains] but also includes the bottom edge and the right
+  /// edge because in the context of painting, it would make no sense to
+  /// consider a rect as overflowing when it lines up exactly with another rect.
+  bool containsIncludingBottomAndRightEdge(Offset offset) {
+    return offset.dx >= left &&
+        offset.dx <= right &&
+        offset.dy >= top &&
+        offset.dy <= bottom;
+  }
 }
