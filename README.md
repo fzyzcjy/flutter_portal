@@ -247,6 +247,30 @@ Center(
 )
 ```
 
+## Concepts
+
+There are a few concepts that are useful to fully understand when using
+`flutter_portal`. That is especially true if you want to support custom use
+cases, which is easily possible with the abstract API provided.
+
+In the following, each of the abstract concepts you need to understand are
+explained on a high level. You will find them both in class names (e.g. the
+`Portal` widget or the `PortalTarget` widget as well as in parameter names).
+
+### Portal
+
+
+
+### Target
+
+
+### Follower
+
+
+### Anchor
+
+
+
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
 [addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
