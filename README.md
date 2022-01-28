@@ -259,17 +259,44 @@ explained on a high level. You will find them both in class names (e.g. the
 
 ### Portal
 
+A portal (or the portal if you only have one) is the space used for doing all
+of the portal work. On a low level, this means that you have one widget that
+allows its subtree to place targets and followers that are connected.
 
+The portal also defines the area (rectangle bounds) that are available to any
+followers to be rendered onto the screen.
+
+In detail, you might wrap your whole `MaterialApp` in a single `Portal` widget,
+which would mean that you can use the whole area of your app to render followers
+attached to targets that are children of the `Portal` widget.
 
 ### Target
 
+A target is any place within a portal that can be followed by a follower. This
+allows you to attach whatever you want to overlay to a specific place in your
+UI, no matter where it moves dynamically.
+
+On a low level, this means that you wrap the part of your UI that you want to
+follow in a `PortalTarget` widget and configure it.
 
 ### Follower
 
+A follower can only be used in combination with a target. You can use it for
+anything that you want to overlay on top of your UI, attached to a target.
+
+Specifically, this means that you can pass one `follower` to every
+`PortalTarget`, which will be displayed above your UI within the portal when
+you specify so.
 
 ### Anchor
 
+Anchors define the layout connection between targets and followers. In general,
+anchors are implemented as an abstract API that provides all the information
+necessary to support any positioning you want. That means that anchors can be
+defined based on the attributes of the associated portal, target, and follower.
 
+There are a few anchors that are implemented by default, e.g. `Aligned` or
+`Filled`.
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
