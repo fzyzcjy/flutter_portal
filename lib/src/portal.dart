@@ -151,8 +151,9 @@ class _RenderPortalTheater extends RenderProxyBox {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    final globalPosition = localToGlobal(position); // #42
     for (final overlay in overlayLink.overlays) {
-      if (overlay.hitTest(result, position: position)) {
+      if (overlay.hitTest(result, position: globalPosition /* #42 */)) {
         return true;
       }
     }
