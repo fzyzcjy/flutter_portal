@@ -179,6 +179,8 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// follower → it is only a typedef.
 typedef PortalFollower = Widget;
 
+// todo(creativecreatorormaybenot): update target docs.
+
 /// A widget that renders its content in a different location of the widget tree.
 ///
 /// In short, you can use [PortalTarget] to show dialogs, tooltips, contextual menus, ...
