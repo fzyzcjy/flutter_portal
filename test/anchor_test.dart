@@ -46,7 +46,7 @@ void main() {
                       height: 50,
                       child: PortalTarget(
                         anchor: anchor,
-                        portal: const ColoredBox(
+                        portalFollower: const ColoredBox(
                           color: Colors.red,
                         ),
                         child: const Center(
@@ -92,7 +92,7 @@ void main() {
         target: Alignment.bottomLeft,
         backup: backupAligned,
       ),
-      portal: const SizedBox(
+      portalFollower: const SizedBox(
         width: 20,
         height: 20,
       ),

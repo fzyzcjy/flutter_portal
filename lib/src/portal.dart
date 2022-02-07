@@ -12,11 +12,11 @@ import 'custom_follower.dart';
 /// [Portal] can be considered as a reimplementation of [Overlay] to allow
 /// adding an [OverlayEntry] (now named [PortalTarget]) declaratively.
 ///
-/// [Portal] widget is used in co-ordination with [PortalTarget] widget to show
-/// some content _above_ another content.
-/// This is similar to [Stack] in principle, with the difference that [PortalTarget]
-/// does not have to be a direct child of [Portal] and can instead be placed
-/// anywhere in the widget tree.
+/// The [Portal] widget is used in coordination with the [PortalTarget] widget
+/// to show some content _above_ other content.
+/// This is similar to [Stack] in principle, with the difference that a
+/// [PortalTarget] does not have to be a direct child of [Portal] and can
+/// instead be placed anywhere in the widget tree.
 ///
 /// In most situations, [Portal] can be placed directly above [MaterialApp]:
 ///
@@ -27,7 +27,7 @@ import 'custom_follower.dart';
 /// );
 /// ```
 ///
-/// This allows an overlay to renders above _everything_ including all routes.
+/// This allows an overlay to render above _everything_ including all routes.
 /// That can be useful to show a snackbar between pages.
 ///
 /// You can optionally add a [Portal] inside your page:
@@ -347,18 +347,18 @@ class PortalTarget extends StatefulWidget {
     Key? key,
     this.visible = true,
     this.anchor = const Filled(),
-    this.portal,
     this.closeDuration,
+    this.portalFollower,
     required this.child,
-  })  : assert(visible == false || portal != null),
+  })  : assert(visible == false || portalFollower != null),
         super(key: key);
 
   // ignore: diagnostic_describe_all_properties, conflicts with closeDuration
   final bool visible;
   final Anchor anchor;
-  final Widget? portal;
-  final Widget child;
   final Duration? closeDuration;
+  final Widget? portalFollower;
+  final Widget child;
 
   @override
   _PortalTargetState createState() => _PortalTargetState();
@@ -369,7 +369,7 @@ class PortalTarget extends StatefulWidget {
     properties
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
-      ..add(DiagnosticsProperty<Widget>('portal', portal))
+      ..add(DiagnosticsProperty<Widget>('portal', portalFollower))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 }
@@ -410,7 +410,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
     if (widget.anchor is Filled) {
       return _PortalTargetTheater(
-        portal: _visible ? widget.portal : null,
+        portal: _visible ? widget.portalFollower : null,
         anchor: widget.anchor,
         targetSize: Size.zero,
         overlayLink: scope._overlayLink,
@@ -439,7 +439,7 @@ class _PortalTargetState extends State<PortalTarget> {
                     overlayLink: scope._overlayLink,
                     anchor: widget.anchor,
                     targetSize: targetSize,
-                    child: widget.portal,
+                    child: widget.portalFollower,
                   ),
                   child: const SizedBox.shrink(),
                 );
@@ -643,10 +643,10 @@ class _RenderPortalTarget extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
-    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
-    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
-    properties.add(DiagnosticsProperty<RenderBox>('branch', branch));
+      ..add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink))
+      ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
+      ..add(DiagnosticsProperty<Size>('targetSize', targetSize))
+      ..add(DiagnosticsProperty<RenderBox>('branch', branch));
   }
 }
 

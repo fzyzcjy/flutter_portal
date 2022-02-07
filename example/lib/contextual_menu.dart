@@ -113,7 +113,7 @@ class _ModalEntry extends StatelessWidget {
       onTap: visible ? onClose : null,
       child: PortalTarget(
         visible: visible,
-        portal: menu,
+        portalFollower: menu,
         anchor: const Aligned(
           source: Alignment.topLeft,
           target: Alignment.bottomLeft,

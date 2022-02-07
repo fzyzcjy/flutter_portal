@@ -83,7 +83,7 @@ class Discovery extends StatelessWidget {
           target: Alignment.center,
           source: Alignment.center,
         ),
-        portal: Stack(
+        portalFollower: Stack(
           children: [
             CustomPaint(
               painter: HolePainter(Theme.of(context).colorScheme.secondary),
@@ -174,7 +174,7 @@ class Barrier extends StatelessWidget {
     return PortalTarget(
       visible: visible,
       closeDuration: kThemeAnimationDuration,
-      portal: GestureDetector(
+      portalFollower: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onClose,
         child: TweenAnimationBuilder<Color>(

@@ -47,7 +47,7 @@ class _ClapButtonState extends State<ClapButton> {
         source: Alignment.bottomCenter,
       ),
       closeDuration: kThemeChangeDuration,
-      portal: TweenAnimationBuilder<double>(
+      portalFollower: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: hasClappedRecently ? 1 : 0),
         duration: kThemeChangeDuration,
         builder: (context, progress, child) {

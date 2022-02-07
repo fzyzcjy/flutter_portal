@@ -23,7 +23,7 @@ class DeclarativeDatePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return PortalTarget(
       visible: visible,
-      portal: Stack(
+      portalFollower: Stack(
         children: [
           const Positioned.fill(
             child: IgnorePointer(

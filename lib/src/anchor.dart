@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
-/// Independent of the underlying rendering implementation.
+/// This is independent of the underlying rendering implementation.
 abstract class Anchor {
   /// Returns the layout constraints that are given to the follower element.
   ///
