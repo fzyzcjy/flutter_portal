@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'anchor.dart';
 import 'custom_follower.dart';
 
-/// The widget where a [PortalTarget] is rendered.
+/// The widget where a [PortalTarget] and its [PortalFollower] are rendered.
 ///
 /// [Portal] can be considered as a reimplementation of [Overlay] to allow
 /// adding an [OverlayEntry] (now named [PortalTarget]) declaratively.
@@ -170,6 +170,14 @@ class _RenderPortalTheater extends RenderProxyBox {
     );
   }
 }
+
+/// Widget that is passed to a [PortalTarget] as the follower that is overlaid
+/// on top of other content in a [Portal].
+///
+/// This is just a regular [Widget] that is passed as
+/// [PortalTarget.portalFollower]. The target takes care of making it a
+/// follower → it is only a typedef.
+typedef PortalFollower = Widget;
 
 /// A widget that renders its content in a different location of the widget tree.
 ///
@@ -357,7 +365,7 @@ class PortalTarget extends StatefulWidget {
   final bool visible;
   final Anchor anchor;
   final Duration? closeDuration;
-  final Widget? portalFollower;
+  final PortalFollower? portalFollower;
   final Widget child;
 
   @override
@@ -369,7 +377,7 @@ class PortalTarget extends StatefulWidget {
     properties
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
-      ..add(DiagnosticsProperty<Widget>('portal', portalFollower))
+      ..add(DiagnosticsProperty<PortalFollower>('portal', portalFollower))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 }

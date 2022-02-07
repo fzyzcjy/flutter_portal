@@ -4,7 +4,7 @@ description: Overlay/OverlayEntry but implemented as a widget for a declarative 
 homepage: https://github.com/rrousselGit/flutter_portal
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.16.0 <3.0.0'
   flutter: '>=1.21.0'
 
 dependencies:
