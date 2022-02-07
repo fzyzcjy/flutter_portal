@@ -292,7 +292,7 @@ typedef PortalFollower = Widget;
 ///     follower: Alignment.topLeft,
 ///     target: Alignment.topRight,
 ///   ),
-///   portal: Material(...),
+///   portalFollower: Material(...),
 ///   child: ElevatedButton(...),
 /// )
 /// ```
@@ -350,7 +350,7 @@ typedef PortalFollower = Widget;
 /// Center(
 ///   child: PortalTarget(
 ///     visible: isMenuOpen,
-///     portal: GestureDetector(
+///     portalFollower: GestureDetector(
 ///       behavior: HitTestBehavior.opaque,
 ///       onTap: () {
 ///         setState(() {
@@ -360,7 +360,7 @@ typedef PortalFollower = Widget;
 ///     ),
 ///     child: PortalTarget(
 ///       // our previous PortalTarget
-///       portal: Material(...)
+///       portalFollower: Material(...)
 ///       child: ElevatedButton(...),
 ///     ),
 ///   ),
@@ -393,7 +393,7 @@ class PortalTarget extends StatefulWidget {
     properties
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
-      ..add(DiagnosticsProperty<PortalFollower>('portal', portalFollower))
+      ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 }
@@ -434,7 +434,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
     if (widget.anchor is Filled) {
       return _PortalTargetTheater(
-        portal: _visible ? widget.portalFollower : null,
+        portalFollower: _visible ? widget.portalFollower : null,
         anchor: widget.anchor,
         targetSize: Size.zero,
         overlayLink: scope._overlayLink,
@@ -458,7 +458,7 @@ class _PortalTargetState extends State<PortalTarget> {
                   overlayLink: scope._overlayLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
-                  portal: CustomCompositedTransformFollower(
+                  portalFollower: CustomCompositedTransformFollower(
                     link: _link,
                     overlayLink: scope._overlayLink,
                     anchor: widget.anchor,
@@ -484,14 +484,14 @@ class _PortalTargetState extends State<PortalTarget> {
 class _PortalTargetTheater extends SingleChildRenderObjectWidget {
   const _PortalTargetTheater({
     Key? key,
-    required this.portal,
+    required this.portalFollower,
     required this.overlayLink,
     required this.anchor,
     required this.targetSize,
     required Widget child,
   }) : super(key: key, child: child);
 
-  final Widget? portal;
+  final Widget? portalFollower;
   final Anchor anchor;
   final OverlayLink overlayLink;
   final Size targetSize;
@@ -691,13 +691,13 @@ class _PortalTargetElement extends SingleChildRenderObjectElement {
   @override
   void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _branch = updateChild(_branch, widget.portal, _branchSlot);
+    _branch = updateChild(_branch, widget.portalFollower, _branchSlot);
   }
 
   @override
   void update(SingleChildRenderObjectWidget newWidget) {
     super.update(newWidget);
-    _branch = updateChild(_branch, widget.portal, _branchSlot);
+    _branch = updateChild(_branch, widget.portalFollower, _branchSlot);
   }
 
   @override

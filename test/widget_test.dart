@@ -604,7 +604,7 @@ Future<void> main() async {
     await expectLater(find.byType(Portal), matchesGoldenFile('unmounted.png'));
   });
 
-  testWidgets('throws if no PortalEntry were found', (tester) async {
+  testWidgets('throws if no Portal was found', (tester) async {
     await tester.pumpWidget(
       const PortalTarget(
         closeDuration: Duration(seconds: 5),
@@ -618,10 +618,10 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalEntry('
+          'PortalTarget('
           "anchor: Instance of 'Filled', "
           'closeDuration: 0:00:05.000000, '
-          'portal: Text, child: Text).\n'),
+          'portalFollower: Text, child: Text).\n'),
     );
   });
 
@@ -1171,46 +1171,6 @@ Future<void> main() async {
     expect(didClickPortal, isTrue);
   });
 
-  testWidgets('PortalEntry target its generic parameter', (tester) async {
-    // final portalKey = UniqueKey();
-
-    // await tester.pumpWidget(
-    //   TestPortal(
-    //     child: Center(
-    //       child: Portal(
-    //         child: PortalEntry<TestPortal>(
-    //           // Fills the portal so that if it's added to TestPortal it'll be on the top-left
-    //           // but if it's added to Portal, it'll start in the center of the screen.
-    //           portal: Container(key: portalKey),
-    //           child: const Text('child', textDirection: TextDirection.ltr),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
-
-    // expect(find.text('child'), findsOneWidget);
-    // expect(
-    //   tester.getTopLeft(find.byKey(portalKey)),
-    //   equals(Offset.zero),
-    // );
-  }, skip: true);
-
-  testWidgets(
-      "PortalEntry doesn't fallback to Portal if generic doesn't exists",
-      (tester) async {
-    // await tester.pumpWidget(
-    //   Portal(
-    //     child: PortalEntry<TestPortal>(
-    //       portal: const Text('portal', textDirection: TextDirection.ltr),
-    //       child: Container(),
-    //     ),
-    //   ),
-    // );
-
-    // expect(tester.takeException(), isA<PortalNotFoundError>());
-  }, skip: true);
-
   testWidgets('portals can fill the Portal', (tester) async {
     final portal = Container();
     await tester.pumpWidget(
@@ -1369,18 +1329,18 @@ Future<void> main() async {
   testWidgets('handles reparenting with GlobalKey', (tester) async {
     // final firstPortal = UniqueKey();
     // final secondPortal = UniqueKey();
-
+    //
     // final entryKey = GlobalKey();
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
     //     children: <Widget>[
     //       Portal(
     //         key: firstPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
@@ -1388,19 +1348,19 @@ Future<void> main() async {
     //     ],
     //   ),
     // );
-
+    //
     // final firstPortalElement =
     //     tester.element(find.byKey(firstPortal)) as PortalElement;
     // final secondPortalElement =
     //     tester.element(find.byKey(secondPortal)) as PortalElement;
-
+    //
     // expect(firstPortalElement.theater.entries.length, 1);
     // expect(firstPortalElement.theater.renderObject.builders.length, 1);
     // expect(firstPortalElement.theater.renderObject.childCount, 1);
     // expect(secondPortalElement.theater.entries.length, 0);
     // expect(secondPortalElement.theater.renderObject.builders.length, 0);
     // expect(secondPortalElement.theater.renderObject.childCount, 0);
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
@@ -1411,32 +1371,32 @@ Future<void> main() async {
     //       ),
     //       Portal(
     //         key: secondPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
     //     ],
     //   ),
     // );
-
+    //
     // expect(firstPortalElement.theater.entries.length, 0);
     // expect(firstPortalElement.theater.renderObject.builders.length, 0);
     // expect(firstPortalElement.theater.renderObject.childCount, 0);
     // expect(secondPortalElement.theater.entries.length, 1);
     // expect(secondPortalElement.theater.renderObject.builders.length, 1);
     // expect(secondPortalElement.theater.renderObject.childCount, 1);
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
     //     children: <Widget>[
     //       Portal(
     //         key: firstPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
@@ -1444,14 +1404,14 @@ Future<void> main() async {
     //     ],
     //   ),
     // );
-
+    //
     // expect(firstPortalElement.theater.entries.length, 1);
     // expect(firstPortalElement.theater.renderObject.builders.length, 1);
     // expect(firstPortalElement.theater.renderObject.childCount, 1);
     // expect(secondPortalElement.theater.entries.length, 0);
     // expect(secondPortalElement.theater.renderObject.builders.length, 0);
     // expect(secondPortalElement.theater.renderObject.childCount, 0);
-  });
+  }, skip: true);
 
   testWidgets('clip overflow', (tester) async {}, skip: true);
 
