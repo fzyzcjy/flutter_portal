@@ -88,7 +88,7 @@ void main() {
     );
     final entry = PortalTarget(
       anchor: Aligned(
-        source: Alignment.topLeft,
+        follower: Alignment.topLeft,
         target: Alignment.bottomLeft,
         backup: backupAligned,
       ),
@@ -188,7 +188,7 @@ class _TestAligned extends Aligned {
     double? heightFactor,
     required this.onGetSourceOffset,
   }) : super(
-            source: source,
+            follower: source,
             target: target,
             offset: offset,
             widthFactor: widthFactor,

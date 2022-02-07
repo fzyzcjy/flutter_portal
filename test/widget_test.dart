@@ -89,7 +89,7 @@ Future<void> main() async {
             closeDuration: Duration(seconds: 5),
             anchor: Aligned(
               target: Alignment.center,
-              source: Alignment.center,
+              follower: Alignment.center,
             ),
             portalFollower: Text('portal'),
             child: Text('child'),
@@ -648,7 +648,7 @@ Future<void> main() async {
                       color: Colors.blue,
                     ),
                     anchor: const Aligned(
-                      source: Alignment.bottomCenter,
+                      follower: Alignment.bottomCenter,
                       target: Alignment.topCenter,
                     ),
                     child: Container(
@@ -785,7 +785,7 @@ Future<void> main() async {
           child: Center(
             child: PortalTarget(
               anchor: const Aligned(
-                source: Alignment.bottomCenter,
+                follower: Alignment.bottomCenter,
                 target: Alignment.topCenter,
               ),
               portalFollower: ElevatedButton(
@@ -824,7 +824,7 @@ Future<void> main() async {
             alignment: Alignment.topLeft,
             child: PortalTarget(
               anchor: Aligned(
-                  source: Alignment.topLeft, target: Alignment.bottomLeft),
+                  follower: Alignment.topLeft, target: Alignment.bottomLeft),
               portalFollower: SizedBox(key: portalKey, height: 42, width: 24),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
@@ -856,7 +856,7 @@ Future<void> main() async {
             alignment: Alignment.topRight,
             child: PortalTarget(
               anchor: Aligned(
-                source: Alignment.topRight,
+                follower: Alignment.topRight,
                 target: Alignment.bottomRight,
               ),
               portalFollower: SizedBox(key: portalKey, height: 24, width: 42),
@@ -893,7 +893,7 @@ Future<void> main() async {
             alignment: Alignment.bottomRight,
             child: PortalTarget(
               anchor: Aligned(
-                source: Alignment.bottomRight,
+                follower: Alignment.bottomRight,
                 target: Alignment.topRight,
               ),
               portalFollower: SizedBox(key: portalKey, height: 20, width: 20),
@@ -1010,7 +1010,7 @@ Future<void> main() async {
           child: Center(
             child: PortalTarget(
               anchor: const Aligned(
-                source: Alignment.bottomCenter,
+                follower: Alignment.bottomCenter,
                 target: Alignment.topCenter,
               ),
               portalFollower: GestureDetector(
@@ -1107,7 +1107,7 @@ Future<void> main() async {
           child: Center(
             child: PortalTarget(
               anchor: const Aligned(
-                source: Alignment.bottomCenter,
+                follower: Alignment.bottomCenter,
                 target: Alignment.topCenter,
               ),
               portalFollower: portal,

@@ -14,8 +14,8 @@ abstract class Anchor {
   /// space, i.e. only the size of the target should be considered.
   ///
   /// The [portalConstraints] represent the full available space to place the
-  /// source element in. This is irrespective of where the target is positioned
-  /// within the full available space.
+  /// follower element in. This is irrespective of where the target is
+  /// positioned within the full available space.
   BoxConstraints getFollowerConstraints({
     required Rect targetRect,
     required BoxConstraints portalConstraints,
@@ -25,7 +25,7 @@ abstract class Anchor {
   /// to the top left of the [targetRect].
   ///
   /// The [followerSize] is the final size of the follower element after layout
-  /// based on the source constraints determined by [getFollowerConstraints].
+  /// based on the follower constraints determined by [getFollowerConstraints].
   ///
   /// The [targetRect] represents the bounds of the element which the follower
   /// element should be anchored to. This must be the same value that is passed
@@ -57,8 +57,8 @@ abstract class Anchor {
   });
 }
 
-/// The source element should ignore any information about the target and expand
-/// to fill the bounds of the overlay
+/// The follower element should ignore any information about the target and
+/// expand to fill the bounds of the overlay
 @immutable
 class Filled implements Anchor {
   const Filled();
@@ -81,15 +81,15 @@ class Filled implements Anchor {
   }
 }
 
-/// Align a point of the source element with a point on the target element
-/// Can optionally pass a [widthFactor] or [heightFactor] so the source element
-/// gets a size as a factor of the target element.
+/// Align a point of the follower element with a point on the target element
+/// Can optionally pass a [widthFactor] or [heightFactor] so the follower
+/// element gets a size as a factor of the target element.
 /// Can optionally pass a [backup] which will be used if the element is going
 /// to be rendered off screen.
 @immutable
 class Aligned implements Anchor {
   const Aligned({
-    required this.source,
+    required this.follower,
     required this.target,
     this.offset = Offset.zero,
     this.widthFactor,
@@ -98,29 +98,31 @@ class Aligned implements Anchor {
   });
 
   static const center = Aligned(
-    source: Alignment.center,
+    follower: Alignment.center,
     target: Alignment.center,
   );
 
-  /// The reference point on the source element
-  final Alignment source;
+  /// The reference point on the follower element.
+  final Alignment follower;
 
   /// The reference point on the target element
   final Alignment target;
 
-  /// Offset to shift the source element by after all calculations are made
+  /// Offset to shift the follower element by after all calculations are made.
   final Offset offset;
 
-  /// The width to make the source element as a multiple of the width of the
-  /// target element. An autocomplete widget may set this to 1 so the popup
-  /// width matches the the text field width
+  /// The width to make the follower element as a multiple of the width of the
+  /// target element.
+  ///
+  /// An autocomplete widget may set this to 1 so the popup width matches the
+  /// text field width.
   final double? widthFactor;
 
-  /// The height to make the source element as a multiple of the height of the
+  /// The height to make the follower element as a multiple of the height of the
   /// target element.
   final double? heightFactor;
 
-  /// If the calculated position would render the source element out of bounds
+  /// If the calculated position would render the follower element out of bounds
   /// (for example, a tooltip would go off screen), a backup can be used.
   /// The offset calculations will fall back to the backup.
   final Anchor? backup;
@@ -146,14 +148,14 @@ class Aligned implements Anchor {
     required Rect targetRect,
     required Rect portalRect,
   }) {
-    final sourceRect = (Offset.zero & followerSize).alignedTo(
+    final followerRect = (Offset.zero & followerSize).alignedTo(
       targetRect,
-      sourceAlignment: source,
+      followerAlignment: follower,
       targetAlignment: target,
       offset: offset,
     );
 
-    if (!portalRect.fullyContains(sourceRect)) {
+    if (!portalRect.fullyContains(followerRect)) {
       final backup = this.backup;
       if (backup != null) {
         return backup.getFollowerOffset(
@@ -164,7 +166,7 @@ class Aligned implements Anchor {
       }
     }
 
-    return sourceRect.topLeft;
+    return followerRect.topLeft;
   }
 
   @override
@@ -175,28 +177,28 @@ class Aligned implements Anchor {
     if (other is! Aligned) {
       return false;
     }
-    return source == other.source &&
+    return follower == other.follower &&
         target == other.target &&
         offset == other.offset &&
         backup == other.backup;
   }
 
   @override
-  int get hashCode => source.hashCode ^ target.hashCode ^ offset.hashCode;
+  int get hashCode => follower.hashCode ^ target.hashCode ^ offset.hashCode;
 }
 
 extension on Rect {
   Rect alignedTo(
     Rect target, {
-    required Alignment sourceAlignment,
+    required Alignment followerAlignment,
     required Alignment targetAlignment,
     Offset offset = Offset.zero,
   }) {
-    final sourceOffset = targetAlignment.alongSize(target.size) -
-        sourceAlignment.alongSize(size) +
+    final followerOffset = targetAlignment.alongSize(target.size) -
+        followerAlignment.alongSize(size) +
         target.topLeft +
         offset;
-    return sourceOffset & size;
+    return followerOffset & size;
   }
 
   /// Returns true if [rect] is fully contained within this rect

@@ -115,11 +115,11 @@ class _ModalEntry extends StatelessWidget {
         visible: visible,
         portalFollower: menu,
         anchor: const Aligned(
-          source: Alignment.topLeft,
+          follower: Alignment.topLeft,
           target: Alignment.bottomLeft,
           widthFactor: 1,
           backup: Aligned(
-            source: Alignment.bottomLeft,
+            follower: Alignment.bottomLeft,
             target: Alignment.topLeft,
             widthFactor: 1,
           ),

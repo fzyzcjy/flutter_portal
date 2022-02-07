@@ -181,26 +181,37 @@ typedef PortalFollower = Widget;
 
 // todo(creativecreatorormaybenot): update target docs.
 
-/// A widget that renders its content in a different location of the widget tree.
+/// A widget that renders its follower in a different location of the widget
+/// tree.
 ///
-/// In short, you can use [PortalTarget] to show dialogs, tooltips, contextual menus, ...
-/// You can then control the visibility of these overlays with a simple `setState`.
+/// Its [child] is rendered in the tree as you would expect, but its
+/// [portalFollower] is rendered through the ancestor [Portal] in a different
+/// location of the widget tree.
 ///
-/// The benefits of using [PortalTarget] over [Overlay]/[OverlayEntry] are multiple:
+/// In short, you can use [PortalTarget] to show dialogs, tooltips, contextual
+/// menus, etc.
+/// You can then control the visibility of these overlays with a simple
+/// `setState`.
+///
+/// The benefits of using [PortalTarget]/[PortalFollower] over
+/// [Overlay]/[OverlayEntry] are multiple:
 /// - [PortalTarget] is easier to manipulate
 /// - It allows aligning your menus/tooltips next to a button easily
-/// - It combines nicely with state-management solutions and the "state-restoration"
-///   framework. For example, combined with [RestorableProperty], when the application
-///   is killed then re-opened, modals/menus would be restored.
+/// - It combines nicely with state-management solutions and the
+///   "state-restoration" framework. For example, combined with
+///   [RestorableProperty] when the application is killed then re-opened,
+///   modals/menus would be restored.
 ///
-/// For [PortalTarget] to work, make sure to insert [Portal] higher in the widget-tree.
+/// For [PortalTarget] to work, make sure to insert [Portal] higher in the
+/// widget tree.
 ///
 /// ## Contextual menu example
 ///
 /// In this example, we will see how we can use [PortalTarget] to show a menu
 /// after clicking on a [ElevatedButton].
 ///
-/// First, we need to create a [StatefulWidget] that renders our [ElevatedButton]:
+/// First, we need to create a [StatefulWidget] that renders our
+/// [ElevatedButton]:
 ///
 /// ```dart
 /// class MenuExample extends StatefulWidget {
@@ -226,13 +237,14 @@ typedef PortalFollower = Widget;
 /// Then, we need to insert our [PortalTarget] in the widget tree.
 ///
 /// We want our contextual menu to render right next to our [ElevatedButton].
-/// As such, our [PortalTarget] should be the parent of [ElevatedButton] like so:
+/// As such, our [PortalTarget] should be the parent of [ElevatedButton] like
+/// so:
 ///
 /// ```dart
 /// Center(
-///   child: PortalEntry(
+///   child: PortalTarget(
 ///     visible: // <todo>
-///     portal: // <todo>
+///     portalFollower: // <todo>
 ///     child: ElevatedButton(
 ///       ...
 ///     ),
@@ -240,13 +252,13 @@ typedef PortalFollower = Widget;
 /// )
 /// ```
 ///
-/// We can pass our menu to [PortalEntry]:
+/// We can pass our menu as the `portalFollower` to [PortalTarget]:
 ///
 ///
 /// ```dart
-/// PortalEntry(
+/// PortalTarget(
 ///   visible: true,
-///   portal: Material(
+///   portalFollower: Material(
 ///     elevation: 8,
 ///     child: IntrinsicWidth(
 ///       child: Column(
@@ -258,7 +270,7 @@ typedef PortalFollower = Widget;
 ///       ),
 ///     ),
 ///   ),
-///   child: RaiseButton(...),
+///   child: ElevatedButton(...),
 /// )
 /// ```
 ///
@@ -270,22 +282,24 @@ typedef PortalFollower = Widget;
 /// Let's fix the full-screen issue first and change our code so that our
 /// menu renders on the _right_ of our [ElevatedButton].
 ///
-/// To align our menu around our button, we can specify the `childAnchor` and
-/// `portalAnchor` parameters:
+/// To align our menu around our button, we can specify the `anchor`
+/// parameter:
 ///
 /// ```dart
 /// PortalEntry(
 ///   visible: true,
-///   portalAnchor: Alignment.topLeft,
-///   childAnchor: Alignment.topRight,
+///   anchor: const Aligned(
+///     follower: Alignment.topLeft,
+///     target: Alignment.topRight,
+///   ),
 ///   portal: Material(...),
-///   child: RaiseButton(...),
+///   child: ElevatedButton(...),
 /// )
 /// ```
 ///
 /// What this code means is, this will align the top-left of our menu with the
 /// top-right or the [ElevatedButton].
-/// With this, our menu is no-longer full-screen and is now located to the right
+/// With this, our menu is no longer full-screen and is now located to the right
 /// of our button.
 ///
 /// Finally, we can update our code such that the menu show only when clicking
@@ -304,7 +318,7 @@ typedef PortalFollower = Widget;
 /// We then pass this `isMenuOpen` variable to our [PortalEntry]:
 ///
 /// ```dart
-/// PortalEntry(
+/// PortalTarget(
 ///   visible: isMenuOpen,
 ///   ...
 /// )
@@ -334,7 +348,7 @@ typedef PortalFollower = Widget;
 ///
 /// ```dart
 /// Center(
-///   child: PortalEntry(
+///   child: PortalTarget(
 ///     visible: isMenuOpen,
 ///     portal: GestureDetector(
 ///       behavior: HitTestBehavior.opaque,
@@ -344,8 +358,8 @@ typedef PortalFollower = Widget;
 ///         });
 ///       },
 ///     ),
-///     child: PortalEntry(
-///       // our previous PortalEntry
+///     child: PortalTarget(
+///       // our previous PortalTarget
 ///       portal: Material(...)
 ///       child: ElevatedButton(...),
 ///     ),
@@ -503,7 +517,7 @@ class _PortalTargetTheater extends SingleChildRenderObjectWidget {
   }
 
   @override
-  SingleChildRenderObjectElement createElement() => _PortalEntryElement(this);
+  SingleChildRenderObjectElement createElement() => _PortalTargetElement(this);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -628,7 +642,7 @@ class _RenderPortalTarget extends RenderProxyBox {
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
     if (child == branch) {
-      // ignore all transformations applied between Portal and PortalEntry
+      // ignore all transformations applied between Portal and PortalTarget
       transform.setFrom(overlayLink.theater!.getTransformTo(null));
     }
   }
@@ -660,8 +674,8 @@ class _RenderPortalTarget extends RenderProxyBox {
   }
 }
 
-class _PortalEntryElement extends SingleChildRenderObjectElement {
-  _PortalEntryElement(_PortalTargetTheater widget) : super(widget);
+class _PortalTargetElement extends SingleChildRenderObjectElement {
+  _PortalTargetElement(_PortalTargetTheater widget) : super(widget);
 
   @override
   _PortalTargetTheater get widget => super.widget as _PortalTargetTheater;
@@ -736,14 +750,14 @@ class _PortalEntryElement extends SingleChildRenderObjectElement {
 
 /// The error that is thrown when a [PortalTarget] fails to find a [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
-  PortalNotFoundError._(this._portalEntry);
+  PortalNotFoundError._(this._portalTarget);
 
-  final PortalTarget _portalEntry;
+  final PortalTarget _portalTarget;
 
   @override
   String toString() {
     return '''
-Error: Could not find a $T above this $_portalEntry.
+Error: Could not find a $T above this $_portalTarget.
 ''';
   }
 }

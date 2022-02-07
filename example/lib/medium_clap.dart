@@ -44,7 +44,7 @@ class _ClapButtonState extends State<ClapButton> {
       // aligns the top-center of `child` with the bottom-center of `portal`
       anchor: const Aligned(
         target: Alignment.topCenter,
-        source: Alignment.bottomCenter,
+        follower: Alignment.bottomCenter,
       ),
       closeDuration: kThemeChangeDuration,
       portalFollower: TweenAnimationBuilder<double>(
