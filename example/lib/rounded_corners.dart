@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
           body: Container(
             padding: const EdgeInsets.all(10),
             alignment: Alignment.centerLeft,
-            child: const ContextualMenuExample(),
+            child: const RoundedCornersExample(),
           ),
         ),
       ),
@@ -25,25 +25,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ContextualMenuExample extends StatefulWidget {
-  const ContextualMenuExample({Key? key}) : super(key: key);
+class RoundedCornersExample extends StatefulWidget {
+  const RoundedCornersExample({Key? key}) : super(key: key);
 
   @override
-  _ContextualMenuExampleState createState() => _ContextualMenuExampleState();
+  _RoundedCornersExampleState createState() => _RoundedCornersExampleState();
 }
 
-class _ContextualMenuExampleState extends State<ContextualMenuExample> {
-  bool _showMenu = false;
+class _RoundedCornersExampleState extends State<RoundedCornersExample> {
+  bool _showPopup = false;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: _ModalEntry(
-        visible: _showMenu,
-        onClose: () => setState(() => _showMenu = false),
+        visible: _showPopup,
+        onClose: () => setState(() => _showPopup = false),
         childAnchor: Alignment.topRight,
         menuAnchor: Alignment.topLeft,
-        menu: const Menu(
+        menu: const _Popup(
           children: [
             PopupMenuItem<void>(
               height: 42,
@@ -53,19 +53,31 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
               height: 42,
               child: Text('second'),
             ),
+            PopupMenuItem<void>(
+              height: 42,
+              child: Text('third'),
+            ),
+            PopupMenuItem<void>(
+              height: 42,
+              child: Text('forth'),
+            ),
+            PopupMenuItem<void>(
+              height: 42,
+              child: Text('fifth'),
+            ),
           ],
         ),
         child: ElevatedButton(
-          onPressed: () => setState(() => _showMenu = true),
-          child: const Text('show menu'),
+          onPressed: () => setState(() => _showPopup = true),
+          child: const Text('show popup'),
         ),
       ),
     );
   }
 }
 
-class Menu extends StatelessWidget {
-  const Menu({
+class _Popup extends StatelessWidget {
+  const _Popup({
     Key? key,
     required this.children,
   }) : super(key: key);
