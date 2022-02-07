@@ -111,7 +111,7 @@ class _ModalEntry extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: visible ? onClose : null,
-      child: PortalEntry(
+      child: PortalTarget(
         visible: visible,
         portal: menu,
         anchor: const Aligned(

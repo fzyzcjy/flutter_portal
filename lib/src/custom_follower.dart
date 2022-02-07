@@ -166,7 +166,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// Returns the linked offset in relation to the leader layer.
   ///
   /// The [LeaderLayer] is inserted by the [CompositedTransformTarget] in
-  /// [PortalEntry].
+  /// [PortalTarget].
   ///
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
   /// the leader is only attached to the [LayerLink] in [LeaderLayer.attach],
@@ -191,11 +191,11 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     final targetRect = Offset.zero & targetSize;
     final theaterRect = theaterShift & theater.size;
 
-    return anchor.getSourceOffset(
+    return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
-      sourceSize: size,
+      followerSize: size,
       targetRect: targetRect,
-      theaterRect: theaterRect,
+      portalRect: theaterRect,
     );
   }
 

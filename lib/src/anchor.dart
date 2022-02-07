@@ -1,45 +1,45 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-/// The logic of layout and positioning of a source element in relation to a
+/// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
 /// Independent of the underlying rendering implementation.
 abstract class Anchor {
-  /// Returns the layout constraints that are given to the source element.
+  /// Returns the layout constraints that are given to the follower element.
   ///
-  /// The [targetRect] represents the bounds of the element which the source
+  /// The [targetRect] represents the bounds of the element which the follower
   /// element should be anchored to. This must be the same value that is passed
-  /// to [getSourceOffset]. No assumptions should be made about the coordinate
+  /// to [getFollowerOffset]. No assumptions should be made about the coordinate
   /// space, i.e. only the size of the target should be considered.
   ///
-  /// The [overlayConstraints] represent the full available space to place the
+  /// The [portalConstraints] represent the full available space to place the
   /// source element in. This is irrespective of where the target is positioned
   /// within the full available space.
-  BoxConstraints getSourceConstraints({
+  BoxConstraints getFollowerConstraints({
     required Rect targetRect,
-    required BoxConstraints overlayConstraints,
+    required BoxConstraints portalConstraints,
   });
 
-  /// Returns the offset at which to position the source element in relation to
+  /// Returns the offset at which to position the follower element in relation
   /// to the top left of the [targetRect].
   ///
-  /// The [sourceSize] is the final size of the source element after layout
-  /// based on the source constraints determined by [getSourceConstraints].
+  /// The [followerSize] is the final size of the follower element after layout
+  /// based on the source constraints determined by [getFollowerConstraints].
   ///
-  /// The [targetRect] represents the bounds of the element which the source
+  /// The [targetRect] represents the bounds of the element which the follower
   /// element should be anchored to. This must be the same value that is passed
-  /// to [getSourceConstraints].
+  /// to [getFollowerConstraints].
   ///
-  /// The [theaterRect] represents the bounds of the full available space to
-  /// place the source element in. Note that this is also relative to the top
+  /// The [portalRect] represents the bounds of the full available space to
+  /// place the follower element in. Note that this is also relative to the top
   /// left of the [targetRect].
-  /// This means that every offset going into or coming out of this function are
+  /// This means that every offset going into or coming out of this function is
   /// relative to the top-left corner of the target.
   ///
   /// ## Example
   ///
-  /// In this example, our source element has a size of `Size(30, 30)` and
+  /// In this example, our follower element has a size of `Size(30, 30)` and
   /// should be anchored to the bottom right of the target.
   ///
   /// If we assume the full available space starts at absolute `(0, 0)` and
@@ -47,13 +47,13 @@ abstract class Anchor {
   /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
   ///
   ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetRect].
-  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [theaterRect].
-  ///  * `Size(30, 30)` for the [sourceSize].
+  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [portalRect].
+  ///  * `Size(30, 30)` for the [followerSize].
   ///  * `Offset(20, 20)` as the return value.
-  Offset getSourceOffset({
-    required Size sourceSize,
+  Offset getFollowerOffset({
+    required Size followerSize,
     required Rect targetRect,
-    required Rect theaterRect,
+    required Rect portalRect,
   });
 }
 
@@ -64,18 +64,18 @@ class Filled implements Anchor {
   const Filled();
 
   @override
-  BoxConstraints getSourceConstraints({
+  BoxConstraints getFollowerConstraints({
     required Rect targetRect,
-    required BoxConstraints overlayConstraints,
+    required BoxConstraints portalConstraints,
   }) {
-    return BoxConstraints.tight(overlayConstraints.biggest);
+    return BoxConstraints.tight(portalConstraints.biggest);
   }
 
   @override
-  Offset getSourceOffset({
-    required Size sourceSize,
+  Offset getFollowerOffset({
+    required Size followerSize,
     required Rect targetRect,
-    required Rect theaterRect,
+    required Rect portalRect,
   }) {
     return Offset.zero;
   }
@@ -126,14 +126,14 @@ class Aligned implements Anchor {
   final Anchor? backup;
 
   @override
-  BoxConstraints getSourceConstraints({
+  BoxConstraints getFollowerConstraints({
     required Rect targetRect,
-    required BoxConstraints overlayConstraints,
+    required BoxConstraints portalConstraints,
   }) {
     final widthFactor = this.widthFactor;
     final heightFactor = this.heightFactor;
 
-    return overlayConstraints.loosen().tighten(
+    return portalConstraints.loosen().tighten(
           width: widthFactor == null ? null : targetRect.width * widthFactor,
           height:
               heightFactor == null ? null : targetRect.height * heightFactor,
@@ -141,25 +141,25 @@ class Aligned implements Anchor {
   }
 
   @override
-  Offset getSourceOffset({
-    required Size sourceSize,
+  Offset getFollowerOffset({
+    required Size followerSize,
     required Rect targetRect,
-    required Rect theaterRect,
+    required Rect portalRect,
   }) {
-    final sourceRect = (Offset.zero & sourceSize).alignedTo(
+    final sourceRect = (Offset.zero & followerSize).alignedTo(
       targetRect,
       sourceAlignment: source,
       targetAlignment: target,
       offset: offset,
     );
 
-    if (!theaterRect.fullyContains(sourceRect)) {
+    if (!portalRect.fullyContains(sourceRect)) {
       final backup = this.backup;
       if (backup != null) {
-        return backup.getSourceOffset(
-          sourceSize: sourceSize,
+        return backup.getFollowerOffset(
+          followerSize: followerSize,
           targetRect: targetRect,
-          theaterRect: theaterRect,
+          portalRect: portalRect,
         );
       }
     }
@@ -185,7 +185,7 @@ class Aligned implements Anchor {
   int get hashCode => source.hashCode ^ target.hashCode ^ offset.hashCode;
 }
 
-extension _RectAnchorExt on Rect {
+extension on Rect {
   Rect alignedTo(
     Rect target, {
     required Alignment sourceAlignment,

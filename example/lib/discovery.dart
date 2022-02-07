@@ -76,7 +76,7 @@ class Discovery extends StatelessWidget {
     return Barrier(
       visible: visible,
       onClose: onClose,
-      child: PortalEntry(
+      child: PortalTarget(
         visible: visible,
         closeDuration: kThemeAnimationDuration,
         anchor: const Aligned(
@@ -171,7 +171,7 @@ class Barrier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PortalEntry(
+    return PortalTarget(
       visible: visible,
       closeDuration: kThemeAnimationDuration,
       portal: GestureDetector(

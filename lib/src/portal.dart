@@ -3,19 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 import 'anchor.dart';
 import 'custom_follower.dart';
 
-/// The widget where a [PortalEntry] is rendered.
+/// The widget where a [PortalTarget] is rendered.
 ///
 /// [Portal] can be considered as a reimplementation of [Overlay] to allow
-/// adding an [OverlayEntry] (now named [PortalEntry]) declaratively.
+/// adding an [OverlayEntry] (now named [PortalTarget]) declaratively.
 ///
-/// [Portal] widget is used in co-ordination with [PortalEntry] widget to show
+/// [Portal] widget is used in co-ordination with [PortalTarget] widget to show
 /// some content _above_ another content.
-/// This is similar to [Stack] in principle, with the difference that [PortalEntry]
+/// This is similar to [Stack] in principle, with the difference that [PortalTarget]
 /// does not have to be a direct child of [Portal] and can instead be placed
 /// anywhere in the widget tree.
 ///
@@ -174,21 +173,21 @@ class _RenderPortalTheater extends RenderProxyBox {
 
 /// A widget that renders its content in a different location of the widget tree.
 ///
-/// In short, you can use [PortalEntry] to show dialogs, tooltips, contextual menus, ...
+/// In short, you can use [PortalTarget] to show dialogs, tooltips, contextual menus, ...
 /// You can then control the visibility of these overlays with a simple `setState`.
 ///
-/// The benefits of using [PortalEntry] over [Overlay]/[OverlayEntry] are multiple:
-/// - [PortalEntry] is easier to manipulate
+/// The benefits of using [PortalTarget] over [Overlay]/[OverlayEntry] are multiple:
+/// - [PortalTarget] is easier to manipulate
 /// - It allows aligning your menus/tooltips next to a button easily
 /// - It combines nicely with state-management solutions and the "state-restoration"
 ///   framework. For example, combined with [RestorableProperty], when the application
 ///   is killed then re-opened, modals/menus would be restored.
 ///
-/// For [PortalEntry] to work, make sure to insert [Portal] higher in the widget-tree.
+/// For [PortalTarget] to work, make sure to insert [Portal] higher in the widget-tree.
 ///
 /// ## Contextual menu example
 ///
-/// In this example, we will see how we can use [PortalEntry] to show a menu
+/// In this example, we will see how we can use [PortalTarget] to show a menu
 /// after clicking on a [ElevatedButton].
 ///
 /// First, we need to create a [StatefulWidget] that renders our [ElevatedButton]:
@@ -214,10 +213,10 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// }
 /// ```
 ///
-/// Then, we need to insert our [PortalEntry] in the widget tree.
+/// Then, we need to insert our [PortalTarget] in the widget tree.
 ///
 /// We want our contextual menu to render right next to our [ElevatedButton].
-/// As such, our [PortalEntry] should be the parent of [ElevatedButton] like so:
+/// As such, our [PortalTarget] should be the parent of [ElevatedButton] like so:
 ///
 /// ```dart
 /// Center(
@@ -319,7 +318,7 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// One final step is to close the menu when the user clicks randomly outside
 /// of the menu.
 ///
-/// This can be implemented with a second [PortalEntry] combined with [GestureDetector]
+/// This can be implemented with a second [PortalTarget] combined with [GestureDetector]
 /// like so:
 ///
 ///
@@ -343,8 +342,8 @@ class _RenderPortalTheater extends RenderProxyBox {
 ///   ),
 /// )
 /// ```
-class PortalEntry extends StatefulWidget {
-  const PortalEntry({
+class PortalTarget extends StatefulWidget {
+  const PortalTarget({
     Key? key,
     this.visible = true,
     this.anchor = const Filled(),
@@ -362,7 +361,7 @@ class PortalEntry extends StatefulWidget {
   final Duration? closeDuration;
 
   @override
-  _PortalEntryState createState() => _PortalEntryState();
+  _PortalTargetState createState() => _PortalTargetState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -375,13 +374,13 @@ class PortalEntry extends StatefulWidget {
   }
 }
 
-class _PortalEntryState extends State<PortalEntry> {
+class _PortalTargetState extends State<PortalTarget> {
   final _link = LayerLink();
   late bool _visible = widget.visible;
   Timer? _timer;
 
   @override
-  void didUpdateWidget(PortalEntry oldWidget) {
+  void didUpdateWidget(PortalTarget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.visible) {
       if (!oldWidget.visible && _visible) {
@@ -410,7 +409,7 @@ class _PortalEntryState extends State<PortalEntry> {
     }
 
     if (widget.anchor is Filled) {
-      return _PortalEntryTheater(
+      return _PortalTargetTheater(
         portal: _visible ? widget.portal : null,
         anchor: widget.anchor,
         targetSize: Size.zero,
@@ -431,7 +430,7 @@ class _PortalEntryState extends State<PortalEntry> {
               builder: (context, constraints) {
                 final targetSize = constraints.biggest;
 
-                return _PortalEntryTheater(
+                return _PortalTargetTheater(
                   overlayLink: scope._overlayLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
@@ -458,8 +457,8 @@ class _PortalEntryState extends State<PortalEntry> {
   }
 }
 
-class _PortalEntryTheater extends SingleChildRenderObjectWidget {
-  const _PortalEntryTheater({
+class _PortalTargetTheater extends SingleChildRenderObjectWidget {
+  const _PortalTargetTheater({
     Key? key,
     required this.portal,
     required this.overlayLink,
@@ -475,7 +474,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPortalEntry(
+    return _RenderPortalTarget(
       overlayLink,
       anchor: anchor,
       targetSize: targetSize,
@@ -485,7 +484,7 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderPortalEntry renderObject,
+    _RenderPortalTarget renderObject,
   ) {
     renderObject
       ..overlayLink = overlayLink
@@ -507,10 +506,12 @@ class _PortalEntryTheater extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderPortalEntry extends RenderProxyBox {
-  _RenderPortalEntry(this._overlayLink,
-      {required Anchor anchor, required Size targetSize})
-      : assert(_overlayLink.theater != null),
+class _RenderPortalTarget extends RenderProxyBox {
+  _RenderPortalTarget(
+    this._overlayLink, {
+    required Anchor anchor,
+    required Size targetSize,
+  })  : assert(_overlayLink.theater != null),
         _anchor = anchor,
         _targetSize = targetSize;
 
@@ -601,8 +602,8 @@ class _RenderPortalEntry extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (branch != null) {
-      final constraints = anchor.getSourceConstraints(
-        overlayConstraints: overlayLink.constraints!,
+      final constraints = anchor.getFollowerConstraints(
+        portalConstraints: overlayLink.constraints!,
         targetRect: Offset.zero & targetSize,
       );
       branch!.layout(constraints);
@@ -650,14 +651,14 @@ class _RenderPortalEntry extends RenderProxyBox {
 }
 
 class _PortalEntryElement extends SingleChildRenderObjectElement {
-  _PortalEntryElement(_PortalEntryTheater widget) : super(widget);
+  _PortalEntryElement(_PortalTargetTheater widget) : super(widget);
 
   @override
-  _PortalEntryTheater get widget => super.widget as _PortalEntryTheater;
+  _PortalTargetTheater get widget => super.widget as _PortalTargetTheater;
 
   @override
-  _RenderPortalEntry get renderObject =>
-      super.renderObject as _RenderPortalEntry;
+  _RenderPortalTarget get renderObject =>
+      super.renderObject as _RenderPortalTarget;
 
   Element? _branch;
 
@@ -723,11 +724,11 @@ class _PortalEntryElement extends SingleChildRenderObjectElement {
   }
 }
 
-/// The error that will be thrown if [PortalEntry] fails to find a [Portal].
+/// The error that is thrown when a [PortalTarget] fails to find a [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
   PortalNotFoundError._(this._portalEntry);
 
-  final PortalEntry _portalEntry;
+  final PortalTarget _portalEntry;
 
   @override
   String toString() {

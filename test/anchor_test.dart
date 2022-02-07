@@ -44,7 +44,7 @@ void main() {
                     child: SizedBox(
                       width: 50,
                       height: 50,
-                      child: PortalEntry(
+                      child: PortalTarget(
                         anchor: anchor,
                         portal: const ColoredBox(
                           color: Colors.red,
@@ -86,7 +86,7 @@ void main() {
       target: Alignment.topLeft,
       onGetSourceOffset: () => offsetAccessed = true,
     );
-    final entry = PortalEntry(
+    final entry = PortalTarget(
       anchor: Aligned(
         source: Alignment.topLeft,
         target: Alignment.bottomLeft,
@@ -160,21 +160,21 @@ class _TestAnchor implements Anchor {
   ) onGetSourceOffset;
 
   @override
-  BoxConstraints getSourceConstraints({
+  BoxConstraints getFollowerConstraints({
     required Rect targetRect,
-    required BoxConstraints overlayConstraints,
+    required BoxConstraints portalConstraints,
   }) {
-    onGetSourceConstraints(targetRect, overlayConstraints);
+    onGetSourceConstraints(targetRect, portalConstraints);
     return constraints;
   }
 
   @override
-  Offset getSourceOffset({
-    required Size sourceSize,
+  Offset getFollowerOffset({
+    required Size followerSize,
     required Rect targetRect,
-    required Rect theaterRect,
+    required Rect portalRect,
   }) {
-    onGetSourceOffset(sourceSize, targetRect, theaterRect);
+    onGetSourceOffset(followerSize, targetRect, portalRect);
     return Offset.zero;
   }
 }
@@ -197,16 +197,16 @@ class _TestAligned extends Aligned {
   final VoidCallback onGetSourceOffset;
 
   @override
-  Offset getSourceOffset({
-    required Size sourceSize,
+  Offset getFollowerOffset({
+    required Size followerSize,
     required Rect targetRect,
-    required Rect theaterRect,
+    required Rect portalRect,
   }) {
     onGetSourceOffset();
-    return super.getSourceOffset(
-      sourceSize: sourceSize,
+    return super.getFollowerOffset(
+      followerSize: followerSize,
       targetRect: targetRect,
-      theaterRect: theaterRect,
+      portalRect: portalRect,
     );
   }
 }

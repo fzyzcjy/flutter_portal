@@ -39,7 +39,7 @@ class _ClapButtonState extends State<ClapButton> {
 
   @override
   Widget build(BuildContext context) {
-    return PortalEntry(
+    return PortalTarget(
       visible: hasClappedRecently,
       // aligns the top-center of `child` with the bottom-center of `portal`
       anchor: const Aligned(
