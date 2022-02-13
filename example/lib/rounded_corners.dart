@@ -108,6 +108,7 @@ class _ModalEntry extends StatelessWidget {
       child: PortalTarget(
         visible: visible,
         portalFollower: popup,
+        // todo: implement anchor that sizes the follower based on the available space within the portal at the calculated offset.
         anchor: const Aligned(
           follower: Alignment.topLeft,
           target: Alignment.bottomLeft,
