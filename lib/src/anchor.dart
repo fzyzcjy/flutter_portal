@@ -152,8 +152,8 @@ class Aligned implements Anchor {
     required Size targetSize,
     required Rect portalRect,
   }) {
-    final followerRect = (Offset.zero & followerSize).alignedTo(
-      Offset.zero & targetSize,
+    final followerRect = followerSize.alignedTo(
+      targetSize,
       followerAlignment: follower,
       targetAlignment: target,
       offset: offset,
@@ -208,15 +208,18 @@ class Aligned implements Anchor {
 @immutable
 class ExpandedAligned extends Anchor {
   const ExpandedAligned({
-    required this.follower,
     required this.target,
+    this.offset = Offset.zero,
   });
 
-  /// The reference point on the follower element.
-  final Alignment follower;
-
-  /// The reference point on the target element
+  /// The reference point on the target element.
+  ///
+  /// Note that there is no alignment for the follower element since the
+  /// follower size is expanded.
   final Alignment target;
+
+  /// Offset to shift the follower element by after all calculations are made.
+  final Offset offset;
 
   @override
   Offset getFollowerOffset({
@@ -233,6 +236,7 @@ class ExpandedAligned extends Anchor {
     required BoxConstraints portalConstraints,
   }) {
     final portalRect = Offset.zero & portalConstraints.biggest;
+    final followerOffset = target.alongSize(targetSize) + offset;
     throw UnimplementedError();
   }
 
@@ -244,27 +248,30 @@ class ExpandedAligned extends Anchor {
     if (other is! ExpandedAligned) {
       return false;
     }
-    return follower == other.follower && target == other.target;
+    return target == other.target && offset == other.offset;
   }
 
   @override
-  int get hashCode => Object.hash(follower, target);
+  int get hashCode => Object.hash(target, offset);
 }
 
-extension on Rect {
+extension on Size {
+  /// Returns a [Rect] that is aligned to the sizes (follower size / this and
+  /// the target size) along the given alignments, shifted by [offset].
   Rect alignedTo(
-    Rect target, {
+    Size targetSize, {
     required Alignment followerAlignment,
     required Alignment targetAlignment,
     Offset offset = Offset.zero,
   }) {
-    final followerOffset = targetAlignment.alongSize(target.size) -
-        followerAlignment.alongSize(size) +
-        target.topLeft +
+    final followerOffset = targetAlignment.alongSize(targetSize) -
+        followerAlignment.alongSize(this) +
         offset;
-    return followerOffset & size;
+    return followerOffset & this;
   }
+}
 
+extension on Rect {
   /// Returns true if [rect] is fully contained within this rect
   /// If the [rect] has any part that lies outside of this parent
   /// false will be returned
