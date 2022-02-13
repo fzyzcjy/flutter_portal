@@ -1,30 +1,27 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/rendering/box.dart';
 import 'package:flutter_portal/src/anchor.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('$Anchor is passed proper constraints', (tester) async {
-    Rect? constraintsTargetRect;
+    Size? constraintsTargetSize;
     BoxConstraints? constraintsOverlayConstraints;
     Size? offsetSourceSize;
-    Rect? offsetTargetRect;
+    Size? offsetTargetSize;
     Rect? offsetTheaterRect;
     final anchor = _TestAnchor(
       constraints: const BoxConstraints.tightFor(
         width: 42,
         height: 42,
       ),
-      onGetSourceConstraints: (targetRect, overlayConstraints) {
-        constraintsTargetRect = targetRect;
+      onGetSourceConstraints: (targetSize, overlayConstraints) {
+        constraintsTargetSize = targetSize;
         constraintsOverlayConstraints = overlayConstraints;
       },
-      onGetSourceOffset: (sourceSize, targetRect, theaterRect) {
+      onGetSourceOffset: (sourceSize, targetSize, theaterRect) {
         offsetSourceSize = sourceSize;
-        offsetTargetRect = targetRect;
+        offsetTargetSize = targetSize;
         offsetTheaterRect = theaterRect;
       },
     );
@@ -69,12 +66,12 @@ void main() {
       ),
     ));
 
-    expect(constraintsTargetRect, Offset.zero & const Size(50, 50));
+    expect(constraintsTargetSize, const Size(50, 50));
     expect(
       constraintsOverlayConstraints,
       BoxConstraints.tight(const Size(100, 100)),
     );
-    expect(constraintsTargetRect, offsetTargetRect);
+    expect(constraintsTargetSize, offsetTargetSize);
     expect(offsetSourceSize, const Size(42, 42));
     expect(offsetTheaterRect, const Offset(-25, -25) & const Size(100, 100));
   });
@@ -150,18 +147,18 @@ class _TestAnchor implements Anchor {
   final BoxConstraints constraints;
 
   final void Function(
-    Rect targetRect,
+    Size targetSize,
     BoxConstraints overlayConstraints,
   ) onGetSourceConstraints;
   final void Function(
     Size sourceSize,
-    Rect targetRect,
+    Size targetSize,
     Rect theaterRect,
   ) onGetSourceOffset;
 
   @override
   BoxConstraints getFollowerConstraints({
-    required Rect targetSize,
+    required Size targetSize,
     required BoxConstraints portalConstraints,
   }) {
     onGetSourceConstraints(targetSize, portalConstraints);
@@ -171,7 +168,7 @@ class _TestAnchor implements Anchor {
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetSize,
+    required Size targetSize,
     required Rect portalRect,
   }) {
     onGetSourceOffset(followerSize, targetSize, portalRect);
@@ -199,7 +196,7 @@ class _TestAligned extends Aligned {
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetSize,
+    required Size targetSize,
     required Rect portalRect,
   }) {
     onGetSourceOffset();

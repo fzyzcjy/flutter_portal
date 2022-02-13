@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vector_math/vector_math_64.dart';
@@ -459,5 +460,9 @@ class _CustomFollowerLayer extends ContainerLayer {
     properties.add(DiagnosticsProperty<LayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
+    properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(
+      'linkedOffsetCallback',
+      linkedOffsetCallback,
+    ));
   }
 }
