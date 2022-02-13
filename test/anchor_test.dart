@@ -161,20 +161,20 @@ class _TestAnchor implements Anchor {
 
   @override
   BoxConstraints getFollowerConstraints({
-    required Rect targetRect,
+    required Rect targetSize,
     required BoxConstraints portalConstraints,
   }) {
-    onGetSourceConstraints(targetRect, portalConstraints);
+    onGetSourceConstraints(targetSize, portalConstraints);
     return constraints;
   }
 
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetRect,
+    required Rect targetSize,
     required Rect portalRect,
   }) {
-    onGetSourceOffset(followerSize, targetRect, portalRect);
+    onGetSourceOffset(followerSize, targetSize, portalRect);
     return Offset.zero;
   }
 }
@@ -199,13 +199,13 @@ class _TestAligned extends Aligned {
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetRect,
+    required Rect targetSize,
     required Rect portalRect,
   }) {
     onGetSourceOffset();
     return super.getFollowerOffset(
       followerSize: followerSize,
-      targetRect: targetRect,
+      targetSize: targetSize,
       portalRect: portalRect,
     );
   }

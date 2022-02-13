@@ -1,14 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
+import '../flutter_portal.dart';
+
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
 /// This is independent of the underlying rendering implementation.
 abstract class Anchor {
+  const Anchor();
+
   /// Returns the layout constraints that are given to the follower element.
   ///
-  /// The [targetRect] represents the bounds of the element which the follower
+  /// The [targetSize] represents the bounds of the element which the follower
   /// element should be anchored to. This must be the same value that is passed
   /// to [getFollowerOffset]. No assumptions should be made about the coordinate
   /// space, i.e. only the size of the target should be considered.
@@ -17,23 +21,23 @@ abstract class Anchor {
   /// follower element in. This is irrespective of where the target is
   /// positioned within the full available space.
   BoxConstraints getFollowerConstraints({
-    required Rect targetRect,
+    required Size targetSize,
     required BoxConstraints portalConstraints,
   });
 
   /// Returns the offset at which to position the follower element in relation
-  /// to the top left of the [targetRect].
+  /// to the top left of the [targetSize].
   ///
   /// The [followerSize] is the final size of the follower element after layout
   /// based on the follower constraints determined by [getFollowerConstraints].
   ///
-  /// The [targetRect] represents the bounds of the element which the follower
+  /// The [targetSize] represents the bounds of the element which the follower
   /// element should be anchored to. This must be the same value that is passed
   /// to [getFollowerConstraints].
   ///
   /// The [portalRect] represents the bounds of the full available space to
   /// place the follower element in. Note that this is also relative to the top
-  /// left of the [targetRect].
+  /// left of the [targetSize].
   /// This means that every offset going into or coming out of this function is
   /// relative to the top-left corner of the target.
   ///
@@ -46,13 +50,13 @@ abstract class Anchor {
   /// spans to absolute `(100, 100)` and the target rect starts at absolute
   /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
   ///
-  ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetRect].
+  ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetSize].
   ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [portalRect].
   ///  * `Size(30, 30)` for the [followerSize].
   ///  * `Offset(20, 20)` as the return value.
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetRect,
+    required Size targetSize,
     required Rect portalRect,
   });
 }
@@ -65,7 +69,7 @@ class Filled implements Anchor {
 
   @override
   BoxConstraints getFollowerConstraints({
-    required Rect targetRect,
+    required Size targetSize,
     required BoxConstraints portalConstraints,
   }) {
     return BoxConstraints.tight(portalConstraints.biggest);
@@ -74,7 +78,7 @@ class Filled implements Anchor {
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetRect,
+    required Size targetSize,
     required Rect portalRect,
   }) {
     return Offset.zero;
@@ -129,27 +133,27 @@ class Aligned implements Anchor {
 
   @override
   BoxConstraints getFollowerConstraints({
-    required Rect targetRect,
+    required Size targetSize,
     required BoxConstraints portalConstraints,
   }) {
     final widthFactor = this.widthFactor;
     final heightFactor = this.heightFactor;
 
     return portalConstraints.loosen().tighten(
-          width: widthFactor == null ? null : targetRect.width * widthFactor,
+          width: widthFactor == null ? null : targetSize.width * widthFactor,
           height:
-              heightFactor == null ? null : targetRect.height * heightFactor,
+              heightFactor == null ? null : targetSize.height * heightFactor,
         );
   }
 
   @override
   Offset getFollowerOffset({
     required Size followerSize,
-    required Rect targetRect,
+    required Size targetSize,
     required Rect portalRect,
   }) {
     final followerRect = (Offset.zero & followerSize).alignedTo(
-      targetRect,
+      Offset.zero & targetSize,
       followerAlignment: follower,
       targetAlignment: target,
       offset: offset,
@@ -160,7 +164,7 @@ class Aligned implements Anchor {
       if (backup != null) {
         return backup.getFollowerOffset(
           followerSize: followerSize,
-          targetRect: targetRect,
+          targetSize: targetSize,
           portalRect: portalRect,
         );
       }
@@ -184,7 +188,67 @@ class Aligned implements Anchor {
   }
 
   @override
-  int get hashCode => follower.hashCode ^ target.hashCode ^ offset.hashCode;
+  int get hashCode => Object.hash(follower, target, offset, backup);
+}
+
+/// An anchor implementation that expands in the specified axes.
+///
+/// Expanding means giving constraints that fill the portal rect based on the
+/// offset of the follower.
+///
+/// This might be useful if you want to not only clip your follower widget but
+/// also round corners or anything related.
+///
+/// This is similar to [Aligned] in that it lets you specify how the follower
+/// should be aligned to the target, but you cannot specify a backup and instead
+/// the constraints simply expand in the direction specified.
+///
+/// Note that this assumes that the parent [Portal] uses maximum constraints,
+/// i.e. the child of the [Portal] widget uses the maximum constraints.
+@immutable
+class ExpandedAligned extends Anchor {
+  const ExpandedAligned({
+    required this.follower,
+    required this.target,
+  });
+
+  /// The reference point on the follower element.
+  final Alignment follower;
+
+  /// The reference point on the target element
+  final Alignment target;
+
+  @override
+  Offset getFollowerOffset({
+    required Size followerSize,
+    required Size targetSize,
+    required Rect portalRect,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  BoxConstraints getFollowerConstraints({
+    required Size targetSize,
+    required BoxConstraints portalConstraints,
+  }) {
+    final portalRect = Offset.zero & portalConstraints.biggest;
+    throw UnimplementedError();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! ExpandedAligned) {
+      return false;
+    }
+    return follower == other.follower && target == other.target;
+  }
+
+  @override
+  int get hashCode => Object.hash(follower, target);
 }
 
 extension on Rect {

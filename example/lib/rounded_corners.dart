@@ -76,8 +76,8 @@ class _Popup extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
+            shrinkWrap: true,
             children: children,
           ),
         ),
@@ -90,14 +90,14 @@ class _ModalEntry extends StatelessWidget {
   const _ModalEntry({
     Key? key,
     required this.onClose,
-    required this.popup,
     required this.visible,
+    required this.popup,
     required this.child,
   }) : super(key: key);
 
   final VoidCallback onClose;
-  final Widget popup;
   final bool visible;
+  final Widget popup;
   final Widget child;
 
   @override

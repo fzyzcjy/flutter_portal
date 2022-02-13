@@ -188,13 +188,12 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
       ancestor: theater,
     );
 
-    final targetRect = Offset.zero & targetSize;
     final theaterRect = theaterShift & theater.size;
 
     return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
       followerSize: size,
-      targetRect: targetRect,
+      targetSize: targetSize,
       portalRect: theaterRect,
     );
   }
