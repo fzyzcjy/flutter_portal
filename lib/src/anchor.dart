@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-import '../flutter_portal.dart';
-
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
@@ -189,70 +187,6 @@ class Aligned implements Anchor {
 
   @override
   int get hashCode => Object.hash(follower, target, offset, backup);
-}
-
-/// An anchor implementation that expands in the specified axes.
-///
-/// Expanding means giving constraints that fill the portal rect based on the
-/// offset of the follower.
-///
-/// This might be useful if you want to not only clip your follower widget but
-/// also round corners or anything related.
-///
-/// This is similar to [Aligned] in that it lets you specify how the follower
-/// should be aligned to the target, but you cannot specify a backup and instead
-/// the constraints simply expand in the direction specified.
-///
-/// Note that this assumes that the parent [Portal] uses maximum constraints,
-/// i.e. the child of the [Portal] widget uses the maximum constraints.
-@immutable
-class ExpandedAligned extends Anchor {
-  const ExpandedAligned({
-    required this.target,
-    this.offset = Offset.zero,
-  });
-
-  /// The reference point on the target element.
-  ///
-  /// Note that there is no alignment for the follower element since the
-  /// follower size is expanded.
-  final Alignment target;
-
-  /// Offset to shift the follower element by after all calculations are made.
-  final Offset offset;
-
-  @override
-  Offset getFollowerOffset({
-    required Size followerSize,
-    required Size targetSize,
-    required Rect portalRect,
-  }) {
-    throw UnimplementedError();
-  }
-
-  @override
-  BoxConstraints getFollowerConstraints({
-    required Size targetSize,
-    required BoxConstraints portalConstraints,
-  }) {
-    final portalRect = Offset.zero & portalConstraints.biggest;
-    final followerOffset = target.alongSize(targetSize) + offset;
-    throw UnimplementedError();
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other is! ExpandedAligned) {
-      return false;
-    }
-    return target == other.target && offset == other.offset;
-  }
-
-  @override
-  int get hashCode => Object.hash(target, offset);
 }
 
 extension on Size {
