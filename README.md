@@ -279,6 +279,16 @@ UI, no matter where it moves dynamically.
 On a low level, this means that you wrap the part of your UI that you want to
 follow in a `PortalTarget` widget and configure it.
 
+#### Example
+
+Imagine you want to display tooltips when an avatar is hovered in your app. In
+that case, the avatar would be the portal **target** and could be used to anchor
+the tooltip that is overlayed.
+
+Another example would be a dropdown menu. The widget that shows the current
+selection is the *target* and when tapping on it, the dropdown options would be
+overlayed through the portal as the follower.
+
 ### Follower
 
 A follower can only be used in combination with a target. You can use it for
@@ -287,6 +297,13 @@ anything that you want to overlay on top of your UI, attached to a target.
 Specifically, this means that you can pass one `follower` to every
 `PortalTarget`, which will be displayed above your UI within the portal when
 you specify so.
+
+#### Example
+
+If you wanted to display an autocomplete text field using `flutter_portal`,
+you would want to follow the text field to overlay your autocomplete
+suggestions. The widget for the autocomplete suggestions would be the portal
+**follower** in that case.
 
 ### Anchor
 
