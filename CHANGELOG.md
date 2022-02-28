@@ -1,3 +1,7 @@
+# Unreleased
+
+* New Anchoring Logic for Advanced Use Cases #44
+
 # 0.4.0
 
 - Stable null-safety release
