@@ -39,13 +39,15 @@ class _ClapButtonState extends State<ClapButton> {
 
   @override
   Widget build(BuildContext context) {
-    return PortalEntry(
+    return PortalTarget(
       visible: hasClappedRecently,
       // aligns the top-center of `child` with the bottom-center of `portal`
-      childAnchor: Alignment.topCenter,
-      portalAnchor: Alignment.bottomCenter,
+      anchor: const Aligned(
+        target: Alignment.topCenter,
+        follower: Alignment.bottomCenter,
+      ),
       closeDuration: kThemeChangeDuration,
-      portal: TweenAnimationBuilder<double>(
+      portalFollower: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: hasClappedRecently ? 1 : 0),
         duration: kThemeChangeDuration,
         builder: (context, progress, child) {

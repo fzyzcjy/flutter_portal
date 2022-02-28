@@ -59,10 +59,10 @@ class Modal extends StatelessWidget {
     return Barrier(
       visible: visible,
       onClose: onClose,
-      child: PortalEntry(
+      child: PortalTarget(
         visible: visible,
         closeDuration: kThemeAnimationDuration,
-        portal: TweenAnimationBuilder<double>(
+        portalFollower: TweenAnimationBuilder<double>(
           duration: kThemeAnimationDuration,
           curve: Curves.easeOut,
           tween: Tween(begin: 0, end: visible ? 1 : 0),
@@ -97,10 +97,10 @@ class Barrier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PortalEntry(
+    return PortalTarget(
       visible: visible,
       closeDuration: kThemeAnimationDuration,
-      portal: GestureDetector(
+      portalFollower: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onClose,
         child: TweenAnimationBuilder<Color>(

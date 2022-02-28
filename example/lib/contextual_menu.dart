@@ -40,7 +40,7 @@ class _ContextualMenuExampleState extends State<ContextualMenuExample> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ModalEntry(
+      child: _ModalEntry(
         visible: _showMenu,
         onClose: () => setState(() => _showMenu = false),
         childAnchor: Alignment.topRight,
@@ -76,23 +76,20 @@ class Menu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10),
-      child: Card(
-        elevation: 8,
-        child: IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
-          ),
+    return Card(
+      elevation: 8,
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
         ),
       ),
     );
   }
 }
 
-class ModalEntry extends StatelessWidget {
-  const ModalEntry({
+class _ModalEntry extends StatelessWidget {
+  const _ModalEntry({
     Key? key,
     required this.onClose,
     required this.menu,
@@ -114,11 +111,19 @@ class ModalEntry extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: visible ? onClose : null,
-      child: PortalEntry(
+      child: PortalTarget(
         visible: visible,
-        portal: menu,
-        portalAnchor: menuAnchor,
-        childAnchor: childAnchor,
+        portalFollower: menu,
+        anchor: const Aligned(
+          follower: Alignment.topLeft,
+          target: Alignment.bottomLeft,
+          widthFactor: 1,
+          backup: Aligned(
+            follower: Alignment.bottomLeft,
+            target: Alignment.topLeft,
+            widthFactor: 1,
+          ),
+        ),
         child: IgnorePointer(
           ignoring: visible,
           child: child,

@@ -11,14 +11,22 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_portal/flutter_portal.dart';
+import 'package:flutter_portal/src/anchor.dart';
 import 'package:flutter_portal/src/portal.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 
 Future<ByteData> fetchFont() async {
-  final roboto = File.fromUri(
-    Uri.file('${Directory.current.path}/../assets/Roboto-Regular.ttf'),
-  );
+  final Uri fontUri;
+  if (p.basename(Directory.current.path) == 'test') {
+    fontUri =
+        Uri.file('${Directory.current.path}/../assets/Roboto-Regular.ttf');
+  } else {
+    // We assume the test command is executed from the project root.
+    fontUri = Uri.file('assets/Roboto-Regular.ttf');
+  }
+
+  final roboto = File.fromUri(fontUri);
   final bytes = Uint8List.fromList(await roboto.readAsBytes());
   return ByteData.view(bytes.buffer);
 }
@@ -36,9 +44,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -50,10 +58,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 6),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -76,11 +84,13 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            childAnchor: Alignment.center,
-            portalAnchor: Alignment.center,
-            portal: Text('portal'),
+            anchor: Aligned(
+              target: Alignment.center,
+              follower: Alignment.center,
+            ),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -92,12 +102,11 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 6),
-            childAnchor: Alignment.center,
-            portalAnchor: Alignment.center,
-            portal: Text('portal'),
+            anchor: Aligned.center,
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -119,9 +128,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -133,10 +142,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -154,9 +163,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -168,10 +177,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal2'),
+            portalFollower: Text('portal2'),
             child: Text('child'),
           ),
         ),
@@ -184,10 +193,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 20),
-            portal: Text('portal3'),
+            portalFollower: Text('portal3'),
             child: Text('child'),
           ),
         ),
@@ -206,9 +215,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -220,10 +229,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -235,9 +244,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -259,9 +268,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -271,10 +280,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -286,9 +295,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -302,10 +311,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
             closeDuration: Duration(seconds: 5),
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -327,8 +336,8 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portal: Text('portal'),
+          child: PortalTarget(
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -340,9 +349,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
-            portal: Text('portal'),
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -357,8 +366,8 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portal: Text('portal'),
+          child: PortalTarget(
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -376,10 +385,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
-            portal: Text('portal'),
+          child: PortalTarget(
+            anchor: Aligned.center,
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -391,11 +399,10 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
+          child: PortalTarget(
             visible: false,
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
-            portal: Text('portal'),
+            anchor: Aligned.center,
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -410,10 +417,9 @@ Future<void> main() async {
     await tester.pumpWidget(
       const Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portalAnchor: Alignment.center,
-            childAnchor: Alignment.center,
-            portal: Text('portal'),
+          child: PortalTarget(
+            anchor: Aligned.center,
+            portalFollower: Text('portal'),
             child: Text('child'),
           ),
         ),
@@ -454,7 +460,7 @@ Future<void> main() async {
 
   test('PortalEntry requires portal if visible is true ', () {
     expect(
-      () => PortalEntry(child: Container()),
+      () => PortalTarget(child: Container()),
       throwsAssertionError,
     );
   });
@@ -474,8 +480,8 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              portal: firstPortal,
+            child: PortalTarget(
+              portalFollower: firstPortal,
               child: firstChild,
             ),
           ),
@@ -499,9 +505,9 @@ Future<void> main() async {
       "portals aren't inserted if mounted is false, and visible can be changed any time",
       (tester) async {
     final portal = ValueNotifier(
-      PortalEntry(
+      PortalTarget(
         visible: false,
-        portal: Builder(builder: (_) => throw Error()),
+        portalFollower: Builder(builder: (_) => throw Error()),
         child: const Text('firstChild'),
       ),
     );
@@ -521,8 +527,8 @@ Future<void> main() async {
 
     final portalChildElement = tester.element(find.text('firstChild'));
 
-    portal.value = const PortalEntry(
-      portal: Text('secondPortal'),
+    portal.value = const PortalTarget(
+      portalFollower: Text('secondPortal'),
       child: Text('secondChild'),
     );
     await tester.pump();
@@ -537,9 +543,9 @@ Future<void> main() async {
       reason: 'the child state must be preserved when toggling `visible`',
     );
 
-    portal.value = PortalEntry(
+    portal.value = PortalTarget(
       visible: false,
-      portal: Builder(builder: (_) => throw Error()),
+      portalFollower: Builder(builder: (_) => throw Error()),
       child: const Text('thirdChild'),
     );
     await tester.pump();
@@ -566,8 +572,8 @@ Future<void> main() async {
 
     final portal = ValueNotifier<Widget>(
       Center(
-        child: PortalEntry(
-          portal: portalChild,
+        child: PortalTarget(
+          portalFollower: portalChild,
           child: Center(child: child),
         ),
       ),
@@ -597,11 +603,11 @@ Future<void> main() async {
     await expectLater(find.byType(Portal), matchesGoldenFile('unmounted.png'));
   });
 
-  testWidgets('throws if no PortalEntry were found', (tester) async {
+  testWidgets('throws if no Portal was found', (tester) async {
     await tester.pumpWidget(
-      const PortalEntry(
+      const PortalTarget(
         closeDuration: Duration(seconds: 5),
-        portal: Text('portal', textDirection: TextDirection.ltr),
+        portalFollower: Text('portal', textDirection: TextDirection.ltr),
         child: Text('child', textDirection: TextDirection.ltr),
       ),
     );
@@ -611,10 +617,10 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalEntry('
-          'portalAnchor: null, childAnchor: null, '
+          'PortalTarget('
+          "anchor: Instance of 'Filled', "
           'closeDuration: 0:00:05.000000, '
-          'portal: Text, child: Text).\n'),
+          'portalFollower: Text, child: Text).\n'),
     );
   });
 
@@ -627,21 +633,23 @@ Future<void> main() async {
           child: ValueListenableBuilder<bool>(
             valueListenable: notifier,
             builder: (c, value, _) {
-              return PortalEntry(
+              return PortalTarget(
                 visible: value,
-                portal: Container(
+                portalFollower: Container(
                   color: Colors.red.withAlpha(122),
                 ),
                 child: Center(
-                  child: PortalEntry(
+                  child: PortalTarget(
                     visible: value,
-                    portal: Container(
+                    portalFollower: Container(
                       height: 50,
                       width: 50,
                       color: Colors.blue,
                     ),
-                    portalAnchor: Alignment.bottomCenter,
-                    childAnchor: Alignment.topCenter,
+                    anchor: const Aligned(
+                      follower: Alignment.bottomCenter,
+                      target: Alignment.topCenter,
+                    ),
                     child: Container(
                       height: 50,
                       width: 50,
@@ -677,8 +685,8 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              portal: portal,
+            child: PortalTarget(
+              portalFollower: portal,
               child: child,
             ),
           ),
@@ -721,8 +729,8 @@ Future<void> main() async {
 
     expect(find.byWidget(first), findsOneWidget);
 
-    child.value = PortalEntry(
-      portal: portal,
+    child.value = PortalTarget(
+      portalFollower: portal,
       child: second,
     );
     await tester.pump();
@@ -744,8 +752,8 @@ Future<void> main() async {
     await tester.pumpWidget(
       Boilerplate(
         child: Portal(
-          child: PortalEntry(
-            portal: ElevatedButton(
+          child: PortalTarget(
+            portalFollower: ElevatedButton(
               onPressed: () => portalClickCount++,
               child: const Text('portal'),
             ),
@@ -774,10 +782,12 @@ Future<void> main() async {
         child: Portal(
           // center the entry otherwise the portal is outside the screen
           child: Center(
-            child: PortalEntry(
-              portalAnchor: Alignment.bottomCenter,
-              childAnchor: Alignment.topCenter,
-              portal: ElevatedButton(
+            child: PortalTarget(
+              anchor: const Aligned(
+                follower: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
+              portalFollower: ElevatedButton(
                 onPressed: () => portalClickCount++,
                 child: const Text('portal'),
               ),
@@ -811,10 +821,10 @@ Future<void> main() async {
         child: Portal(
           child: Align(
             alignment: Alignment.topLeft,
-            child: PortalEntry(
-              portalAnchor: Alignment.topLeft,
-              childAnchor: Alignment.bottomLeft,
-              portal: SizedBox(key: portalKey, height: 42, width: 24),
+            child: PortalTarget(
+              anchor: Aligned(
+                  follower: Alignment.topLeft, target: Alignment.bottomLeft),
+              portalFollower: SizedBox(key: portalKey, height: 42, width: 24),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
           ),
@@ -843,10 +853,12 @@ Future<void> main() async {
         child: Portal(
           child: Align(
             alignment: Alignment.topRight,
-            child: PortalEntry(
-              portalAnchor: Alignment.topRight,
-              childAnchor: Alignment.bottomRight,
-              portal: SizedBox(key: portalKey, height: 24, width: 42),
+            child: PortalTarget(
+              anchor: Aligned(
+                follower: Alignment.topRight,
+                target: Alignment.bottomRight,
+              ),
+              portalFollower: SizedBox(key: portalKey, height: 24, width: 42),
               child: SizedBox(key: childKey, height: 20, width: 20),
             ),
           ),
@@ -878,10 +890,12 @@ Future<void> main() async {
         child: Portal(
           child: Align(
             alignment: Alignment.bottomRight,
-            child: PortalEntry(
-              childAnchor: Alignment.topRight,
-              portalAnchor: Alignment.bottomRight,
-              portal: SizedBox(key: portalKey, height: 20, width: 20),
+            child: PortalTarget(
+              anchor: Aligned(
+                follower: Alignment.bottomRight,
+                target: Alignment.topRight,
+              ),
+              portalFollower: SizedBox(key: portalKey, height: 20, width: 20),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
           ),
@@ -917,8 +931,8 @@ Future<void> main() async {
         textDirection: TextDirection.ltr,
         child: Portal(
           child: Align(
-            child: PortalEntry(
-              portal: SizedBox(key: portalKey, height: 20, width: 20),
+            child: PortalTarget(
+              portalFollower: SizedBox(key: portalKey, height: 20, width: 20),
               child: SizedBox(key: childKey, height: 10, width: 10),
             ),
           ),
@@ -958,8 +972,8 @@ Future<void> main() async {
         textDirection: TextDirection.ltr,
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              portal: GestureDetector(
+            child: PortalTarget(
+              portalFollower: GestureDetector(
                 key: portalKey,
                 onTap: () => portalClickCount++,
                 child: child,
@@ -993,10 +1007,12 @@ Future<void> main() async {
         textDirection: TextDirection.ltr,
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              childAnchor: Alignment.bottomCenter,
-              portalAnchor: Alignment.topCenter,
-              portal: GestureDetector(
+            child: PortalTarget(
+              anchor: const Aligned(
+                follower: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
+              portalFollower: GestureDetector(
                 key: portalKey,
                 onTap: () => portalClickCount++,
                 child: child,
@@ -1035,8 +1051,8 @@ Future<void> main() async {
         textDirection: TextDirection.ltr,
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              portal: GestureDetector(
+            child: PortalTarget(
+              portalFollower: GestureDetector(
                 key: portalKey,
                 onTap: () => portalClickCount++,
                 child: child,
@@ -1088,10 +1104,12 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              childAnchor: Alignment.topCenter,
-              portalAnchor: Alignment.bottomCenter,
-              portal: portal,
+            child: PortalTarget(
+              anchor: const Aligned(
+                follower: Alignment.bottomCenter,
+                target: Alignment.topCenter,
+              ),
+              portalFollower: portal,
               child: child,
             ),
           ),
@@ -1123,8 +1141,9 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: Center(
-            child: PortalEntry(
-              portal: Align(alignment: Alignment.topLeft, child: portal),
+            child: PortalTarget(
+              portalFollower:
+                  Align(alignment: Alignment.topLeft, child: portal),
               child: child,
             ),
           ),
@@ -1151,53 +1170,13 @@ Future<void> main() async {
     expect(didClickPortal, isTrue);
   });
 
-  testWidgets('PortalEntry target its generic parameter', (tester) async {
-    // final portalKey = UniqueKey();
-
-    // await tester.pumpWidget(
-    //   TestPortal(
-    //     child: Center(
-    //       child: Portal(
-    //         child: PortalEntry<TestPortal>(
-    //           // Fills the portal so that if it's added to TestPortal it'll be on the top-left
-    //           // but if it's added to Portal, it'll start in the center of the screen.
-    //           portal: Container(key: portalKey),
-    //           child: const Text('child', textDirection: TextDirection.ltr),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
-
-    // expect(find.text('child'), findsOneWidget);
-    // expect(
-    //   tester.getTopLeft(find.byKey(portalKey)),
-    //   equals(Offset.zero),
-    // );
-  }, skip: true);
-
-  testWidgets(
-      "PortalEntry doesn't fallback to Portal if generic doesn't exists",
-      (tester) async {
-    // await tester.pumpWidget(
-    //   Portal(
-    //     child: PortalEntry<TestPortal>(
-    //       portal: const Text('portal', textDirection: TextDirection.ltr),
-    //       child: Container(),
-    //     ),
-    //   ),
-    // );
-
-    // expect(tester.takeException(), isA<PortalNotFoundError>());
-  }, skip: true);
-
   testWidgets('portals can fill the Portal', (tester) async {
     final portal = Container();
     await tester.pumpWidget(
       Portal(
         child: Center(
-          child: PortalEntry(
-            portal: portal,
+          child: PortalTarget(
+            portalFollower: portal,
             child: const Text('child', textDirection: TextDirection.ltr),
           ),
         ),
@@ -1216,8 +1195,8 @@ Future<void> main() async {
     await tester.pumpWidget(
       MaterialApp(
         builder: (_, child) => Portal(child: child!),
-        home: const PortalEntry(
-          portal: Text('portal'),
+        home: const PortalTarget(
+          portalFollower: Text('portal'),
           child: Text('child'),
         ),
       ),
@@ -1232,8 +1211,8 @@ Future<void> main() async {
     await tester.pumpWidget(
       CupertinoApp(
         builder: (_, child) => Portal(child: child!),
-        home: const PortalEntry(
-          portal: Text('portal'),
+        home: const PortalTarget(
+          portalFollower: Text('portal'),
           child: Text('child'),
         ),
       ),
@@ -1241,30 +1220,6 @@ Future<void> main() async {
 
     expect(find.text('child'), findsOneWidget);
     expect(find.text('portal'), findsOneWidget);
-  });
-
-  testWidgets('if one anchor is null, the other one must be', (tester) async {
-    expect(
-      () => PortalEntry(
-        childAnchor: Alignment.center,
-        portal: Container(),
-        child: Container(),
-      ),
-      throwsAssertionError,
-    );
-    expect(
-      () => PortalEntry(
-        portalAnchor: Alignment.center,
-        portal: Container(),
-        child: Container(),
-      ),
-      throwsAssertionError,
-    );
-
-    PortalEntry(
-      portal: Container(),
-      child: Container(),
-    );
   });
 
   testWidgets(
@@ -1282,8 +1237,8 @@ Future<void> main() async {
             builder: (c, value, _) {
               return LayoutBuilder(
                 builder: (_, __) {
-                  return PortalEntry(
-                    portal: ValueListenableBuilder<int>(
+                  return PortalTarget(
+                    portalFollower: ValueListenableBuilder<int>(
                       valueListenable: entryNotifier,
                       builder: (_, value2, __) {
                         entryBuild(value, value2);
@@ -1323,8 +1278,8 @@ Future<void> main() async {
     await tester.pumpWidget(Portal(
       child: LayoutBuilder(
         builder: (_, __) {
-          return const PortalEntry(
-            portal: Text('portal', textDirection: TextDirection.ltr),
+          return const PortalTarget(
+            portalFollower: Text('portal', textDirection: TextDirection.ltr),
             child: Text('child', textDirection: TextDirection.ltr),
           );
         },
@@ -1357,8 +1312,8 @@ Future<void> main() async {
 
     notifier.value = LayoutBuilder(
       builder: (_, __) {
-        return const PortalEntry(
-          portal: Text('portal', textDirection: TextDirection.ltr),
+        return const PortalTarget(
+          portalFollower: Text('portal', textDirection: TextDirection.ltr),
           child: Text('child2', textDirection: TextDirection.ltr),
         );
       },
@@ -1373,18 +1328,18 @@ Future<void> main() async {
   testWidgets('handles reparenting with GlobalKey', (tester) async {
     // final firstPortal = UniqueKey();
     // final secondPortal = UniqueKey();
-
+    //
     // final entryKey = GlobalKey();
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
     //     children: <Widget>[
     //       Portal(
     //         key: firstPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
@@ -1392,19 +1347,19 @@ Future<void> main() async {
     //     ],
     //   ),
     // );
-
+    //
     // final firstPortalElement =
     //     tester.element(find.byKey(firstPortal)) as PortalElement;
     // final secondPortalElement =
     //     tester.element(find.byKey(secondPortal)) as PortalElement;
-
+    //
     // expect(firstPortalElement.theater.entries.length, 1);
     // expect(firstPortalElement.theater.renderObject.builders.length, 1);
     // expect(firstPortalElement.theater.renderObject.childCount, 1);
     // expect(secondPortalElement.theater.entries.length, 0);
     // expect(secondPortalElement.theater.renderObject.builders.length, 0);
     // expect(secondPortalElement.theater.renderObject.childCount, 0);
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
@@ -1415,32 +1370,32 @@ Future<void> main() async {
     //       ),
     //       Portal(
     //         key: secondPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
     //     ],
     //   ),
     // );
-
+    //
     // expect(firstPortalElement.theater.entries.length, 0);
     // expect(firstPortalElement.theater.renderObject.builders.length, 0);
     // expect(firstPortalElement.theater.renderObject.childCount, 0);
     // expect(secondPortalElement.theater.entries.length, 1);
     // expect(secondPortalElement.theater.renderObject.builders.length, 1);
     // expect(secondPortalElement.theater.renderObject.childCount, 1);
-
+    //
     // await tester.pumpWidget(
     //   Row(
     //     textDirection: TextDirection.ltr,
     //     children: <Widget>[
     //       Portal(
     //         key: firstPortal,
-    //         child: PortalEntry(
+    //         child: PortalTarget(
     //           key: entryKey,
-    //           portal: Container(),
+    //           portalFollower: Container(),
     //           child: Container(),
     //         ),
     //       ),
@@ -1448,32 +1403,32 @@ Future<void> main() async {
     //     ],
     //   ),
     // );
-
+    //
     // expect(firstPortalElement.theater.entries.length, 1);
     // expect(firstPortalElement.theater.renderObject.builders.length, 1);
     // expect(firstPortalElement.theater.renderObject.childCount, 1);
     // expect(secondPortalElement.theater.entries.length, 0);
     // expect(secondPortalElement.theater.renderObject.builders.length, 0);
     // expect(secondPortalElement.theater.renderObject.childCount, 0);
-  });
+  }, skip: true);
 
   testWidgets('clip overflow', (tester) async {}, skip: true);
 
   testWidgets('can have multiple portals', (tester) async {
-    final topLeft = PortalEntry(
-      portal: const Align(alignment: Alignment.topLeft),
+    final topLeft = PortalTarget(
+      portalFollower: const Align(alignment: Alignment.topLeft),
       child: Container(),
     );
-    final topRight = PortalEntry(
-      portal: const Align(alignment: Alignment.topRight),
+    final topRight = PortalTarget(
+      portalFollower: const Align(alignment: Alignment.topRight),
       child: Container(),
     );
-    final bottomRight = PortalEntry(
-      portal: const Align(alignment: Alignment.bottomRight),
+    final bottomRight = PortalTarget(
+      portalFollower: const Align(alignment: Alignment.bottomRight),
       child: Container(),
     );
-    final bottomLeft = PortalEntry(
-      portal: const Align(alignment: Alignment.bottomLeft),
+    final bottomLeft = PortalTarget(
+      portalFollower: const Align(alignment: Alignment.bottomLeft),
       child: Container(),
     );
 
@@ -1507,13 +1462,13 @@ Future<void> main() async {
     var didClickSecond = false;
     await tester.pumpWidget(
       Portal(
-        child: PortalEntry(
-          portal: GestureDetector(
+        child: PortalTarget(
+          portalFollower: GestureDetector(
             onTap: () => didClickFirst = true,
             child: const Text('first', textDirection: TextDirection.ltr),
           ),
-          child: PortalEntry(
-            portal: Center(
+          child: PortalTarget(
+            portalFollower: Center(
               child: GestureDetector(
                 onTap: () => didClickSecond = true,
                 child: const Text('second', textDirection: TextDirection.ltr),
@@ -1548,13 +1503,13 @@ Future<void> main() async {
 
     await tester.pumpWidget(
       Portal(
-        child: PortalEntry(
-          portal: Container(
+        child: PortalTarget(
+          portalFollower: Container(
             margin: const EdgeInsets.all(10),
             color: Colors.red,
           ),
-          child: PortalEntry(
-            portal: Center(
+          child: PortalTarget(
+            portalFollower: Center(
               child: Container(
                 height: 30,
                 width: 30,
@@ -1589,6 +1544,7 @@ class Boilerplate extends StatelessWidget {
 }
 
 mixin Noop {}
+
 class TestPortal = Portal with Noop;
 
 @immutable
