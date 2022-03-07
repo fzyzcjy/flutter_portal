@@ -593,9 +593,8 @@ class _RenderPortalTarget extends RenderProxyBox {
 
   bool _needsAddEntryInTheater = false;
 
-  OverlayLink _overlayLink;
-
   OverlayLink get overlayLink => _overlayLink;
+  OverlayLink _overlayLink;
 
   set overlayLink(OverlayLink value) {
     assert(value.theater != null);
@@ -605,9 +604,8 @@ class _RenderPortalTarget extends RenderProxyBox {
     }
   }
 
-  Anchor _anchor;
-
   Anchor get anchor => _anchor;
+  Anchor _anchor;
 
   set anchor(Anchor value) {
     if (value != _anchor) {
@@ -616,9 +614,8 @@ class _RenderPortalTarget extends RenderProxyBox {
     }
   }
 
-  Size _targetSize;
-
   Size get targetSize => _targetSize;
+  Size _targetSize;
 
   set targetSize(Size value) {
     if (value != _targetSize) {
@@ -627,9 +624,8 @@ class _RenderPortalTarget extends RenderProxyBox {
     }
   }
 
-  RenderBox? _branch;
-
   RenderBox? get branch => _branch;
+  RenderBox? _branch;
 
   set branch(RenderBox? value) {
     if (_branch != null) {
