@@ -57,12 +57,15 @@ abstract class Anchor {
     required Size targetSize,
     required Rect portalRect,
   });
+
+  /// Whether to enable the layer linking logic.
+  bool get enableLayerLinking => true;
 }
 
 /// The follower element should ignore any information about the target and
 /// expand to fill the bounds of the overlay
 @immutable
-class Filled implements Anchor {
+class Filled extends Anchor {
   const Filled();
 
   @override
@@ -81,6 +84,9 @@ class Filled implements Anchor {
   }) {
     return Offset.zero;
   }
+
+  @override
+  bool get enableLayerLinking => false;
 }
 
 /// Align a point of the follower element with a point on the target element
@@ -89,7 +95,7 @@ class Filled implements Anchor {
 /// Can optionally pass a [backup] which will be used if the element is going
 /// to be rendered off screen.
 @immutable
-class Aligned implements Anchor {
+class Aligned extends Anchor {
   const Aligned({
     required this.follower,
     required this.target,

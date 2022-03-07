@@ -137,7 +137,7 @@ void main() {
   });
 }
 
-class _TestAnchor implements Anchor {
+class _TestAnchor extends Anchor {
   const _TestAnchor({
     required this.constraints,
     required this.onGetSourceConstraints,
