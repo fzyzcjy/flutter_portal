@@ -97,9 +97,9 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      CustomRenderFollowerLayer renderObject,
-      ) {
+    BuildContext context,
+    CustomRenderFollowerLayer renderObject,
+  ) {
     renderObject
       ..link = link
       ..overlayLink = overlayLink

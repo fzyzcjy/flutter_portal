@@ -101,7 +101,8 @@ class CustomLeaderLayer extends ContainerLayer {
   ///
   /// The [offset] property must be non-null before the compositing phase of the
   /// pipeline.
-  CustomLeaderLayer({required CustomLayerLink link, Offset offset = Offset.zero})
+  CustomLeaderLayer(
+      {required CustomLayerLink link, Offset offset = Offset.zero})
       : assert(link != null),
         _link = link,
         _offset = offset;
@@ -198,7 +199,6 @@ class CustomLeaderLayer extends ContainerLayer {
 }
 
 /// @nodoc
-@visibleForTesting
 class CustomRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderFollowerLayer({
@@ -306,10 +306,10 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset(Offset leaderOffset) {
     assert(
-    overlayLink.theater != null,
-    'The theater must be set in the OverlayLink when the '
-        '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
-        'Therefore, it must not be null in any child PortalEntry.',
+      overlayLink.theater != null,
+      'The theater must be set in the OverlayLink when the '
+      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
+      'Therefore, it must not be null in any child PortalEntry.',
     );
     final theater = overlayLink.theater!;
 
