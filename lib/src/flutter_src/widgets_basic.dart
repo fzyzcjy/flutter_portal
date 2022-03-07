@@ -4,7 +4,6 @@
 // ignore_for_file: unnecessary_null_comparison, diagnostic_describe_all_properties
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../anchor.dart';
 import '../portal.dart';
 import 'rendering_layer.dart';
@@ -73,7 +72,8 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject( BuildContext context, CustomRenderFollowerLayer renderObject ) {
+  void updateRenderObject(
+      BuildContext context, CustomRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
       ..overlayLink = overlayLink

@@ -243,7 +243,7 @@ class CustomFollowerLayer extends ContainerLayer {
       return null;
     }
     final result =
-    Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
+        Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
     result.multiply(_lastTransform!);
     return result;
   }
@@ -262,11 +262,11 @@ class CustomFollowerLayer extends ContainerLayer {
 
   /// @nodoc
   static Layer? _pathsToCommonAncestor(
-      Layer? a,
-      Layer? b,
-      List<ContainerLayer?> ancestorsA,
-      List<ContainerLayer?> ancestorsB,
-      ) {
+    Layer? a,
+    Layer? b,
+    List<ContainerLayer?> ancestorsA,
+    List<ContainerLayer?> ancestorsB,
+  ) {
     // No common ancestor found.
     if (a == null || b == null) {
       return null;
@@ -290,9 +290,9 @@ class CustomFollowerLayer extends ContainerLayer {
   }
 
   bool _debugCheckLeaderBeforeFollower(
-      List<ContainerLayer> leaderToCommonAncestor,
-      List<ContainerLayer> followerToCommonAncestor,
-      ) {
+    List<ContainerLayer> leaderToCommonAncestor,
+    List<ContainerLayer> followerToCommonAncestor,
+  ) {
     if (followerToCommonAncestor.length <= 1) {
       // Follower is the common ancestor, ergo the leader must come AFTER the follower.
       return false;
@@ -304,9 +304,9 @@ class CustomFollowerLayer extends ContainerLayer {
 
     // Common ancestor is neither the leader nor the follower.
     final leaderSubtreeBelowAncestor =
-    leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
+        leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
     final followerSubtreeBelowAncestor =
-    followerToCommonAncestor[followerToCommonAncestor.length - 2];
+        followerToCommonAncestor[followerToCommonAncestor.length - 2];
 
     Layer? sibling = leaderSubtreeBelowAncestor;
     while (sibling != null) {
@@ -329,8 +329,8 @@ class CustomFollowerLayer extends ContainerLayer {
     }
     // If we're linked, check the link is valid.
     assert(
-    leader.owner == owner,
-    'Linked LeaderLayer anchor is not in the same layer tree as the FollowerLayer.',
+      leader.owner == owner,
+      'Linked LeaderLayer anchor is not in the same layer tree as the FollowerLayer.',
     );
 
     // Stores [leader, ..., commonAncestor] after calling _pathsToCommonAncestor.
@@ -346,12 +346,12 @@ class CustomFollowerLayer extends ContainerLayer {
       inverseLayers,
     );
     assert(
-    ancestor != null,
-    'LeaderLayer and FollowerLayer do not have a common ancestor.',
+      ancestor != null,
+      'LeaderLayer and FollowerLayer do not have a common ancestor.',
     );
     assert(
-    _debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers),
-    'LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.',
+      _debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers),
+      'LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.',
     );
 
     final forwardTransform = _collectTransformForLayerChain(forwardLayers);
@@ -401,7 +401,7 @@ class CustomFollowerLayer extends ContainerLayer {
     } else {
       _lastOffset = null;
       final matrix =
-      Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
         oldLayer: engineLayer as ui.TransformEngineLayer?,

@@ -157,8 +157,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     // Disables the hit testing if this render object is hidden.
-    if (link.leader == null && !showWhenUnlinked)
-      return false;
+    if (link.leader == null && !showWhenUnlinked) return false;
     // RenderFollowerLayer objects don't check if they are
     // themselves hit, because it's confusing to think about
     // how the untransformed size and the child's transformed
@@ -188,10 +187,10 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset(Offset leaderOffset) {
     assert(
-    overlayLink.theater != null,
-    'The theater must be set in the OverlayLink when the '
-        '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
-        'Therefore, it must not be null in any child PortalEntry.',
+      overlayLink.theater != null,
+      'The theater must be set in the OverlayLink when the '
+      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
+      'Therefore, it must not be null in any child PortalEntry.',
     );
     final theater = overlayLink.theater!;
 
