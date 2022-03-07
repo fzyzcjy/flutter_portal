@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'portal.dart';
 import 'portal_theater.dart';
 
-class OverlayLink {
+class PortalLink {
   RenderPortalTheater? theater;
 
   BoxConstraints? get constraints => theater?.constraints;
@@ -15,17 +15,17 @@ class OverlayLink {
 class PortalLinkScope extends InheritedWidget {
   const PortalLinkScope({
     Key? key,
-    required this.overlayLink,
+    required this.portalLink,
     required this.portalIdentifier,
     required Widget child,
   }) : super(key: key, child: child);
 
-  final OverlayLink overlayLink;
+  final PortalLink portalLink;
   final PortalIdentifier? portalIdentifier;
 
   @override
   bool updateShouldNotify(PortalLinkScope oldWidget) {
-    return oldWidget.overlayLink != overlayLink ||
+    return oldWidget.portalLink != portalLink ||
         oldWidget.portalIdentifier != portalIdentifier;
   }
 }

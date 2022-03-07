@@ -6,16 +6,16 @@ import 'portal_link.dart';
 class PortalTheater extends SingleChildRenderObjectWidget {
   const PortalTheater({
     Key? key,
-    required OverlayLink overlayLink,
+    required PortalLink portalLink,
     required Widget child,
-  })  : _overlayLink = overlayLink,
+  })  : _portalLink = portalLink,
         super(key: key, child: child);
 
-  final OverlayLink _overlayLink;
+  final PortalLink _portalLink;
 
   @override
   RenderPortalTheater createRenderObject(BuildContext context) {
-    return RenderPortalTheater(_overlayLink);
+    return RenderPortalTheater(_portalLink);
   }
 
   @override
@@ -23,34 +23,34 @@ class PortalTheater extends SingleChildRenderObjectWidget {
     BuildContext context,
     RenderPortalTheater renderObject,
   ) {
-    renderObject.overlayLink = _overlayLink;
+    renderObject.portalLink = _portalLink;
   }
 }
 
 class RenderPortalTheater extends RenderProxyBox {
-  RenderPortalTheater(this._overlayLink) {
-    _overlayLink.theater = this;
+  RenderPortalTheater(this._portalLink) {
+    _portalLink.theater = this;
   }
 
-  OverlayLink _overlayLink;
+  PortalLink _portalLink;
 
-  OverlayLink get overlayLink => _overlayLink;
+  PortalLink get portalLink => _portalLink;
 
-  set overlayLink(OverlayLink value) {
-    if (_overlayLink != value) {
+  set portalLink(PortalLink value) {
+    if (_portalLink != value) {
       assert(
         value.theater == null,
-        'overlayLink already assigned to another portal',
+        'portalLink already assigned to another portal',
       );
-      _overlayLink.theater = null;
-      _overlayLink = value;
+      _portalLink.theater = null;
+      _portalLink = value;
       value.theater = this;
     }
   }
 
   @override
   void markNeedsLayout() {
-    for (final overlay in overlayLink.overlays) {
+    for (final overlay in portalLink.overlays) {
       overlay.markNeedsLayout();
     }
     super.markNeedsLayout();
@@ -59,8 +59,8 @@ class RenderPortalTheater extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
-    for (var i = overlayLink.overlays.length - 1; i >= 0; i--) {
-      final overlay = overlayLink.overlays.elementAt(i);
+    for (var i = portalLink.overlays.length - 1; i >= 0; i--) {
+      final overlay = portalLink.overlays.elementAt(i);
       context.paintChild(overlay, offset);
     }
   }
@@ -68,7 +68,7 @@ class RenderPortalTheater extends RenderProxyBox {
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     final globalPosition = localToGlobal(position); // #42
-    for (final overlay in overlayLink.overlays) {
+    for (final overlay in portalLink.overlays) {
       if (overlay.hitTest(result, position: globalPosition /* #42 */)) {
         return true;
       }
@@ -81,7 +81,7 @@ class RenderPortalTheater extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(
-      DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink),
+      DiagnosticsProperty<PortalLink>('portalLink', portalLink),
     );
   }
 }

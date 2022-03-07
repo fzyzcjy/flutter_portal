@@ -9,7 +9,7 @@ class PortalTargetTheater extends SingleChildRenderObjectWidget {
   const PortalTargetTheater({
     Key? key,
     required this.portalFollower,
-    required this.overlayLink,
+    required this.portalLink,
     required this.anchor,
     required this.targetSize,
     required Widget child,
@@ -17,13 +17,13 @@ class PortalTargetTheater extends SingleChildRenderObjectWidget {
 
   final Widget? portalFollower;
   final Anchor anchor;
-  final OverlayLink overlayLink;
+  final PortalLink portalLink;
   final Size targetSize;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderPortalTargetTheater(
-      overlayLink,
+      portalLink,
       anchor: anchor,
       targetSize: targetSize,
     );
@@ -35,7 +35,7 @@ class PortalTargetTheater extends SingleChildRenderObjectWidget {
     _RenderPortalTargetTheater renderObject,
   ) {
     renderObject
-      ..overlayLink = overlayLink
+      ..portalLink = portalLink
       ..anchor = anchor
       ..targetSize = targetSize;
   }
@@ -50,29 +50,29 @@ class PortalTargetTheater extends SingleChildRenderObjectWidget {
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
     properties.add(
-      DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink),
+      DiagnosticsProperty<PortalLink>('portalLink', portalLink),
     );
   }
 }
 
 class _RenderPortalTargetTheater extends RenderProxyBox {
   _RenderPortalTargetTheater(
-    this._overlayLink, {
+    this._portalLink, {
     required Anchor anchor,
     required Size targetSize,
-  })  : assert(_overlayLink.theater != null),
+  })  : assert(_portalLink.theater != null),
         _anchor = anchor,
         _targetSize = targetSize;
 
   bool _needsAddEntryInTheater = false;
 
-  OverlayLink get overlayLink => _overlayLink;
-  OverlayLink _overlayLink;
+  PortalLink get portalLink => _portalLink;
+  PortalLink _portalLink;
 
-  set overlayLink(OverlayLink value) {
+  set portalLink(PortalLink value) {
     assert(value.theater != null);
-    if (_overlayLink != value) {
-      _overlayLink = value;
+    if (_portalLink != value) {
+      _portalLink = value;
       markNeedsLayout();
     }
   }
@@ -102,8 +102,8 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
 
   set branch(RenderBox? value) {
     if (_branch != null) {
-      _overlayLink.overlays.remove(branch);
-      _overlayLink.theater!.markNeedsPaint();
+      _portalLink.overlays.remove(branch);
+      _portalLink.theater!.markNeedsPaint();
       dropChild(_branch!);
     }
     _branch = value;
@@ -131,8 +131,8 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   void detach() {
     super.detach();
     if (_branch != null) {
-      _overlayLink.overlays.remove(branch);
-      _overlayLink.theater!.markNeedsPaint();
+      _portalLink.overlays.remove(branch);
+      _portalLink.theater!.markNeedsPaint();
       _branch!.detach();
     }
   }
@@ -140,7 +140,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   @override
   void markNeedsPaint() {
     super.markNeedsPaint();
-    overlayLink.theater!.markNeedsPaint();
+    portalLink.theater!.markNeedsPaint();
   }
 
   @override
@@ -148,14 +148,14 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
     super.performLayout();
     if (branch != null) {
       final constraints = anchor.getFollowerConstraints(
-        portalConstraints: overlayLink.constraints!,
+        portalConstraints: portalLink.constraints!,
         targetSize: targetSize,
       );
       branch!.layout(constraints);
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
-        _overlayLink.overlays.add(branch!);
-        _overlayLink.theater!.markNeedsPaint();
+        _portalLink.overlays.add(branch!);
+        _portalLink.theater!.markNeedsPaint();
       }
     }
   }
@@ -164,7 +164,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
     if (child == branch) {
       // ignore all transformations applied between Portal and PortalTarget
-      transform.setFrom(overlayLink.theater!.getTransformTo(null));
+      transform.setFrom(portalLink.theater!.getTransformTo(null));
     }
   }
 
@@ -188,7 +188,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink))
+      ..add(DiagnosticsProperty<PortalLink>('portalLink', portalLink))
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Size>('targetSize', targetSize))
       ..add(DiagnosticsProperty<RenderBox>('branch', branch));

@@ -276,7 +276,7 @@ class _PortalTargetState extends State<PortalTarget> {
         portalFollower: _visible ? widget.portalFollower : null,
         anchor: widget.anchor,
         targetSize: Size.zero,
-        overlayLink: scope.overlayLink,
+        portalLink: scope.portalLink,
         child: widget.child,
       );
     }
@@ -294,12 +294,12 @@ class _PortalTargetState extends State<PortalTarget> {
                 final targetSize = constraints.biggest;
 
                 return PortalTargetTheater(
-                  overlayLink: scope.overlayLink,
+                  portalLink: scope.portalLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
                   portalFollower: CustomCompositedTransformFollower(
                     link: _link,
-                    overlayLink: scope.overlayLink,
+                    portalLink: scope.portalLink,
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     child: widget.portalFollower,

@@ -75,13 +75,13 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   CustomRenderFollowerLayer({
     required CustomLayerLink link,
     // NOTE MODIFIED some arguments
-    required OverlayLink overlayLink,
+    required PortalLink portalLink,
     required Size targetSize,
     required Anchor anchor,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
-        _overlayLink = overlayLink,
+        _portalLink = portalLink,
         _targetSize = targetSize,
         super(child);
 
@@ -113,14 +113,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  OverlayLink get overlayLink => _overlayLink;
-  OverlayLink _overlayLink;
+  PortalLink get portalLink => _portalLink;
+  PortalLink _portalLink;
 
-  set overlayLink(OverlayLink value) {
-    if (_overlayLink == value) {
+  set portalLink(PortalLink value) {
+    if (_portalLink == value) {
       return;
     }
-    _overlayLink = value;
+    _portalLink = value;
     markNeedsPaint();
   }
 
@@ -187,12 +187,12 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset(Offset leaderOffset) {
     assert(
-      overlayLink.theater != null,
+      portalLink.theater != null,
       'The theater must be set in the OverlayLink when the '
       '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
       'Therefore, it must not be null in any child PortalEntry.',
     );
-    final theater = overlayLink.theater!;
+    final theater = portalLink.theater!;
 
     // In order to compute the theater rect, we must first offset (shift) it by
     // the position of the top-left corner of the target in the coordinate space
@@ -250,8 +250,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties
-        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
+    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));

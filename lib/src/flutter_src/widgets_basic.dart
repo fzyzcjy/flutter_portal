@@ -43,7 +43,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.overlayLink,
+    required this.portalLink,
     required this.targetSize,
     required this.anchor,
     Widget? child,
@@ -56,7 +56,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final CustomLayerLink link;
 
   /// @nodoc
-  final OverlayLink overlayLink;
+  final PortalLink portalLink;
 
   /// @nodoc
   final Size targetSize;
@@ -66,7 +66,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     return CustomRenderFollowerLayer(
       anchor: anchor,
       link: link,
-      overlayLink: overlayLink,
+      portalLink: portalLink,
       targetSize: targetSize,
     );
   }
@@ -76,7 +76,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       BuildContext context, CustomRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
-      ..overlayLink = overlayLink
+      ..portalLink = portalLink
       ..targetSize = targetSize
       ..anchor = anchor;
   }

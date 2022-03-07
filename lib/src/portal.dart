@@ -59,15 +59,15 @@ class Portal extends StatefulWidget {
 }
 
 class _PortalState extends State<Portal> {
-  final _overlayLink = OverlayLink();
+  final _portalLink = PortalLink();
 
   @override
   Widget build(BuildContext context) {
     return PortalLinkScope(
       portalIdentifier: widget.identifier,
-      overlayLink: _overlayLink,
+      portalLink: _portalLink,
       child: PortalTheater(
-        overlayLink: _overlayLink,
+        portalLink: _portalLink,
         child: widget.child,
       ),
     );
