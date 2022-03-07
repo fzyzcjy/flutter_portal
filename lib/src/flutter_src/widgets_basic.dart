@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../anchor.dart';
 import '../portal.dart';
-import 'layer.dart';
-import 'proxy_box.dart';
+import 'rendering_layer.dart';
+import 'rendering_proxy_box.dart';
 
 /// A widget that can be targeted by a [CompositedTransformFollower].
 ///

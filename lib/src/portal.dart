@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'anchor.dart';
-import 'flutter_src/basic.dart';
-import 'flutter_src/layer.dart';
+import 'flutter_src/rendering_layer.dart';
+import 'flutter_src/widgets_basic.dart';
 import 'util.dart';
 
 /// The widget where a [PortalTarget] and its [PortalFollower] are rendered.
