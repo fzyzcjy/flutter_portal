@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 import 'anchor.dart';
+import 'flutter_src/layer.dart';
 import 'portal.dart';
 
 /// @nodoc
@@ -24,7 +25,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Anchor anchor;
 
   /// @nodoc
-  final LayerLink link;
+  final MyLayerLink link;
 
   /// @nodoc
   final OverlayLink overlayLink;
@@ -58,7 +59,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
-    properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
     properties
         .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
@@ -70,7 +71,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 class CustomRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderFollowerLayer({
-    required LayerLink link,
+    required MyLayerLink link,
     required OverlayLink overlayLink,
     required Size targetSize,
     required Anchor anchor,
@@ -93,12 +94,12 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     }
   }
 
-  LayerLink _link;
+  MyLayerLink _link;
 
   /// @nodoc
-  LayerLink get link => _link;
+  MyLayerLink get link => _link;
 
-  set link(LayerLink value) {
+  set link(MyLayerLink value) {
     if (_link == value) {
       return;
     }
@@ -170,7 +171,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// [PortalTarget].
   ///
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
-  /// the leader is only attached to the [LayerLink] in [LeaderLayer.attach],
+  /// the leader is only attached to the [MyLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset(Offset leaderOffset) {
     assert(
@@ -234,7 +235,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
     properties
         .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(
@@ -266,7 +267,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     required this.linkedOffsetCallback,
   });
 
-  LayerLink link;
+  MyLayerLink link;
 
   /// Callback that is called to compute the linked offset of the follower layer
   /// based on the `leaderOffset` of the leader layer.
@@ -457,7 +458,7 @@ class _CustomFollowerLayer extends ContainerLayer {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<LayerLink>('link', link));
+    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
     properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(

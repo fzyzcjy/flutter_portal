@@ -6,6 +6,8 @@ import 'package:flutter/rendering.dart';
 
 import 'anchor.dart';
 import 'custom_follower.dart';
+import 'flutter_src/basic.dart';
+import 'flutter_src/layer.dart';
 
 /// The widget where a [PortalTarget] and its [PortalFollower] are rendered.
 ///
@@ -400,7 +402,7 @@ class PortalTarget extends StatefulWidget {
 }
 
 class _PortalTargetState extends State<PortalTarget> {
-  final _link = LayerLink();
+  final _link = MyLayerLink();
   late bool _visible = widget.visible;
   Timer? _timer;
 
@@ -445,7 +447,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
     return Stack(
       children: <Widget>[
-        CompositedTransformTarget(
+        MyCompositedTransformTarget(
           link: _link,
           child: widget.child,
         ),
