@@ -1,3 +1,6 @@
+// NOTE adapted from Flutter beta 2.11.0-0.1.pre (notice beta, not stable)
+// Please place a `NOTE MODIFIED` marker whenever you change the Flutter code
+
 // ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types, avoid_types_on_closure_parameters, always_put_control_body_on_new_line
 
 import 'dart:ui' as ui;
@@ -163,7 +166,7 @@ class MyLeaderLayer extends ContainerLayer {
     if (offset != Offset.zero)
       engineLayer = builder.pushTransform(
         Matrix4.translationValues(offset.dx, offset.dy, 0.0).storage,
-        // NOTE XXX edit
+        // NOTE MODIFIED from `_engineLayer` to `engineLayer`
         oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
     addChildrenToScene(builder);

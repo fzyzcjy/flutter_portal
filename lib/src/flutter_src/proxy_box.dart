@@ -1,3 +1,6 @@
+// NOTE adapted from Flutter beta 2.11.0-0.1.pre (notice beta, not stable)
+// Please place a `NOTE MODIFIED` marker whenever you change the Flutter code
+
 // ignore_for_file: unnecessary_null_comparison, curly_braces_in_flow_control_structures, omit_local_variable_types, comment_references, always_put_control_body_on_new_line
 
 import 'package:flutter/rendering.dart';

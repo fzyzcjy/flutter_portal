@@ -1,3 +1,6 @@
+// NOTE adapted from Flutter beta 2.11.0-0.1.pre (notice beta, not stable)
+// Please place a `NOTE MODIFIED` marker whenever you change the Flutter code
+
 // ignore_for_file: unnecessary_null_comparison, diagnostic_describe_all_properties
 
 import 'package:flutter/material.dart';
