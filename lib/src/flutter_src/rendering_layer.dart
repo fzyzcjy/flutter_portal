@@ -10,18 +10,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-/// An object that a [CustomLeaderLayer] can register with.
-///
-/// An instance of this class should be provided as the [CustomLeaderLayer.link] and
-/// the [FollowerLayer.link] properties to cause the [FollowerLayer] to follow
-/// the [CustomLeaderLayer].
-///
-/// See also:
-///
-///  * [CompositedTransformTarget], the widget that creates a [CustomLeaderLayer].
-///  * [CompositedTransformFollower], the widget that creates a [FollowerLayer].
-///  * [RenderCustomLeaderLayer] and [RenderFollowerLayer], the corresponding
-///    render objects.
+import 'rendering_proxy_box.dart';
+
+/// @nodoc
 class CustomLayerLink {
   /// The [CustomLeaderLayer] connected to this link.
   CustomLeaderLayer? get leader => _leader;
@@ -48,16 +39,11 @@ class CustomLayerLink {
     }
   }
 
-  /// Stores the previous leaders that were replaced by the current [_leader]
-  /// in the current frame.
-  ///
-  /// These leaders need to give up their leaderships of this link by the end of
-  /// the current frame.
+  /// @nodoc
   Set<CustomLeaderLayer>? _debugPreviousLeaders;
   bool _debugLeaderCheckScheduled = false;
 
-  /// Schedules the check as post frame callback to make sure the
-  /// [_debugPreviousLeaders] is empty.
+  /// @nodoc
   void _debugScheduleLeadersCleanUpCheck() {
     assert(_debugPreviousLeaders != null);
     assert(() {
@@ -71,12 +57,7 @@ class CustomLayerLink {
     }());
   }
 
-  /// The total size of the content of the connected [CustomLeaderLayer].
-  ///
-  /// Generally this should be set by the [RenderObject] that paints on the
-  /// registered [CustomLeaderLayer] (for instance a [RenderCustomLeaderLayer] that shares
-  /// this link with its followers). This size may be outdated before and during
-  /// layout.
+  /// @nodoc
   Size? leaderSize;
 
   @override
@@ -84,30 +65,16 @@ class CustomLayerLink {
       '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
-/// A composited layer that can be followed by a [FollowerLayer].
-///
-/// This layer collapses the accumulated offset into a transform and passes
-/// [Offset.zero] to its child layers in the [addToScene]/[addChildrenToScene]
-/// methods, so that [applyTransform] will work reliably.
+/// @nodoc
 class CustomLeaderLayer extends ContainerLayer {
-  /// Creates a leader layer.
-  ///
-  /// The [link] property must not be null, and must not have been provided to
-  /// any other [CustomLeaderLayer] layers that are [attached] to the layer tree at
-  /// the same time.
-  ///
-  /// The [offset] property must be non-null before the compositing phase of the
-  /// pipeline.
+  /// @nodoc
   CustomLeaderLayer(
       {required CustomLayerLink link, Offset offset = Offset.zero})
       : assert(link != null),
         _link = link,
         _offset = offset;
 
-  /// The object with which this layer should register.
-  ///
-  /// The link will be established when this layer is [attach]ed, and will be
-  /// cleared when this layer is [detach]ed.
+  /// @nodoc
   CustomLayerLink get link => _link;
   CustomLayerLink _link;
   set link(CustomLayerLink value) {
@@ -122,13 +89,7 @@ class CustomLeaderLayer extends ContainerLayer {
     _link = value;
   }
 
-  /// Offset from parent in the parent's coordinate system.
-  ///
-  /// The scene must be explicitly recomposited after this property is changed
-  /// (as described at [Layer]).
-  ///
-  /// The [offset] property must be non-null before the compositing phase of the
-  /// pipeline.
+  /// @nodoc
   Offset get offset => _offset;
   Offset _offset;
   set offset(Offset value) {
@@ -175,13 +136,7 @@ class CustomLeaderLayer extends ContainerLayer {
     if (offset != Offset.zero) builder.pop();
   }
 
-  /// Applies the transform that would be applied when compositing the given
-  /// child to the given matrix.
-  ///
-  /// See [ContainerLayer.applyTransform] for details.
-  ///
-  /// The `child` argument may be null, as the same transform is applied to all
-  /// children.
+  /// @nodoc
   @override
   void applyTransform(Layer? child, Matrix4 transform) {
     if (offset != Offset.zero) transform.translate(offset.dx, offset.dy);
@@ -244,7 +199,7 @@ class CustomFollowerLayer extends ContainerLayer {
   // but we just make it a constant zero.
   static const unlinkedOffset = Offset.zero;
   // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
-  static const showWhenUnlinked = false;
+  static const showWhenUnlinked = CustomRenderFollowerLayer.showWhenUnlinked;
 
   Offset? _transformOffset(Offset localPosition) {
     if (_inverseDirty) {
@@ -282,12 +237,7 @@ class CustomFollowerLayer extends ContainerLayer {
         .findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
   }
 
-  /// The transform that was used during the last composition phase.
-  ///
-  /// If the [link] was not linked to a [LeaderLayer], or if this layer has
-  /// a degenerate matrix applied, then this will be null.
-  ///
-  /// This method returns a new [Matrix4] instance each time it is invoked.
+  /// @nodoc
   Matrix4? getLastTransform() {
     if (_lastTransform == null) {
       return null;
@@ -298,12 +248,7 @@ class CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
-  /// Call [applyTransform] for each layer in the provided list.
-  ///
-  /// The list is in reverse order (deepest first). The first layer will be
-  /// treated as the child of the second, and so forth. The first layer in the
-  /// list won't have [applyTransform] called on it. The first layer may be
-  /// null.
+  /// @nodoc
   static Matrix4 _collectTransformForLayerChain(List<ContainerLayer?> layers) {
     // Initialize our result matrix.
     final result = Matrix4.identity();
@@ -315,12 +260,7 @@ class CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
-  /// Find the common ancestor of two layers [a] and [b] by searching towards
-  /// the root of the tree, and append each ancestor of [a] or [b] visited along
-  /// the path to [ancestorsA] and [ancestorsB] respectively.
-  ///
-  /// Returns null if [a] [b] do not share a common ancestor, in which case the
-  /// results in [ancestorsA] and [ancestorsB] are undefined.
+  /// @nodoc
   static Layer? _pathsToCommonAncestor(
       Layer? a,
       Layer? b,
@@ -379,7 +319,7 @@ class CustomFollowerLayer extends ContainerLayer {
     return false;
   }
 
-  /// Populate [_lastTransform] given the current state of the tree.
+  /// @nodoc
   void _establishTransform() {
     _lastTransform = null;
     final leader = link.leader;
@@ -435,16 +375,7 @@ class CustomFollowerLayer extends ContainerLayer {
     _inverseDirty = true;
   }
 
-  /// {@template flutter.rendering.FollowerLayer.alwaysNeedsAddToScene}
-  /// This disables retained rendering.
-  ///
-  /// A [FollowerLayer] copies changes from a [LeaderLayer] that could be anywhere
-  /// in the Layer tree, and that leader layer could change without notifying the
-  /// follower layer. Therefore we have to always call a follower layer's
-  /// [addToScene]. In order to call follower layer's [addToScene], leader layer's
-  /// [addToScene] must be called first so leader layer must also be considered
-  /// as [alwaysNeedsAddToScene].
-  /// {@endtemplate}
+  /// @nodoc
   @override
   bool get alwaysNeedsAddToScene => true;
 

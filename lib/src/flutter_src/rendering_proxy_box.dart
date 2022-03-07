@@ -9,16 +9,9 @@ import '../anchor.dart';
 import '../portal.dart';
 import 'rendering_layer.dart';
 
-/// Provides an anchor for a [RenderFollowerLayer].
-///
-/// See also:
-///
-///  * [CompositedTransformTarget], the corresponding widget.
-///  * [CustomLeaderLayer], the layer that this render object creates.
+/// @nodoc
 class CustomRenderLeaderLayer extends RenderProxyBox {
-  /// Creates a render object that uses a [CustomLeaderLayer].
-  ///
-  /// The [link] must not be null.
+  /// @nodoc
   CustomRenderLeaderLayer({
     required CustomLayerLink link,
     RenderBox? child,
@@ -26,11 +19,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
         _link = link,
         super(child);
 
-  /// The link object that connects this [CustomRenderLeaderLayer] with one or more
-  /// [RenderFollowerLayer]s.
-  ///
-  /// This property must not be null. The object must not be associated with
-  /// another [CustomRenderLeaderLayer] that is also being painted.
+  /// @nodoc
   CustomLayerLink get link => _link;
   CustomLayerLink _link;
   set link(CustomLayerLink value) {
@@ -85,6 +74,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderFollowerLayer({
     required CustomLayerLink link,
+    // NOTE MODIFIED some arguments
     required OverlayLink overlayLink,
     required Size targetSize,
     required Anchor anchor,
@@ -95,10 +85,13 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
         _targetSize = targetSize,
         super(child);
 
-  Anchor _anchor;
+  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
+  // but we just make it a constant zero.
+  static const showWhenUnlinked = false;
 
   /// @nodoc
   Anchor get anchor => _anchor;
+  Anchor _anchor;
 
   set anchor(Anchor value) {
     if (_anchor != value) {
@@ -107,10 +100,9 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     }
   }
 
-  CustomLayerLink _link;
-
   /// @nodoc
   CustomLayerLink get link => _link;
+  CustomLayerLink _link;
 
   set link(CustomLayerLink value) {
     if (_link == value) {
@@ -120,9 +112,9 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     markNeedsPaint();
   }
 
-  OverlayLink _overlayLink;
-
+  /// @nodoc
   OverlayLink get overlayLink => _overlayLink;
+  OverlayLink _overlayLink;
 
   set overlayLink(OverlayLink value) {
     if (_overlayLink == value) {
@@ -132,10 +124,9 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     markNeedsPaint();
   }
 
-  Size _targetSize;
-
   /// @nodoc
   Size get targetSize => _targetSize;
+  Size _targetSize;
 
   set targetSize(Size value) {
     if (_targetSize == value) {
@@ -154,6 +145,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   bool get alwaysNeedsCompositing => true;
 
+  /// @nodoc
   @override
   CustomFollowerLayer? get layer => super.layer as CustomFollowerLayer?;
 
@@ -164,6 +156,13 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // Disables the hit testing if this render object is hidden.
+    if (link.leader == null && !showWhenUnlinked)
+      return false;
+    // RenderFollowerLayer objects don't check if they are
+    // themselves hit, because it's confusing to think about
+    // how the untransformed size and the child's transformed
+    // position interact.
     return hitTestChildren(result, position: position);
   }
 
@@ -178,6 +177,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     );
   }
 
+  // NOTE MODIFIED added
   /// Returns the linked offset in relation to the leader layer.
   ///
   /// The [LeaderLayer] is inserted by the [CompositedTransformTarget] in
@@ -215,14 +215,16 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    // NOTE MODIFIED removed original [effectiveLinkedOffset] calculation, and replace with callback
+
     if (layer == null) {
       layer = CustomFollowerLayer(
         link: link,
         linkedOffsetCallback: _computeLinkedOffset,
       );
     } else {
-      layer!
-        ..link = link
+      layer
+        ?..link = link
         ..linkedOffsetCallback = _computeLinkedOffset;
     }
 
@@ -253,7 +255,6 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
         .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
-
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
   }
