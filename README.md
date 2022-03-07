@@ -15,7 +15,7 @@ Thanks!
 A common use-case for UIs is to show "overlays". They come in all shapes and forms:
 
 - tooltips
-- contextual menus,
+- contextual menus
 - dialogs
 - etc
 
@@ -114,7 +114,9 @@ class _MenuExampleState extends State<MenuExample> {
 }
 ```
 
-<img src="https://user-images.githubusercontent.com/20165741/95027014-3ee0b000-068d-11eb-8c65-a7a5ad8b71bd.png" alt="image" style="width=300px">
+<p align="center">
+<img src="https://user-images.githubusercontent.com/20165741/95027014-3ee0b000-068d-11eb-8c65-a7a5ad8b71bd.png" alt="image" style="width=200px">
+</p>
 
 Then, we need to insert our [PortalEntry] in the widget tree.
 
@@ -154,7 +156,9 @@ PortalEntry(
 )
 ```
 
-<img width="300px" alt="Screenshot 2020-10-04 at 22 07 12" src="https://user-images.githubusercontent.com/20165741/95027128-20c77f80-068e-11eb-9de9-5e35dd1e47de.png">
+<p align="center">
+<img width="200px" alt="Screenshot 2020-10-04 at 22 07 12" src="https://user-images.githubusercontent.com/20165741/95027128-20c77f80-068e-11eb-9de9-5e35dd1e47de.png">
+</p>
 
 At this stage, you may notice two things:
 
@@ -177,7 +181,9 @@ PortalEntry(
 )
 ```
 
-<img width="300px" alt="Screenshot 2020-10-04 at 22 16 02" src="https://user-images.githubusercontent.com/20165741/95027278-32f5ed80-068f-11eb-9cef-c1e5c00cf1d4.png">
+<p align="center">
+<img width="200px" alt="Screenshot 2020-10-04 at 22 16 02" src="https://user-images.githubusercontent.com/20165741/95027278-32f5ed80-068f-11eb-9cef-c1e5c00cf1d4.png">
+</p>
 
 What this code means is, this will align the top-left of our menu with the
 top-right or the `RaisedButton`.
