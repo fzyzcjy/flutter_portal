@@ -12,26 +12,26 @@ import 'layer.dart';
 /// See also:
 ///
 ///  * [CompositedTransformTarget], the corresponding widget.
-///  * [MyLeaderLayer], the layer that this render object creates.
-class MyRenderLeaderLayer extends RenderProxyBox {
-  /// Creates a render object that uses a [MyLeaderLayer].
+///  * [CustomLeaderLayer], the layer that this render object creates.
+class CustomRenderLeaderLayer extends RenderProxyBox {
+  /// Creates a render object that uses a [CustomLeaderLayer].
   ///
   /// The [link] must not be null.
-  MyRenderLeaderLayer({
-    required MyLayerLink link,
+  CustomRenderLeaderLayer({
+    required CustomLayerLink link,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
         super(child);
 
-  /// The link object that connects this [MyRenderLeaderLayer] with one or more
+  /// The link object that connects this [CustomRenderLeaderLayer] with one or more
   /// [RenderFollowerLayer]s.
   ///
   /// This property must not be null. The object must not be associated with
-  /// another [MyRenderLeaderLayer] that is also being painted.
-  MyLayerLink get link => _link;
-  MyLayerLink _link;
-  set link(MyLayerLink value) {
+  /// another [CustomRenderLeaderLayer] that is also being painted.
+  CustomLayerLink get link => _link;
+  CustomLayerLink _link;
+  set link(CustomLayerLink value) {
     assert(value != null);
     if (_link == value) return;
     _link.leaderSize = null;
@@ -60,9 +60,9 @@ class MyRenderLeaderLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (layer == null) {
-      layer = MyLeaderLayer(link: link, offset: offset);
+      layer = CustomLeaderLayer(link: link, offset: offset);
     } else {
-      final MyLeaderLayer leaderLayer = layer! as MyLeaderLayer;
+      final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
       leaderLayer
         ..link = link
         ..offset = offset;
@@ -74,6 +74,6 @@ class MyRenderLeaderLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
   }
 }

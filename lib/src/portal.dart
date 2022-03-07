@@ -450,7 +450,7 @@ class PortalTarget extends StatefulWidget {
 }
 
 class _PortalTargetState extends State<PortalTarget> {
-  final _link = MyLayerLink();
+  final _link = CustomLayerLink();
   late bool _visible = widget.visible;
   Timer? _timer;
 
@@ -497,7 +497,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
     return Stack(
       children: <Widget>[
-        MyCompositedTransformTarget(
+        CustomCompositedTransformTarget(
           link: _link,
           child: widget.child,
         ),

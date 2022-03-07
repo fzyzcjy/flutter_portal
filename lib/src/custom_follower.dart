@@ -25,7 +25,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Anchor anchor;
 
   /// @nodoc
-  final MyLayerLink link;
+  final CustomLayerLink link;
 
   /// @nodoc
   final OverlayLink overlayLink;
@@ -59,7 +59,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties
         .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
@@ -71,7 +71,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 class CustomRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderFollowerLayer({
-    required MyLayerLink link,
+    required CustomLayerLink link,
     required OverlayLink overlayLink,
     required Size targetSize,
     required Anchor anchor,
@@ -94,12 +94,12 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     }
   }
 
-  MyLayerLink _link;
+  CustomLayerLink _link;
 
   /// @nodoc
-  MyLayerLink get link => _link;
+  CustomLayerLink get link => _link;
 
-  set link(MyLayerLink value) {
+  set link(CustomLayerLink value) {
     if (_link == value) {
       return;
     }
@@ -171,7 +171,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// [PortalTarget].
   ///
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
-  /// the leader is only attached to the [MyLayerLink] in [LeaderLayer.attach],
+  /// the leader is only attached to the [CustomLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset(Offset leaderOffset) {
     assert(
@@ -235,7 +235,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties
         .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
     properties.add(
@@ -271,7 +271,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     required this.linkedOffsetCallback,
   });
 
-  MyLayerLink link;
+  CustomLayerLink link;
 
   // NOTE MODIFIED added this field
   /// Callback that is called to compute the linked offset of the follower layer
@@ -541,7 +541,7 @@ class _CustomFollowerLayer extends ContainerLayer {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
     // NOTE MODIFIED

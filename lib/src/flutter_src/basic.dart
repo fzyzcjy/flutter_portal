@@ -14,47 +14,47 @@ import 'proxy_box.dart';
 /// after the paint phase, as described in [WidgetsBinding.drawFrame]), it
 /// updates the [link] object so that any [CompositedTransformFollower] widgets
 /// that are subsequently composited in the same frame and were given the same
-/// [MyLayerLink] can position themselves at the same screen location.
+/// [CustomLayerLink] can position themselves at the same screen location.
 ///
-/// A single [MyCompositedTransformTarget] can be followed by multiple
+/// A single [CustomCompositedTransformTarget] can be followed by multiple
 /// [CompositedTransformFollower] widgets.
 ///
-/// The [MyCompositedTransformTarget] must come earlier in the paint order than
+/// The [CustomCompositedTransformTarget] must come earlier in the paint order than
 /// any linked [CompositedTransformFollower]s.
 ///
 /// See also:
 ///
 ///  * [CompositedTransformFollower], the widget that can target this one.
 ///  * [LeaderLayer], the layer that implements this widget's logic.
-class MyCompositedTransformTarget extends SingleChildRenderObjectWidget {
+class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   /// Creates a composited transform target widget.
   ///
   /// The [link] property must not be null, and must not be currently being used
-  /// by any other [MyCompositedTransformTarget] object that is in the tree.
-  const MyCompositedTransformTarget({
+  /// by any other [CustomCompositedTransformTarget] object that is in the tree.
+  const CustomCompositedTransformTarget({
     Key? key,
     required this.link,
     Widget? child,
   })  : assert(link != null),
         super(key: key, child: child);
 
-  /// The link object that connects this [MyCompositedTransformTarget] with one or
+  /// The link object that connects this [CustomCompositedTransformTarget] with one or
   /// more [CompositedTransformFollower]s.
   ///
   /// This property must not be null. The object must not be associated with
-  /// another [MyCompositedTransformTarget] that is also being painted.
-  final MyLayerLink link;
+  /// another [CustomCompositedTransformTarget] that is also being painted.
+  final CustomLayerLink link;
 
   @override
-  MyRenderLeaderLayer createRenderObject(BuildContext context) {
-    return MyRenderLeaderLayer(
+  CustomRenderLeaderLayer createRenderObject(BuildContext context) {
+    return CustomRenderLeaderLayer(
       link: link,
     );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, MyRenderLeaderLayer renderObject) {
+      BuildContext context, CustomRenderLeaderLayer renderObject) {
     renderObject.link = link;
   }
 }

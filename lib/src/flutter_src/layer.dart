@@ -9,28 +9,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
-/// An object that a [MyLeaderLayer] can register with.
+/// An object that a [CustomLeaderLayer] can register with.
 ///
-/// An instance of this class should be provided as the [MyLeaderLayer.link] and
+/// An instance of this class should be provided as the [CustomLeaderLayer.link] and
 /// the [FollowerLayer.link] properties to cause the [FollowerLayer] to follow
-/// the [MyLeaderLayer].
+/// the [CustomLeaderLayer].
 ///
 /// See also:
 ///
-///  * [CompositedTransformTarget], the widget that creates a [MyLeaderLayer].
+///  * [CompositedTransformTarget], the widget that creates a [CustomLeaderLayer].
 ///  * [CompositedTransformFollower], the widget that creates a [FollowerLayer].
-///  * [RenderMyLeaderLayer] and [RenderFollowerLayer], the corresponding
+///  * [RenderCustomLeaderLayer] and [RenderFollowerLayer], the corresponding
 ///    render objects.
-class MyLayerLink {
-  /// The [MyLeaderLayer] connected to this link.
-  MyLeaderLayer? get leader => _leader;
-  MyLeaderLayer? _leader;
+class CustomLayerLink {
+  /// The [CustomLeaderLayer] connected to this link.
+  CustomLeaderLayer? get leader => _leader;
+  CustomLeaderLayer? _leader;
 
-  void _registerLeader(MyLeaderLayer leader) {
+  void _registerLeader(CustomLeaderLayer leader) {
     assert(_leader != leader);
     assert(() {
       if (_leader != null) {
-        _debugPreviousLeaders ??= <MyLeaderLayer>{};
+        _debugPreviousLeaders ??= <CustomLeaderLayer>{};
         _debugScheduleLeadersCleanUpCheck();
         return _debugPreviousLeaders!.add(_leader!);
       }
@@ -39,7 +39,7 @@ class MyLayerLink {
     _leader = leader;
   }
 
-  void _unregisterLeader(MyLeaderLayer leader) {
+  void _unregisterLeader(CustomLeaderLayer leader) {
     if (_leader == leader) {
       _leader = null;
     } else {
@@ -52,7 +52,7 @@ class MyLayerLink {
   ///
   /// These leaders need to give up their leaderships of this link by the end of
   /// the current frame.
-  Set<MyLeaderLayer>? _debugPreviousLeaders;
+  Set<CustomLeaderLayer>? _debugPreviousLeaders;
   bool _debugLeaderCheckScheduled = false;
 
   /// Schedules the check as post frame callback to make sure the
@@ -70,10 +70,10 @@ class MyLayerLink {
     }());
   }
 
-  /// The total size of the content of the connected [MyLeaderLayer].
+  /// The total size of the content of the connected [CustomLeaderLayer].
   ///
   /// Generally this should be set by the [RenderObject] that paints on the
-  /// registered [MyLeaderLayer] (for instance a [RenderMyLeaderLayer] that shares
+  /// registered [CustomLeaderLayer] (for instance a [RenderCustomLeaderLayer] that shares
   /// this link with its followers). This size may be outdated before and during
   /// layout.
   Size? leaderSize;
@@ -88,16 +88,16 @@ class MyLayerLink {
 /// This layer collapses the accumulated offset into a transform and passes
 /// [Offset.zero] to its child layers in the [addToScene]/[addChildrenToScene]
 /// methods, so that [applyTransform] will work reliably.
-class MyLeaderLayer extends ContainerLayer {
+class CustomLeaderLayer extends ContainerLayer {
   /// Creates a leader layer.
   ///
   /// The [link] property must not be null, and must not have been provided to
-  /// any other [MyLeaderLayer] layers that are [attached] to the layer tree at
+  /// any other [CustomLeaderLayer] layers that are [attached] to the layer tree at
   /// the same time.
   ///
   /// The [offset] property must be non-null before the compositing phase of the
   /// pipeline.
-  MyLeaderLayer({required MyLayerLink link, Offset offset = Offset.zero})
+  CustomLeaderLayer({required CustomLayerLink link, Offset offset = Offset.zero})
       : assert(link != null),
         _link = link,
         _offset = offset;
@@ -106,9 +106,9 @@ class MyLeaderLayer extends ContainerLayer {
   ///
   /// The link will be established when this layer is [attach]ed, and will be
   /// cleared when this layer is [detach]ed.
-  MyLayerLink get link => _link;
-  MyLayerLink _link;
-  set link(MyLayerLink value) {
+  CustomLayerLink get link => _link;
+  CustomLayerLink _link;
+  set link(CustomLayerLink value) {
     assert(value != null);
     if (_link == value) {
       return;
@@ -189,6 +189,6 @@ class MyLeaderLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
   }
 }
