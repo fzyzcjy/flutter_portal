@@ -19,6 +19,9 @@ import 'package:vector_math/vector_math_64.dart';
 ///  * [RenderLeaderLayer] and [RenderFollowerLayer], the corresponding
 ///    render objects.
 class MyLayerLink {
+  // NOTE XXX add
+  MyLeaderLayer? get leader => _leader;
+
   MyLeaderLayer? _leader;
 
   int _connectedFollowers = 0;
