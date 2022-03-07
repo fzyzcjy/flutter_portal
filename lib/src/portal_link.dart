@@ -9,7 +9,7 @@ class OverlayLink {
 
   BoxConstraints? get constraints => theater?.constraints;
 
-  final Set<RenderBox> overlays = {};
+  final overlays = <RenderBox>{};
 }
 
 class PortalLinkScope extends InheritedWidget {

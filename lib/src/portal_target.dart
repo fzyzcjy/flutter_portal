@@ -320,6 +320,20 @@ class _PortalTargetState extends State<PortalTarget> {
   }
 }
 
+/// The error that is thrown when a [PortalTarget] fails to find a [Portal].
+class PortalNotFoundError<T extends Portal> extends Error {
+  PortalNotFoundError._(this._portalTarget);
+
+  final PortalTarget _portalTarget;
+
+  @override
+  String toString() {
+    return '''
+Error: Could not find a $T above this $_portalTarget.
+''';
+  }
+}
+
 extension on BuildContext {
   /// https://stackoverflow.com/questions/71200969
   Iterable<InheritedElement> getElementsForInheritedWidgetsOfExactType<
@@ -350,19 +364,5 @@ extension on BuildContext {
       return null;
     }
     return dependOnInheritedElement(element) as T;
-  }
-}
-
-/// The error that is thrown when a [PortalTarget] fails to find a [Portal].
-class PortalNotFoundError<T extends Portal> extends Error {
-  PortalNotFoundError._(this._portalTarget);
-
-  final PortalTarget _portalTarget;
-
-  @override
-  String toString() {
-    return '''
-Error: Could not find a $T above this $_portalTarget.
-''';
   }
 }
