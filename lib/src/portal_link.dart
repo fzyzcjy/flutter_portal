@@ -25,6 +25,7 @@ class PortalLinkScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(PortalLinkScope oldWidget) {
-    return oldWidget.overlayLink != overlayLink;
+    return oldWidget.overlayLink != overlayLink ||
+        oldWidget.portalIdentifier != portalIdentifier;
   }
 }
