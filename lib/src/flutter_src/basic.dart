@@ -11,7 +11,7 @@ import 'proxy_box.dart';
 /// after the paint phase, as described in [WidgetsBinding.drawFrame]), it
 /// updates the [link] object so that any [CompositedTransformFollower] widgets
 /// that are subsequently composited in the same frame and were given the same
-/// [LayerLink] can position themselves at the same screen location.
+/// [MyLayerLink] can position themselves at the same screen location.
 ///
 /// A single [MyCompositedTransformTarget] can be followed by multiple
 /// [CompositedTransformFollower] widgets.
@@ -54,4 +54,3 @@ class MyCompositedTransformTarget extends SingleChildRenderObjectWidget {
     renderObject.link = link;
   }
 }
-

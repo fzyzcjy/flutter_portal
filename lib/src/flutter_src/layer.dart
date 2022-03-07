@@ -1,62 +1,77 @@
-// ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types
+// ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types, avoid_types_on_closure_parameters
 
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:flutter/scheduler.dart';
 
 /// An object that a [MyLeaderLayer] can register with.
 ///
 /// An instance of this class should be provided as the [MyLeaderLayer.link] and
-/// the [MyFollowerLayer.link] properties to cause the [MyFollowerLayer] to follow
+/// the [FollowerLayer.link] properties to cause the [FollowerLayer] to follow
 /// the [MyLeaderLayer].
 ///
 /// See also:
 ///
 ///  * [CompositedTransformTarget], the widget that creates a [MyLeaderLayer].
-///  * [CompositedTransformFollower], the widget that creates a [MyFollowerLayer].
-///  * [RenderLeaderLayer] and [RenderFollowerLayer], the corresponding
+///  * [CompositedTransformFollower], the widget that creates a [FollowerLayer].
+///  * [RenderMyLeaderLayer] and [RenderFollowerLayer], the corresponding
 ///    render objects.
 class MyLayerLink {
-  // NOTE XXX add
+  /// The [MyLeaderLayer] connected to this link.
   MyLeaderLayer? get leader => _leader;
-
   MyLeaderLayer? _leader;
 
-  int _connectedFollowers = 0;
-
-  /// Whether a [MyLeaderLayer] is currently connected to this link.
-  bool get leaderConnected => _leader != null;
-
-  /// Called by the [MyFollowerLayer] to establish a link to a [MyLeaderLayer].
-  ///
-  /// The returned [LayerLinkHandle] provides access to the leader via
-  /// [LayerLinkHandle.leader].
-  ///
-  /// When the [MyFollowerLayer] no longer wants to follow the [MyLeaderLayer],
-  /// [LayerLinkHandle.dispose] must be called to disconnect the link.
-  _MyLayerLinkHandle _registerFollower() {
-    assert(_connectedFollowers >= 0);
-    _connectedFollowers++;
-    return _MyLayerLinkHandle(this);
+  void _registerLeader(MyLeaderLayer leader) {
+    assert(_leader != leader);
+    assert((){
+      if (_leader != null) {
+        _debugPreviousLeaders ??= <MyLeaderLayer>{};
+        _debugScheduleLeadersCleanUpCheck();
+        return _debugPreviousLeaders!.add(_leader!);
+      }
+      return true;
+    }());
+    _leader = leader;
   }
 
-  /// Returns the [MyLeaderLayer] currently connected to this link.
-  ///
-  /// Valid in debug mode only. Returns null in all other modes.
-  MyLeaderLayer? get debugLeader {
-    MyLeaderLayer? result;
-    if (kDebugMode) {
-      result = _leader;
+  void _unregisterLeader(MyLeaderLayer leader) {
+    if (_leader == leader) {
+      _leader = null;
+    } else {
+      assert(_debugPreviousLeaders!.remove(leader));
     }
-    return result;
+  }
+
+  /// Stores the previous leaders that were replaced by the current [_leader]
+  /// in the current frame.
+  ///
+  /// These leaders need to give up their leaderships of this link by the end of
+  /// the current frame.
+  Set<MyLeaderLayer>? _debugPreviousLeaders;
+  bool _debugLeaderCheckScheduled = false;
+
+  /// Schedules the check as post frame callback to make sure the
+  /// [_debugPreviousLeaders] is empty.
+  void _debugScheduleLeadersCleanUpCheck() {
+    assert(_debugPreviousLeaders != null);
+    assert(() {
+      if (_debugLeaderCheckScheduled)
+        return true;
+      _debugLeaderCheckScheduled = true;
+      SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+        _debugLeaderCheckScheduled = false;
+        assert(_debugPreviousLeaders!.isEmpty);
+      });
+      return true;
+    }());
   }
 
   /// The total size of the content of the connected [MyLeaderLayer].
   ///
   /// Generally this should be set by the [RenderObject] that paints on the
-  /// registered [MyLeaderLayer] (for instance a [RenderLeaderLayer] that shares
+  /// registered [MyLeaderLayer] (for instance a [RenderMyLeaderLayer] that shares
   /// this link with its followers). This size may be outdated before and during
   /// layout.
   Size? leaderSize;
@@ -65,31 +80,7 @@ class MyLayerLink {
   String toString() => '${describeIdentity(this)}(${ _leader != null ? "<linked>" : "<dangling>" })';
 }
 
-/// A handle provided by [MyLayerLink.registerFollower] to a calling
-/// [MyFollowerLayer] to establish a link between that [MyFollowerLayer] and a
-/// [MyLeaderLayer].
-///
-/// If the link is no longer needed, [dispose] must be called to disconnect it.
-class _MyLayerLinkHandle {
-  _MyLayerLinkHandle(this._link);
-
-  MyLayerLink? _link;
-
-  /// The currently-registered [MyLeaderLayer], if any.
-  MyLeaderLayer? get leader => _link!._leader;
-
-  /// Disconnects the link between the [MyFollowerLayer] owning this handle and
-  /// the [leader].
-  ///
-  /// The [LayerLinkHandle] becomes unusable after calling this method.
-  void dispose() {
-    assert(_link!._connectedFollowers > 0);
-    _link!._connectedFollowers--;
-    _link = null;
-  }
-}
-
-/// A composited layer that can be followed by a [MyFollowerLayer].
+/// A composited layer that can be followed by a [FollowerLayer].
 ///
 /// This layer collapses the accumulated offset into a transform and passes
 /// [Offset.zero] to its child layers in the [addToScene]/[addChildrenToScene]
@@ -116,7 +107,10 @@ class MyLeaderLayer extends ContainerLayer {
     if (_link == value) {
       return;
     }
-    _link._leader = null;
+    if (attached) {
+      _link._unregisterLeader(this);
+      value._registerLeader(this);
+    }
     _link = value;
   }
 
@@ -140,32 +134,17 @@ class MyLeaderLayer extends ContainerLayer {
     }
   }
 
-  /// {@macro flutter.rendering.MyFollowerLayer.alwaysNeedsAddToScene}
-  @override
-  bool get alwaysNeedsAddToScene => _link._connectedFollowers > 0;
-
   @override
   void attach(Object owner) {
     super.attach(owner);
-    assert(link._leader == null);
-    _lastOffset = null;
-    link._leader = this;
+    _link._registerLeader(this);
   }
 
   @override
   void detach() {
-    assert(link._leader == this);
-    link._leader = null;
-    _lastOffset = null;
+    _link._unregisterLeader(this);
     super.detach();
   }
-
-  /// The offset the last time this layer was composited.
-  ///
-  /// This is reset to null when the layer is attached or detached, to help
-  /// catch cases where the follower layer ends up before the leader layer, but
-  /// not every case can be detected.
-  Offset? _lastOffset;
 
   @override
   bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, { required bool onlyFirst }) {
@@ -175,15 +154,14 @@ class MyLeaderLayer extends ContainerLayer {
   @override
   void addToScene(ui.SceneBuilder builder) {
     assert(offset != null);
-    _lastOffset = offset;
-    if (_lastOffset != Offset.zero)
+    if (offset != Offset.zero)
       engineLayer = builder.pushTransform(
-        Matrix4.translationValues(_lastOffset!.dx, _lastOffset!.dy, 0.0).storage,
-        // NOTE XXX _engineLayer -> engineLayer
+        Matrix4.translationValues(offset.dx, offset.dy, 0.0).storage,
+        // NOTE XXX edit
         oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
     addChildrenToScene(builder);
-    if (_lastOffset != Offset.zero)
+    if (offset != Offset.zero)
       builder.pop();
   }
 
@@ -196,9 +174,8 @@ class MyLeaderLayer extends ContainerLayer {
   /// children.
   @override
   void applyTransform(Layer? child, Matrix4 transform) {
-    assert(_lastOffset != null);
-    if (_lastOffset != Offset.zero)
-      transform.translate(_lastOffset!.dx, _lastOffset!.dy);
+    if (offset != Offset.zero)
+      transform.translate(offset.dx, offset.dy);
   }
 
   @override
