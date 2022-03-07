@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -246,6 +246,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 }
 
+// NOTE MODIFIED the comments
 /// A composited layer that applies a transformation matrix to its children such
 /// that they are positioned based on the position of a [LeaderLayer] and some
 /// extra computation performed by a callback.
@@ -259,16 +260,20 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 ///
 /// For documentation of undocumented code, see [FollowerLayer].
 class _CustomFollowerLayer extends ContainerLayer {
+  // NOTE MODIFIED the comments
   /// Creates a follower layer.
   ///
   /// The [link] property must not be null.
   _CustomFollowerLayer({
     required this.link,
+    // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
+    // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
   });
 
   MyLayerLink link;
 
+  // NOTE MODIFIED added this field
   /// Callback that is called to compute the linked offset of the follower layer
   /// based on the `leaderOffset` of the leader layer.
   ///
@@ -286,6 +291,12 @@ class _CustomFollowerLayer extends ContainerLayer {
   Matrix4? _invertedTransform;
   bool _inverseDirty = true;
 
+  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
+  // but we just make it a constant zero.
+  static const unlinkedOffset = Offset.zero;
+  // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
+  static const showWhenUnlinked = false;
+
   Offset? _transformOffset(Offset localPosition) {
     if (_inverseDirty) {
       _invertedTransform = Matrix4.tryInvert(getLastTransform()!);
@@ -296,6 +307,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     }
     final vector = Vector4(localPosition.dx, localPosition.dy, 0, 1);
     final result = _invertedTransform!.transform(vector);
+    // NOTE MODIFIED compute [linkedOffset] by callback, instead of using a field
     // We know the link leader cannot be null since we return early in
     // findAnnotations otherwise.
     final linkedOffset = linkedOffsetCallback(link.leader!.offset);
@@ -307,6 +319,9 @@ class _CustomFollowerLayer extends ContainerLayer {
       AnnotationResult<S> result, Offset localPosition,
       {required bool onlyFirst}) {
     if (link.leader == null) {
+      if (showWhenUnlinked) {
+        return super.findAnnotations(result, localPosition - unlinkedOffset, onlyFirst: onlyFirst);
+      }
       return false;
     }
     final transformedOffset = _transformOffset(localPosition);
@@ -317,6 +332,12 @@ class _CustomFollowerLayer extends ContainerLayer {
         .findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
   }
 
+  /// The transform that was used during the last composition phase.
+  ///
+  /// If the [link] was not linked to a [LeaderLayer], or if this layer has
+  /// a degenerate matrix applied, then this will be null.
+  ///
+  /// This method returns a new [Matrix4] instance each time it is invoked.
   Matrix4? getLastTransform() {
     if (_lastTransform == null) {
       return null;
@@ -327,6 +348,12 @@ class _CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
+  /// Call [applyTransform] for each layer in the provided list.
+  ///
+  /// The list is in reverse order (deepest first). The first layer will be
+  /// treated as the child of the second, and so forth. The first layer in the
+  /// list won't have [applyTransform] called on it. The first layer may be
+  /// null.
   static Matrix4 _collectTransformForLayerChain(List<ContainerLayer?> layers) {
     // Initialize our result matrix.
     final result = Matrix4.identity();
@@ -338,6 +365,12 @@ class _CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
+  /// Find the common ancestor of two layers [a] and [b] by searching towards
+  /// the root of the tree, and append each ancestor of [a] or [b] visited along
+  /// the path to [ancestorsA] and [ancestorsB] respectively.
+  ///
+  /// Returns null if [a] [b] do not share a common ancestor, in which case the
+  /// results in [ancestorsA] and [ancestorsB] are undefined.
   static Layer? _pathsToCommonAncestor(
     Layer? a,
     Layer? b,
@@ -366,6 +399,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     return _pathsToCommonAncestor(a.parent, b.parent, ancestorsA, ancestorsB);
   }
 
+  /// Populate [_lastTransform] given the current state of the tree.
   void _establishTransform() {
     _lastTransform = null;
     final leader = link.leader;
@@ -380,10 +414,10 @@ class _CustomFollowerLayer extends ContainerLayer {
     );
 
     // Stores [leader, ..., commonAncestor] after calling _pathsToCommonAncestor.
-    final List<ContainerLayer?> forwardLayers = <ContainerLayer>[leader];
+    final forwardLayers = <ContainerLayer>[leader];
     // Stores [this (follower), ..., commonAncestor] after calling
     // _pathsToCommonAncestor.
-    final List<ContainerLayer?> inverseLayers = <ContainerLayer>[this];
+    final inverseLayers = <ContainerLayer>[this];
 
     final ancestor = _pathsToCommonAncestor(
       leader,
@@ -391,13 +425,17 @@ class _CustomFollowerLayer extends ContainerLayer {
       forwardLayers,
       inverseLayers,
     );
-    assert(ancestor != null);
+    assert(
+      ancestor != null,
+      'LeaderLayer and FollowerLayer do not have a common ancestor.',
+    );
 
     final forwardTransform = _collectTransformForLayerChain(forwardLayers);
     // Further transforms the coordinate system to a hypothetical child (null)
     // of the leader layer, to account for the leader's additional paint offset
     // and layer offset (LeaderLayer._lastOffset).
     leader.applyTransform(null, forwardTransform);
+    // NOTE MODIFIED compute the [linkedOffset] by callback
     final linkedOffset = linkedOffsetCallback(leader.offset);
     forwardTransform.translate(linkedOffset.dx, linkedOffset.dy);
 
@@ -413,12 +451,22 @@ class _CustomFollowerLayer extends ContainerLayer {
     _inverseDirty = true;
   }
 
+  /// {@template flutter.rendering.FollowerLayer.alwaysNeedsAddToScene}
+  /// This disables retained rendering.
+  ///
+  /// A [FollowerLayer] copies changes from a [LeaderLayer] that could be anywhere
+  /// in the Layer tree, and that leader layer could change without notifying the
+  /// follower layer. Therefore we have to always call a follower layer's
+  /// [addToScene]. In order to call follower layer's [addToScene], leader layer's
+  /// [addToScene] must be called first so leader layer must also be considered
+  /// as [alwaysNeedsAddToScene].
+  /// {@endtemplate}
   @override
   bool get alwaysNeedsAddToScene => true;
 
   @override
-  void addToScene(SceneBuilder builder, [Offset layerOffset = Offset.zero]) {
-    if (link.leader == null) {
+  void addToScene(ui.SceneBuilder builder) {
+    if (link.leader == null && !showWhenUnlinked) {
       _lastTransform = null;
       _lastOffset = null;
       _inverseDirty = true;
@@ -429,17 +477,18 @@ class _CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform != null) {
       engineLayer = builder.pushTransform(
         _lastTransform!.storage,
-        oldLayer: engineLayer as TransformEngineLayer?,
+        // NOTE MODIFIED [_engineLayer] to [engineLayer]
+        oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
       addChildrenToScene(builder);
       builder.pop();
-      _lastOffset = layerOffset;
+      _lastOffset = unlinkedOffset;
     } else {
       _lastOffset = null;
-      final matrix = Matrix4.translationValues(0, 0, 0);
+      final matrix = Matrix4.translationValues(unlinkedOffset!.dx, unlinkedOffset!.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
-        oldLayer: engineLayer as TransformEngineLayer?,
+        oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
       addChildrenToScene(builder);
       builder.pop();
@@ -452,6 +501,8 @@ class _CustomFollowerLayer extends ContainerLayer {
     assert(child != null);
     if (_lastTransform != null) {
       transform.multiply(_lastTransform!);
+    } else {
+      transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
     }
   }
 
@@ -461,6 +512,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
+    // NOTE MODIFIED
     properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(
       'linkedOffsetCallback',
       linkedOffsetCallback,
