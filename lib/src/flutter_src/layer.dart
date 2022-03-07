@@ -25,7 +25,7 @@ class MyLayerLink {
 
   void _registerLeader(MyLeaderLayer leader) {
     assert(_leader != leader);
-    assert((){
+    assert(() {
       if (_leader != null) {
         _debugPreviousLeaders ??= <MyLeaderLayer>{};
         _debugScheduleLeadersCleanUpCheck();
@@ -57,8 +57,7 @@ class MyLayerLink {
   void _debugScheduleLeadersCleanUpCheck() {
     assert(_debugPreviousLeaders != null);
     assert(() {
-      if (_debugLeaderCheckScheduled)
-        return true;
+      if (_debugLeaderCheckScheduled) return true;
       _debugLeaderCheckScheduled = true;
       SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
         _debugLeaderCheckScheduled = false;
@@ -77,7 +76,8 @@ class MyLayerLink {
   Size? leaderSize;
 
   @override
-  String toString() => '${describeIdentity(this)}(${ _leader != null ? "<linked>" : "<dangling>" })';
+  String toString() =>
+      '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
 /// A composited layer that can be followed by a [FollowerLayer].
@@ -94,7 +94,10 @@ class MyLeaderLayer extends ContainerLayer {
   ///
   /// The [offset] property must be non-null before the compositing phase of the
   /// pipeline.
-  MyLeaderLayer({ required MyLayerLink link, Offset offset = Offset.zero }) : assert(link != null), _link = link, _offset = offset;
+  MyLeaderLayer({required MyLayerLink link, Offset offset = Offset.zero})
+      : assert(link != null),
+        _link = link,
+        _offset = offset;
 
   /// The object with which this layer should register.
   ///
@@ -147,8 +150,11 @@ class MyLeaderLayer extends ContainerLayer {
   }
 
   @override
-  bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, { required bool onlyFirst }) {
-    return super.findAnnotations<S>(result, localPosition - offset, onlyFirst: onlyFirst);
+  bool findAnnotations<S extends Object>(
+      AnnotationResult<S> result, Offset localPosition,
+      {required bool onlyFirst}) {
+    return super.findAnnotations<S>(result, localPosition - offset,
+        onlyFirst: onlyFirst);
   }
 
   @override
@@ -161,8 +167,7 @@ class MyLeaderLayer extends ContainerLayer {
         oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
     addChildrenToScene(builder);
-    if (offset != Offset.zero)
-      builder.pop();
+    if (offset != Offset.zero) builder.pop();
   }
 
   /// Applies the transform that would be applied when compositing the given
@@ -174,8 +179,7 @@ class MyLeaderLayer extends ContainerLayer {
   /// children.
   @override
   void applyTransform(Layer? child, Matrix4 transform) {
-    if (offset != Offset.zero)
-      transform.translate(offset.dx, offset.dy);
+    if (offset != Offset.zero) transform.translate(offset.dx, offset.dy);
   }
 
   @override

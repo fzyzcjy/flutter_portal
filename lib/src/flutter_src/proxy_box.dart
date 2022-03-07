@@ -17,7 +17,7 @@ class MyRenderLeaderLayer extends RenderProxyBox {
   MyRenderLeaderLayer({
     required MyLayerLink link,
     RenderBox? child,
-  }) : assert(link != null),
+  })  : assert(link != null),
         _link = link,
         super(child);
 
@@ -30,8 +30,7 @@ class MyRenderLeaderLayer extends RenderProxyBox {
   MyLayerLink _link;
   set link(MyLayerLink value) {
     assert(value != null);
-    if (_link == value)
-      return;
+    if (_link == value) return;
     _link.leaderSize = null;
     _link = value;
     if (_previousLayoutSize != null) {

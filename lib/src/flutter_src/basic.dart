@@ -32,7 +32,7 @@ class MyCompositedTransformTarget extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     Widget? child,
-  }) : assert(link != null),
+  })  : assert(link != null),
         super(key: key, child: child);
 
   /// The link object that connects this [MyCompositedTransformTarget] with one or
@@ -50,7 +50,8 @@ class MyCompositedTransformTarget extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, MyRenderLeaderLayer renderObject) {
+  void updateRenderObject(
+      BuildContext context, MyRenderLeaderLayer renderObject) {
     renderObject.link = link;
   }
 }
