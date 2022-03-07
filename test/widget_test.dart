@@ -1525,6 +1525,81 @@ Future<void> main() async {
     await expectLater(
         find.byType(Portal), matchesGoldenFile('paint_order.jpg'));
   });
+
+  testWidgets('PortalTarget can choose non-nearest ancestor Portal',
+      (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    const firstPortal = PortalIdentifier('first');
+    const secondPortal = PortalIdentifier('second');
+    expect(firstPortal != secondPortal, true);
+
+    final containerKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Container(
+          key: containerKey,
+          child: Portal(
+            identifier: firstPortal,
+            child: Container(
+              color: Colors.blue.withAlpha(50),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Portal(
+                  identifier: secondPortal,
+                  child: PortalTarget(
+                    // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+                    ancestorPortalSelector: (id) => id == firstPortal,
+                    anchor: const Aligned(
+                      follower: Alignment.topLeft,
+                      target: Alignment.topLeft,
+                    ),
+                    portalFollower: Container(
+                      height: 20,
+                      width: 30,
+                      color: Colors.red,
+                    ),
+                    child: PortalTarget(
+                      // should put to [secondPortal]
+                      ancestorPortalSelector: (id) => id == secondPortal,
+                      anchor: const Aligned(
+                        follower: Alignment.topLeft,
+                        target: Alignment.topLeft,
+                      ),
+                      portalFollower: Container(
+                        height: 25,
+                        width: 25,
+                        color: Colors.orange,
+                      ),
+                      child: PortalTarget(
+                        // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+                        ancestorPortalSelector: (id) => id == firstPortal,
+                        anchor: const Aligned(
+                          follower: Alignment.topLeft,
+                          target: Alignment.topLeft,
+                        ),
+                        portalFollower: Container(
+                          height: 30,
+                          width: 20,
+                          color: Colors.yellow,
+                        ),
+                        child: Container(color: Colors.purple.withAlpha(50)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(find.byKey(containerKey),
+        matchesGoldenFile('non_nearest_ancestor.png'));
+  });
 }
 
 class Boilerplate extends StatelessWidget {

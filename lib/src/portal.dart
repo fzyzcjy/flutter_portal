@@ -8,6 +8,7 @@ import 'anchor.dart';
 import 'custom_follower.dart';
 import 'flutter_src/basic.dart';
 import 'flutter_src/layer.dart';
+import 'util.dart';
 
 /// The widget where a [PortalTarget] and its [PortalFollower] are rendered.
 ///
@@ -44,12 +45,21 @@ import 'flutter_src/layer.dart';
 /// This way, your modals/snackbars will stop being visible when a new route
 /// is pushed.
 class Portal extends StatefulWidget {
-  const Portal({Key? key, required this.child}) : super(key: key);
+  const Portal({Key? key, this.identifier, required this.child})
+      : super(key: key);
 
+  final PortalIdentifier? identifier;
   final Widget child;
 
   @override
   _PortalState createState() => _PortalState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<PortalIdentifier?>('identifier', identifier));
+  }
 }
 
 class _PortalState extends State<Portal> {
@@ -58,6 +68,7 @@ class _PortalState extends State<Portal> {
   @override
   Widget build(BuildContext context) {
     return _PortalLinkScope(
+      portalIdentifier: widget.identifier,
       overlayLink: _overlayLink,
       child: _PortalTheater(
         overlayLink: _overlayLink,
@@ -79,11 +90,14 @@ class _PortalLinkScope extends InheritedWidget {
   const _PortalLinkScope({
     Key? key,
     required OverlayLink overlayLink,
+    required PortalIdentifier? portalIdentifier,
     required Widget child,
   })  : _overlayLink = overlayLink,
+        _portalIdentifier = portalIdentifier,
         super(key: key, child: child);
 
   final OverlayLink _overlayLink;
+  final PortalIdentifier? _portalIdentifier;
 
   @override
   bool updateShouldNotify(_PortalLinkScope oldWidget) {
@@ -181,6 +195,36 @@ class _RenderPortalTheater extends RenderProxyBox {
 /// [PortalTarget.portalFollower]. The target takes care of making it a
 /// follower → it is only a typedef.
 typedef PortalFollower = Widget;
+
+typedef AncestorPortalSelector = bool Function(
+    PortalIdentifier? portalIdentifier);
+
+// implementation references [ValueKey]
+@immutable
+class PortalIdentifier<T> {
+  /// Creates a portal identifier that delegates its [operator==] to the given value.
+  const PortalIdentifier(this.value);
+
+  /// The value to which this portal identifier delegates its [operator==]
+  final T value;
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is PortalIdentifier<T> && other.value == value;
+  }
+
+  @override
+  int get hashCode => hashValues(runtimeType, value);
+
+  @override
+  String toString() {
+    final valueString = T == String ? "<'$value'>" : '<$value>';
+    return '[$T $valueString]';
+  }
+}
 
 // todo(creativecreatorormaybenot): update target docs.
 
@@ -376,6 +420,7 @@ class PortalTarget extends StatefulWidget {
     this.anchor = const Filled(),
     this.closeDuration,
     this.portalFollower,
+    this.ancestorPortalSelector,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
         super(key: key);
@@ -385,6 +430,7 @@ class PortalTarget extends StatefulWidget {
   final Anchor anchor;
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
+  final AncestorPortalSelector? ancestorPortalSelector;
   final Widget child;
 
   @override
@@ -397,6 +443,8 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
+      ..add(ObjectFlagProperty<AncestorPortalSelector?>.has(
+          'ancestorPortalSelector', ancestorPortalSelector))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 }
@@ -429,8 +477,10 @@ class _PortalTargetState extends State<PortalTarget> {
 
   @override
   Widget build(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<_PortalLinkScope>();
+    final scope = context
+        .dependOnSpecificInheritedWidgetOfExactType<_PortalLinkScope>((scope) =>
+            widget.ancestorPortalSelector?.call(scope._portalIdentifier) ??
+            true);
     if (scope == null) {
       throw PortalNotFoundError._(widget);
     }

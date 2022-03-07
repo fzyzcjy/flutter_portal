@@ -1,6 +1,7 @@
 # Unreleased
 
 * New Anchoring Logic for Advanced Use Cases #44
+* Allow PortalEntry that binds to a ancestor but not nearest Portal #45 
 
 # 0.4.0
 
