@@ -6,7 +6,7 @@
 import 'package:flutter/rendering.dart';
 
 import '../anchor.dart';
-import '../portal.dart';
+import '../portal_link.dart';
 import 'rendering_layer.dart';
 
 /// @nodoc

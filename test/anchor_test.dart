@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/src/anchor.dart';
 import 'package:flutter_portal/src/portal.dart';
+import 'package:flutter_portal/src/portal_target.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

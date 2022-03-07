@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import '../anchor.dart';
-import '../portal.dart';
+import '../portal_link.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
 
