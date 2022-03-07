@@ -550,7 +550,7 @@ class _PortalTargetTheater extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPortalTarget(
+    return _RenderPortalTargetTheater(
       overlayLink,
       anchor: anchor,
       targetSize: targetSize,
@@ -560,7 +560,7 @@ class _PortalTargetTheater extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderPortalTarget renderObject,
+    _RenderPortalTargetTheater renderObject,
   ) {
     renderObject
       ..overlayLink = overlayLink
@@ -569,7 +569,7 @@ class _PortalTargetTheater extends SingleChildRenderObjectWidget {
   }
 
   @override
-  SingleChildRenderObjectElement createElement() => _PortalTargetElement(this);
+  SingleChildRenderObjectElement createElement() => _PortalTargetTheaterElement(this);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -582,8 +582,8 @@ class _PortalTargetTheater extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderPortalTarget extends RenderProxyBox {
-  _RenderPortalTarget(
+class _RenderPortalTargetTheater extends RenderProxyBox {
+  _RenderPortalTargetTheater(
     this._overlayLink, {
     required Anchor anchor,
     required Size targetSize,
@@ -722,15 +722,15 @@ class _RenderPortalTarget extends RenderProxyBox {
   }
 }
 
-class _PortalTargetElement extends SingleChildRenderObjectElement {
-  _PortalTargetElement(_PortalTargetTheater widget) : super(widget);
+class _PortalTargetTheaterElement extends SingleChildRenderObjectElement {
+  _PortalTargetTheaterElement(_PortalTargetTheater widget) : super(widget);
 
   @override
   _PortalTargetTheater get widget => super.widget as _PortalTargetTheater;
 
   @override
-  _RenderPortalTarget get renderObject =>
-      super.renderObject as _RenderPortalTarget;
+  _RenderPortalTargetTheater get renderObject =>
+      super.renderObject as _RenderPortalTargetTheater;
 
   Element? _branch;
 
