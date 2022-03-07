@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'anchor.dart';
-import 'custom_follower.dart';
 import 'flutter_src/basic.dart';
 import 'flutter_src/layer.dart';
 import 'util.dart';

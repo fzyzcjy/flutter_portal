@@ -5,6 +5,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import '../anchor.dart';
+import '../portal.dart';
 import 'layer.dart';
 import 'proxy_box.dart';
 
@@ -56,5 +58,62 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, CustomRenderLeaderLayer renderObject) {
     renderObject.link = link;
+  }
+}
+
+/// @nodoc
+class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
+  /// @nodoc
+  const CustomCompositedTransformFollower({
+    Key? key,
+    required this.link,
+    required this.overlayLink,
+    required this.targetSize,
+    required this.anchor,
+    Widget? child,
+  }) : super(key: key, child: child);
+
+  /// @nodoc
+  final Anchor anchor;
+
+  /// @nodoc
+  final CustomLayerLink link;
+
+  /// @nodoc
+  final OverlayLink overlayLink;
+
+  /// @nodoc
+  final Size targetSize;
+
+  @override
+  CustomRenderFollowerLayer createRenderObject(BuildContext context) {
+    return CustomRenderFollowerLayer(
+      anchor: anchor,
+      link: link,
+      overlayLink: overlayLink,
+      targetSize: targetSize,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context,
+      CustomRenderFollowerLayer renderObject,
+      ) {
+    renderObject
+      ..link = link
+      ..overlayLink = overlayLink
+      ..targetSize = targetSize
+      ..anchor = anchor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties
+        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
+    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
   }
 }
