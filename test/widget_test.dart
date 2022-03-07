@@ -1531,8 +1531,8 @@ Future<void> main() async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    final firstPortal = PortalIdentifier();
-    final secondPortal = PortalIdentifier();
+    const firstPortal = PortalIdentifier('first');
+    const secondPortal = PortalIdentifier('second');
     expect(firstPortal != secondPortal, true);
 
     final containerKey = GlobalKey();

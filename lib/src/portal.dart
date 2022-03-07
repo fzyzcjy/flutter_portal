@@ -199,7 +199,32 @@ typedef PortalFollower = Widget;
 typedef AncestorPortalSelector = bool Function(
     PortalIdentifier? portalIdentifier);
 
-class PortalIdentifier {}
+// implementation references [ValueKey]
+@immutable
+class PortalIdentifier<T> {
+  /// Creates a portal identifier that delegates its [operator==] to the given value.
+  const PortalIdentifier(this.value);
+
+  /// The value to which this portal identifier delegates its [operator==]
+  final T value;
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is PortalIdentifier<T> && other.value == value;
+  }
+
+  @override
+  int get hashCode => hashValues(runtimeType, value);
+
+  @override
+  String toString() {
+    final valueString = T == String ? "<'$value'>" : '<$value>';
+    return '[$T $valueString]';
+  }
+}
 
 // todo(creativecreatorormaybenot): update target docs.
 
