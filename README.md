@@ -115,7 +115,7 @@ class _MenuExampleState extends State<MenuExample> {
 ```
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/20165741/95027014-3ee0b000-068d-11eb-8c65-a7a5ad8b71bd.png" alt="image" style="width=200px">
+<img src="https://user-images.githubusercontent.com/20165741/95027014-3ee0b000-068d-11eb-8c65-a7a5ad8b71bd.png" alt="image" width="200px">
 </p>
 
 Then, we need to insert our [PortalEntry] in the widget tree.
