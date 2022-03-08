@@ -1,8 +1,8 @@
 # Unreleased
 
-* New Anchoring Logic for Advanced Use Cases #44
-* Allow PortalEntry that binds to a ancestor but not nearest Portal #45 
-* Enhance scope searching strategy: Defaults to "main" scope if provided #51
+* New anchoring logic for advanced use cases #44 (@creativecreatorormaybenot for the main PR, @fzyzcjy for Flutter stable compatibility)
+* Allow PortalEntry that binds to a ancestor but not nearest Portal #45 (@fzyzcjy)
+* Enhance scope searching strategy: Defaults to "main" scope if provided #51 (@fzyzcjy)
 
 # 0.4.0
 
