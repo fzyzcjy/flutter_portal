@@ -263,10 +263,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
   @override
   Widget build(BuildContext context) {
-    final scope = context
-        .dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>((scope) =>
-            widget.ancestorPortalSelector?.call(scope.portalIdentifier) ??
-            true);
+    final scope = _dependOnPortalLinkScope();
     if (scope == null) {
       throw PortalNotFoundError._(widget);
     }
@@ -311,6 +308,28 @@ class _PortalTargetState extends State<PortalTarget> {
           ),
       ],
     );
+  }
+
+  PortalLinkScope? _dependOnPortalLinkScope() {
+    // 1. User-provided selector
+    final ancestorPortalSelector = widget.ancestorPortalSelector;
+    if (ancestorPortalSelector != null) {
+      return context
+          .dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+              (scope) => ancestorPortalSelector(scope.portalIdentifier));
+    }
+
+    // 2. "main" scope
+    final mainScope =
+        context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+            (scope) => scope.portalIdentifier == const PortalMainIdentifier());
+    if (mainScope != null) {
+      return mainScope;
+    }
+
+    // 3. nearest scope
+    return context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+        (scope) => true);
   }
 
   @override

@@ -111,3 +111,7 @@ class PortalIdentifier<T> {
     return '[$T $valueString]';
   }
 }
+
+class PortalMainIdentifier extends PortalIdentifier<void> {
+  const PortalMainIdentifier() : super(null);
+}
