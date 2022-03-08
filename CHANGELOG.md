@@ -2,6 +2,7 @@
 
 * New Anchoring Logic for Advanced Use Cases #44
 * Allow PortalEntry that binds to a ancestor but not nearest Portal #45 
+* Enhance scope searching strategy: Defaults to "main" scope if provided #51
 
 # 0.4.0
 
