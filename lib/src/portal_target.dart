@@ -206,7 +206,7 @@ class PortalTarget extends StatefulWidget {
     this.anchor = const Filled(),
     this.closeDuration,
     this.portalFollower,
-    this.ancestorPortalSelector,
+    this.ancestorPortalSelector = defaultAncestorPortalSelector,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
         super(key: key);
@@ -216,7 +216,7 @@ class PortalTarget extends StatefulWidget {
   final Anchor anchor;
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
-  final AncestorPortalSelector? ancestorPortalSelector;
+  final AncestorPortalSelector ancestorPortalSelector;
   final Widget child;
 
   @override
@@ -263,7 +263,9 @@ class _PortalTargetState extends State<PortalTarget> {
 
   @override
   Widget build(BuildContext context) {
-    final scope = _dependOnPortalLinkScope();
+    final scope =
+        context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+            (scope) => widget.ancestorPortalSelector(scope.portalIdentifier));
     if (scope == null) {
       throw PortalNotFoundError._(widget);
     }
@@ -308,28 +310,6 @@ class _PortalTargetState extends State<PortalTarget> {
           ),
       ],
     );
-  }
-
-  PortalLinkScope? _dependOnPortalLinkScope() {
-    // 1. User-provided selector
-    final ancestorPortalSelector = widget.ancestorPortalSelector;
-    if (ancestorPortalSelector != null) {
-      return context
-          .dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-              (scope) => ancestorPortalSelector(scope.portalIdentifier));
-    }
-
-    // 2. "main" scope
-    final mainScope =
-        context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-            (scope) => scope.portalIdentifier == const PortalMainIdentifier());
-    if (mainScope != null) {
-      return mainScope;
-    }
-
-    // 3. nearest scope
-    return context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-        (scope) => true);
   }
 
   @override

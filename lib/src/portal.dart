@@ -41,10 +41,13 @@ import 'portal_theater.dart';
 /// This way, your modals/snackbars will stop being visible when a new route
 /// is pushed.
 class Portal extends StatefulWidget {
-  const Portal({Key? key, this.identifier, required this.child})
-      : super(key: key);
+  const Portal({
+    Key? key,
+    this.identifier = const PortalMainIdentifier(),
+    required this.child,
+  }) : super(key: key);
 
-  final PortalIdentifier? identifier;
+  final PortalIdentifier identifier;
   final Widget child;
 
   @override
@@ -54,7 +57,7 @@ class Portal extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-        .add(DiagnosticsProperty<PortalIdentifier?>('identifier', identifier));
+        .add(DiagnosticsProperty<PortalIdentifier>('identifier', identifier));
   }
 }
 
@@ -83,7 +86,10 @@ class _PortalState extends State<Portal> {
 typedef PortalFollower = Widget;
 
 typedef AncestorPortalSelector = bool Function(
-    PortalIdentifier? portalIdentifier);
+    PortalIdentifier portalIdentifier);
+
+bool defaultAncestorPortalSelector(PortalIdentifier portalIdentifier) =>
+    portalIdentifier == const PortalMainIdentifier();
 
 // implementation references [ValueKey]
 @immutable
@@ -112,10 +118,6 @@ class PortalIdentifier<T> {
   }
 }
 
-/// You can put [PortalMainIdentifier] to one or multiple [Portal]s.
-/// Then, [PortalTarget] will try to use nearest [Portal] with [PortalMainIdentifier].
-/// If there is none, [PortalTarget] will use nearest [Portal] with any identifier.
-/// See [PortalTarget]'s `_dependOnPortalLinkScope` for more details.
 class PortalMainIdentifier extends PortalIdentifier<void> {
   const PortalMainIdentifier() : super(null);
 }

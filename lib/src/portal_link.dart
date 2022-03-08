@@ -21,7 +21,7 @@ class PortalLinkScope extends InheritedWidget {
   }) : super(key: key, child: child);
 
   final PortalLink portalLink;
-  final PortalIdentifier? portalIdentifier;
+  final PortalIdentifier portalIdentifier;
 
   @override
   bool updateShouldNotify(PortalLinkScope oldWidget) {

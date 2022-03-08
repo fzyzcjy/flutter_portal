@@ -5,6 +5,8 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+// ignore_for_file: avoid_redundant_argument_values
+
 import 'dart:io';
 import 'dart:typed_data';
 
