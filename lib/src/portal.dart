@@ -111,3 +111,11 @@ class PortalIdentifier<T> {
     return '[$T $valueString]';
   }
 }
+
+/// You can put [PortalMainIdentifier] to one or multiple [Portal]s.
+/// Then, [PortalTarget] will try to use nearest [Portal] with [PortalMainIdentifier].
+/// If there is none, [PortalTarget] will use nearest [Portal] with any identifier.
+/// See [PortalTarget]'s `_dependOnPortalLinkScope` for more details.
+class PortalMainIdentifier extends PortalIdentifier<void> {
+  const PortalMainIdentifier() : super(null);
+}

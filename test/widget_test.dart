@@ -1538,6 +1538,51 @@ Future<void> main() async {
 
     final containerKey = GlobalKey();
 
+    Widget child = Container(color: Colors.purple.withAlpha(50));
+
+    child = PortalTarget(
+      // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+      ancestorPortalSelector: (id) => id == firstPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 30,
+        width: 20,
+        color: Colors.yellow,
+      ),
+      child: child,
+    );
+    child = PortalTarget(
+      // should put to [secondPortal]
+      ancestorPortalSelector: (id) => id == secondPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 25,
+        width: 25,
+        color: Colors.orange,
+      ),
+      child: child,
+    );
+    child = PortalTarget(
+      // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+      ancestorPortalSelector: (id) => id == firstPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 20,
+        width: 30,
+        color: Colors.red,
+      ),
+      child: child,
+    );
+
     await tester.pumpWidget(
       Boilerplate(
         child: Container(
@@ -1550,46 +1595,7 @@ Future<void> main() async {
                 padding: const EdgeInsets.all(10),
                 child: Portal(
                   identifier: secondPortal,
-                  child: PortalTarget(
-                    // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-                    ancestorPortalSelector: (id) => id == firstPortal,
-                    anchor: const Aligned(
-                      follower: Alignment.topLeft,
-                      target: Alignment.topLeft,
-                    ),
-                    portalFollower: Container(
-                      height: 20,
-                      width: 30,
-                      color: Colors.red,
-                    ),
-                    child: PortalTarget(
-                      // should put to [secondPortal]
-                      ancestorPortalSelector: (id) => id == secondPortal,
-                      anchor: const Aligned(
-                        follower: Alignment.topLeft,
-                        target: Alignment.topLeft,
-                      ),
-                      portalFollower: Container(
-                        height: 25,
-                        width: 25,
-                        color: Colors.orange,
-                      ),
-                      child: PortalTarget(
-                        // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-                        ancestorPortalSelector: (id) => id == firstPortal,
-                        anchor: const Aligned(
-                          follower: Alignment.topLeft,
-                          target: Alignment.topLeft,
-                        ),
-                        portalFollower: Container(
-                          height: 30,
-                          width: 20,
-                          color: Colors.yellow,
-                        ),
-                        child: Container(color: Colors.purple.withAlpha(50)),
-                      ),
-                    ),
-                  ),
+                  child: child,
                 ),
               ),
             ),
@@ -1600,6 +1606,103 @@ Future<void> main() async {
 
     await expectLater(find.byKey(containerKey),
         matchesGoldenFile('non_nearest_ancestor.png'));
+  });
+
+  testWidgets('PortalTarget understands main scope', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    final containerKey = GlobalKey();
+
+    final inner = Portal(
+      identifier: const PortalMainIdentifier(),
+      child: PortalTarget(
+        // should be bound to **inner** "main"
+        anchor: const Aligned(
+          follower: Alignment.topRight,
+          target: Alignment.topRight,
+        ),
+        portalFollower: Container(
+          height: 30,
+          width: 30,
+          color: Colors.yellow,
+        ),
+        child: PortalTarget(
+          // should be bound to "non-main"
+          ancestorPortalSelector: (id) =>
+              id == const PortalIdentifier<String>('non-main'),
+          anchor: const Aligned(
+            follower: Alignment.topRight,
+            target: Alignment.topRight,
+          ),
+          portalFollower: Container(
+            height: 35,
+            width: 25,
+            color: Colors.teal,
+          ),
+          child: Container(
+            color: Colors.blue.withAlpha(50),
+            padding: const EdgeInsets.all(10),
+            child: Portal(
+              identifier: const PortalMainIdentifier(),
+              child: Container(color: Colors.purple.withAlpha(50)),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Container(
+          key: containerKey,
+          child: Portal(
+            identifier: const PortalMainIdentifier(),
+            child: Container(
+              color: Colors.blue.withAlpha(50),
+              padding: const EdgeInsets.all(10),
+              child: Portal(
+                identifier: const PortalIdentifier<String>('non-main'),
+                child: PortalTarget(
+                  // should be bound to "non-main"
+                  ancestorPortalSelector: (id) =>
+                      id == const PortalIdentifier<String>('non-main'),
+                  anchor: const Aligned(
+                    follower: Alignment.topLeft,
+                    target: Alignment.topLeft,
+                  ),
+                  portalFollower: Container(
+                    height: 20,
+                    width: 40,
+                    color: Colors.red,
+                  ),
+                  child: PortalTarget(
+                    // should be bound to outer "main"
+                    anchor: const Aligned(
+                      follower: Alignment.topLeft,
+                      target: Alignment.topLeft,
+                    ),
+                    portalFollower: Container(
+                      height: 25,
+                      width: 35,
+                      color: Colors.orange,
+                    ),
+                    child: Container(
+                      color: Colors.blue.withAlpha(50),
+                      padding: const EdgeInsets.all(10),
+                      child: inner,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+        find.byKey(containerKey), matchesGoldenFile('main_scope.png'));
   });
 }
 
