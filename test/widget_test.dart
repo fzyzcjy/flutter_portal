@@ -1538,6 +1538,51 @@ Future<void> main() async {
 
     final containerKey = GlobalKey();
 
+    Widget child = Container(color: Colors.purple.withAlpha(50));
+
+    child = PortalTarget(
+      // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+      ancestorPortalSelector: (id) => id == firstPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 30,
+        width: 20,
+        color: Colors.yellow,
+      ),
+      child: child,
+    );
+    child = PortalTarget(
+      // should put to [secondPortal]
+      ancestorPortalSelector: (id) => id == secondPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 25,
+        width: 25,
+        color: Colors.orange,
+      ),
+      child: child,
+    );
+    child = PortalTarget(
+      // should put to [firstPortal], thus be higher than [secondPortal] in z-index
+      ancestorPortalSelector: (id) => id == firstPortal,
+      anchor: const Aligned(
+        follower: Alignment.topLeft,
+        target: Alignment.topLeft,
+      ),
+      portalFollower: Container(
+        height: 20,
+        width: 30,
+        color: Colors.red,
+      ),
+      child: child,
+    );
+
     await tester.pumpWidget(
       Boilerplate(
         child: Container(
@@ -1550,46 +1595,7 @@ Future<void> main() async {
                 padding: const EdgeInsets.all(10),
                 child: Portal(
                   identifier: secondPortal,
-                  child: PortalTarget(
-                    // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-                    ancestorPortalSelector: (id) => id == firstPortal,
-                    anchor: const Aligned(
-                      follower: Alignment.topLeft,
-                      target: Alignment.topLeft,
-                    ),
-                    portalFollower: Container(
-                      height: 20,
-                      width: 30,
-                      color: Colors.red,
-                    ),
-                    child: PortalTarget(
-                      // should put to [secondPortal]
-                      ancestorPortalSelector: (id) => id == secondPortal,
-                      anchor: const Aligned(
-                        follower: Alignment.topLeft,
-                        target: Alignment.topLeft,
-                      ),
-                      portalFollower: Container(
-                        height: 25,
-                        width: 25,
-                        color: Colors.orange,
-                      ),
-                      child: PortalTarget(
-                        // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-                        ancestorPortalSelector: (id) => id == firstPortal,
-                        anchor: const Aligned(
-                          follower: Alignment.topLeft,
-                          target: Alignment.topLeft,
-                        ),
-                        portalFollower: Container(
-                          height: 30,
-                          width: 20,
-                          color: Colors.yellow,
-                        ),
-                        child: Container(color: Colors.purple.withAlpha(50)),
-                      ),
-                    ),
-                  ),
+                  child: child,
                 ),
               ),
             ),
