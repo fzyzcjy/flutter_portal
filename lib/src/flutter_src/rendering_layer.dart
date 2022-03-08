@@ -1,251 +1,156 @@
-import 'dart:ui';
+// NOTE adapted from Flutter beta 2.11.0-0.1.pre (notice beta, not stable)
+// Please place a `NOTE MODIFIED` marker whenever you change the Flutter code
+
+// ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types, avoid_types_on_closure_parameters, always_put_control_body_on_new_line
+
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-import 'anchor.dart';
-import 'flutter_src/layer.dart';
-import 'portal.dart';
+import 'rendering_proxy_box.dart';
 
 /// @nodoc
-class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
-  /// @nodoc
-  const CustomCompositedTransformFollower({
-    Key? key,
-    required this.link,
-    required this.overlayLink,
-    required this.targetSize,
-    required this.anchor,
-    Widget? child,
-  }) : super(key: key, child: child);
+class CustomLayerLink {
+  /// The [CustomLeaderLayer] connected to this link.
+  CustomLeaderLayer? get leader => _leader;
+  CustomLeaderLayer? _leader;
 
-  /// @nodoc
-  final Anchor anchor;
-
-  /// @nodoc
-  final MyLayerLink link;
-
-  /// @nodoc
-  final OverlayLink overlayLink;
-
-  /// @nodoc
-  final Size targetSize;
-
-  @override
-  CustomRenderFollowerLayer createRenderObject(BuildContext context) {
-    return CustomRenderFollowerLayer(
-      anchor: anchor,
-      link: link,
-      overlayLink: overlayLink,
-      targetSize: targetSize,
-    );
+  void _registerLeader(CustomLeaderLayer leader) {
+    assert(_leader != leader);
+    assert(() {
+      if (_leader != null) {
+        _debugPreviousLeaders ??= <CustomLeaderLayer>{};
+        _debugScheduleLeadersCleanUpCheck();
+        return _debugPreviousLeaders!.add(_leader!);
+      }
+      return true;
+    }());
+    _leader = leader;
   }
 
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    CustomRenderFollowerLayer renderObject,
-  ) {
-    renderObject
-      ..link = link
-      ..overlayLink = overlayLink
-      ..targetSize = targetSize
-      ..anchor = anchor;
+  void _unregisterLeader(CustomLeaderLayer leader) {
+    if (_leader == leader) {
+      _leader = null;
+    } else {
+      assert(_debugPreviousLeaders!.remove(leader));
+    }
   }
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Anchor>('anchor', anchor));
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
-    properties
-        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
-    properties.add(DiagnosticsProperty<Size>('targetSize', targetSize));
+  /// @nodoc
+  Set<CustomLeaderLayer>? _debugPreviousLeaders;
+  bool _debugLeaderCheckScheduled = false;
+
+  /// @nodoc
+  void _debugScheduleLeadersCleanUpCheck() {
+    assert(_debugPreviousLeaders != null);
+    assert(() {
+      if (_debugLeaderCheckScheduled) return true;
+      _debugLeaderCheckScheduled = true;
+      SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+        _debugLeaderCheckScheduled = false;
+        assert(_debugPreviousLeaders!.isEmpty);
+      });
+      return true;
+    }());
   }
+
+  /// @nodoc
+  Size? leaderSize;
+
+  @override
+  String toString() =>
+      '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
 /// @nodoc
-@visibleForTesting
-class CustomRenderFollowerLayer extends RenderProxyBox {
+class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
-  CustomRenderFollowerLayer({
-    required MyLayerLink link,
-    required OverlayLink overlayLink,
-    required Size targetSize,
-    required Anchor anchor,
-    RenderBox? child,
-  })  : _anchor = anchor,
+  CustomLeaderLayer(
+      {required CustomLayerLink link, Offset offset = Offset.zero})
+      : assert(link != null),
         _link = link,
-        _overlayLink = overlayLink,
-        _targetSize = targetSize,
-        super(child);
-
-  Anchor _anchor;
+        _offset = offset;
 
   /// @nodoc
-  Anchor get anchor => _anchor;
-
-  set anchor(Anchor value) {
-    if (_anchor != value) {
-      _anchor = value;
-      markNeedsPaint();
-    }
-  }
-
-  MyLayerLink _link;
-
-  /// @nodoc
-  MyLayerLink get link => _link;
-
-  set link(MyLayerLink value) {
+  CustomLayerLink get link => _link;
+  CustomLayerLink _link;
+  set link(CustomLayerLink value) {
+    assert(value != null);
     if (_link == value) {
       return;
     }
-    _link = value;
-    markNeedsPaint();
-  }
-
-  OverlayLink _overlayLink;
-
-  OverlayLink get overlayLink => _overlayLink;
-
-  set overlayLink(OverlayLink value) {
-    if (_overlayLink == value) {
-      return;
+    if (attached) {
+      _link._unregisterLeader(this);
+      value._registerLeader(this);
     }
-    _overlayLink = value;
-    markNeedsPaint();
+    _link = value;
   }
-
-  Size _targetSize;
 
   /// @nodoc
-  Size get targetSize => _targetSize;
-
-  set targetSize(Size value) {
-    if (_targetSize == value) {
+  Offset get offset => _offset;
+  Offset _offset;
+  set offset(Offset value) {
+    assert(value != null);
+    if (value == _offset) {
       return;
     }
-    _targetSize = value;
-    markNeedsPaint();
+    _offset = value;
+    if (!alwaysNeedsAddToScene) {
+      markNeedsAddToScene();
+    }
+  }
+
+  @override
+  void attach(Object owner) {
+    super.attach(owner);
+    _link._registerLeader(this);
   }
 
   @override
   void detach() {
-    layer = null;
+    _link._unregisterLeader(this);
     super.detach();
   }
 
   @override
-  bool get alwaysNeedsCompositing => true;
+  bool findAnnotations<S extends Object>(
+      AnnotationResult<S> result, Offset localPosition,
+      {required bool onlyFirst}) {
+    return super.findAnnotations<S>(result, localPosition - offset,
+        onlyFirst: onlyFirst);
+  }
 
   @override
-  _CustomFollowerLayer? get layer => super.layer as _CustomFollowerLayer?;
+  void addToScene(ui.SceneBuilder builder) {
+    assert(offset != null);
+    if (offset != Offset.zero)
+      engineLayer = builder.pushTransform(
+        Matrix4.translationValues(offset.dx, offset.dy, 0.0).storage,
+        // NOTE MODIFIED from `_engineLayer` to `engineLayer`
+        oldLayer: engineLayer as ui.TransformEngineLayer?,
+      );
+    addChildrenToScene(builder);
+    if (offset != Offset.zero) builder.pop();
+  }
 
   /// @nodoc
-  Matrix4 getCurrentTransform() {
-    return layer?.getLastTransform() ?? Matrix4.identity();
-  }
-
   @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    return hitTestChildren(result, position: position);
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return result.addWithPaintTransform(
-      transform: getCurrentTransform(),
-      position: position,
-      hitTest: (result, position) {
-        return super.hitTestChildren(result, position: position);
-      },
-    );
-  }
-
-  /// Returns the linked offset in relation to the leader layer.
-  ///
-  /// The [LeaderLayer] is inserted by the [CompositedTransformTarget] in
-  /// [PortalTarget].
-  ///
-  /// The reason we cannot simply access the [link]'s leader in [paint] is that
-  /// the leader is only attached to the [MyLayerLink] in [LeaderLayer.attach],
-  /// which is called in the compositing phase which is after the paint phase.
-  Offset _computeLinkedOffset(Offset leaderOffset) {
-    assert(
-      overlayLink.theater != null,
-      'The theater must be set in the OverlayLink when the '
-      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
-      'Therefore, it must not be null in any child PortalEntry.',
-    );
-    final theater = overlayLink.theater!;
-
-    // In order to compute the theater rect, we must first offset (shift) it by
-    // the position of the top-left corner of the target in the coordinate space
-    // of the theater since we are working with it relative to the target.
-    final theaterShift = -globalToLocal(
-      leaderOffset,
-      ancestor: theater,
-    );
-
-    final theaterRect = theaterShift & theater.size;
-
-    return anchor.getFollowerOffset(
-      // The size is set in performLayout of the RenderProxyBoxMixin.
-      followerSize: size,
-      targetSize: targetSize,
-      portalRect: theaterRect,
-    );
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    if (layer == null) {
-      layer = _CustomFollowerLayer(
-        link: link,
-        linkedOffsetCallback: _computeLinkedOffset,
-      );
-    } else {
-      layer!
-        ..link = link
-        ..linkedOffsetCallback = _computeLinkedOffset;
-    }
-
-    context.pushLayer(
-      layer!,
-      super.paint,
-      Offset.zero,
-      childPaintBounds: const Rect.fromLTRB(
-        // We don't know where we'll end up, so we have no idea what our cull rect should be.
-        double.negativeInfinity,
-        double.negativeInfinity,
-        double.infinity,
-        double.infinity,
-      ),
-    );
-  }
-
-  @override
-  void applyPaintTransform(RenderBox child, Matrix4 transform) {
-    transform.multiply(getCurrentTransform());
+  void applyTransform(Layer? child, Matrix4 transform) {
+    if (offset != Offset.zero) transform.translate(offset.dx, offset.dy);
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
-    properties
-        .add(DiagnosticsProperty<OverlayLink>('overlayLink', overlayLink));
-    properties.add(
-        TransformProperty('current transform matrix', getCurrentTransform()));
-
-    properties.add(DiagnosticsProperty('anchor', anchor));
-    properties.add(DiagnosticsProperty('targetSize', targetSize));
+    properties.add(DiagnosticsProperty<Offset>('offset', offset));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
   }
 }
 
+// NOTE MODIFIED the comments
 /// A composited layer that applies a transformation matrix to its children such
 /// that they are positioned based on the position of a [LeaderLayer] and some
 /// extra computation performed by a callback.
@@ -258,17 +163,21 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 /// [FollowerLayer.unlinkedOffset] being [Offset.zero]).
 ///
 /// For documentation of undocumented code, see [FollowerLayer].
-class _CustomFollowerLayer extends ContainerLayer {
+class CustomFollowerLayer extends ContainerLayer {
+  // NOTE MODIFIED the comments
   /// Creates a follower layer.
   ///
   /// The [link] property must not be null.
-  _CustomFollowerLayer({
+  CustomFollowerLayer({
     required this.link,
+    // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
+    // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
   });
 
-  MyLayerLink link;
+  CustomLayerLink link;
 
+  // NOTE MODIFIED added this field
   /// Callback that is called to compute the linked offset of the follower layer
   /// based on the `leaderOffset` of the leader layer.
   ///
@@ -286,6 +195,12 @@ class _CustomFollowerLayer extends ContainerLayer {
   Matrix4? _invertedTransform;
   bool _inverseDirty = true;
 
+  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
+  // but we just make it a constant zero.
+  static const unlinkedOffset = Offset.zero;
+  // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
+  static const showWhenUnlinked = CustomRenderFollowerLayer.showWhenUnlinked;
+
   Offset? _transformOffset(Offset localPosition) {
     if (_inverseDirty) {
       _invertedTransform = Matrix4.tryInvert(getLastTransform()!);
@@ -296,6 +211,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     }
     final vector = Vector4(localPosition.dx, localPosition.dy, 0, 1);
     final result = _invertedTransform!.transform(vector);
+    // NOTE MODIFIED compute [linkedOffset] by callback, instead of using a field
     // We know the link leader cannot be null since we return early in
     // findAnnotations otherwise.
     final linkedOffset = linkedOffsetCallback(link.leader!.offset);
@@ -307,6 +223,10 @@ class _CustomFollowerLayer extends ContainerLayer {
       AnnotationResult<S> result, Offset localPosition,
       {required bool onlyFirst}) {
     if (link.leader == null) {
+      if (showWhenUnlinked) {
+        return super.findAnnotations(result, localPosition - unlinkedOffset,
+            onlyFirst: onlyFirst);
+      }
       return false;
     }
     final transformedOffset = _transformOffset(localPosition);
@@ -317,6 +237,7 @@ class _CustomFollowerLayer extends ContainerLayer {
         .findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
   }
 
+  /// @nodoc
   Matrix4? getLastTransform() {
     if (_lastTransform == null) {
       return null;
@@ -327,6 +248,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
+  /// @nodoc
   static Matrix4 _collectTransformForLayerChain(List<ContainerLayer?> layers) {
     // Initialize our result matrix.
     final result = Matrix4.identity();
@@ -338,6 +260,7 @@ class _CustomFollowerLayer extends ContainerLayer {
     return result;
   }
 
+  /// @nodoc
   static Layer? _pathsToCommonAncestor(
     Layer? a,
     Layer? b,
@@ -366,6 +289,37 @@ class _CustomFollowerLayer extends ContainerLayer {
     return _pathsToCommonAncestor(a.parent, b.parent, ancestorsA, ancestorsB);
   }
 
+  bool _debugCheckLeaderBeforeFollower(
+    List<ContainerLayer> leaderToCommonAncestor,
+    List<ContainerLayer> followerToCommonAncestor,
+  ) {
+    if (followerToCommonAncestor.length <= 1) {
+      // Follower is the common ancestor, ergo the leader must come AFTER the follower.
+      return false;
+    }
+    if (leaderToCommonAncestor.length <= 1) {
+      // Leader is the common ancestor, ergo the leader must come BEFORE the follower.
+      return true;
+    }
+
+    // Common ancestor is neither the leader nor the follower.
+    final leaderSubtreeBelowAncestor =
+        leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
+    final followerSubtreeBelowAncestor =
+        followerToCommonAncestor[followerToCommonAncestor.length - 2];
+
+    Layer? sibling = leaderSubtreeBelowAncestor;
+    while (sibling != null) {
+      if (sibling == followerSubtreeBelowAncestor) {
+        return true;
+      }
+      sibling = sibling.nextSibling;
+    }
+    // The follower subtree didn't come after the leader subtree.
+    return false;
+  }
+
+  /// @nodoc
   void _establishTransform() {
     _lastTransform = null;
     final leader = link.leader;
@@ -380,10 +334,10 @@ class _CustomFollowerLayer extends ContainerLayer {
     );
 
     // Stores [leader, ..., commonAncestor] after calling _pathsToCommonAncestor.
-    final List<ContainerLayer?> forwardLayers = <ContainerLayer>[leader];
+    final forwardLayers = <ContainerLayer>[leader];
     // Stores [this (follower), ..., commonAncestor] after calling
     // _pathsToCommonAncestor.
-    final List<ContainerLayer?> inverseLayers = <ContainerLayer>[this];
+    final inverseLayers = <ContainerLayer>[this];
 
     final ancestor = _pathsToCommonAncestor(
       leader,
@@ -391,13 +345,21 @@ class _CustomFollowerLayer extends ContainerLayer {
       forwardLayers,
       inverseLayers,
     );
-    assert(ancestor != null);
+    assert(
+      ancestor != null,
+      'LeaderLayer and FollowerLayer do not have a common ancestor.',
+    );
+    assert(
+      _debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers),
+      'LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.',
+    );
 
     final forwardTransform = _collectTransformForLayerChain(forwardLayers);
     // Further transforms the coordinate system to a hypothetical child (null)
     // of the leader layer, to account for the leader's additional paint offset
     // and layer offset (LeaderLayer._lastOffset).
     leader.applyTransform(null, forwardTransform);
+    // NOTE MODIFIED compute the [linkedOffset] by callback
     final linkedOffset = linkedOffsetCallback(leader.offset);
     forwardTransform.translate(linkedOffset.dx, linkedOffset.dy);
 
@@ -413,12 +375,13 @@ class _CustomFollowerLayer extends ContainerLayer {
     _inverseDirty = true;
   }
 
+  /// @nodoc
   @override
   bool get alwaysNeedsAddToScene => true;
 
   @override
-  void addToScene(SceneBuilder builder, [Offset layerOffset = Offset.zero]) {
-    if (link.leader == null) {
+  void addToScene(ui.SceneBuilder builder) {
+    if (link.leader == null && !showWhenUnlinked) {
       _lastTransform = null;
       _lastOffset = null;
       _inverseDirty = true;
@@ -429,17 +392,19 @@ class _CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform != null) {
       engineLayer = builder.pushTransform(
         _lastTransform!.storage,
-        oldLayer: engineLayer as TransformEngineLayer?,
+        // NOTE MODIFIED [_engineLayer] to [engineLayer]
+        oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
       addChildrenToScene(builder);
       builder.pop();
-      _lastOffset = layerOffset;
+      _lastOffset = unlinkedOffset;
     } else {
       _lastOffset = null;
-      final matrix = Matrix4.translationValues(0, 0, 0);
+      final matrix =
+          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
-        oldLayer: engineLayer as TransformEngineLayer?,
+        oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
       addChildrenToScene(builder);
       builder.pop();
@@ -452,15 +417,19 @@ class _CustomFollowerLayer extends ContainerLayer {
     assert(child != null);
     if (_lastTransform != null) {
       transform.multiply(_lastTransform!);
+    } else {
+      transform.multiply(
+          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
     }
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<MyLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
+    // NOTE MODIFIED
     properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(
       'linkedOffsetCallback',
       linkedOffsetCallback,
