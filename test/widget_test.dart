@@ -623,7 +623,7 @@ Future<void> main() async {
           'PortalTarget('
           "anchor: Instance of 'Filled', "
           'closeDuration: 0:00:05.000000, '
-          'portalFollower: Text, child: Text).\n'),
+          'portalFollower: Text, has ancestorPortalSelector, child: Text).\n'),
     );
   });
 
