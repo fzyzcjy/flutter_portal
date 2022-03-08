@@ -59,7 +59,7 @@ abstract class Anchor {
   });
 
   /// Whether to enable the layer linking logic.
-  bool get enableLayerLinking => true;
+  bool get enablePortalFollowerLinking => true;
 }
 
 /// The follower element should ignore any information about the target and
@@ -86,7 +86,7 @@ class Filled extends Anchor {
   }
 
   @override
-  bool get enableLayerLinking => false;
+  bool get enablePortalFollowerLinking => false;
 }
 
 /// Align a point of the follower element with a point on the target element
