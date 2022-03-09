@@ -12,8 +12,6 @@ import 'portal.dart';
 import 'portal_link.dart';
 import 'portal_target_theater.dart';
 
-// todo(creativecreatorormaybenot): update target docs.
-
 /// A widget that renders its follower in a different location of the widget
 /// tree.
 ///
