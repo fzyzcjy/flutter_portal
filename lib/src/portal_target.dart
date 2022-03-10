@@ -270,7 +270,7 @@ class _PortalTargetState extends State<PortalTarget> {
       throw PortalNotFoundError._(widget);
     }
 
-    if (!widget.anchor.enablePortalFollowerLinking) {
+    if (widget.anchor is Filled) {
       return PortalTargetTheater(
         portalFollower: _visible ? widget.portalFollower : null,
         anchor: widget.anchor,
