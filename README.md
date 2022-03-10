@@ -44,8 +44,9 @@ Flutter_portal tries to fix all of these:
   This makes showing an overlay as simple as doing a `setState` – which combines
   nicely with `RestorableProperty`.
 
-- The overlay has access to the same Theme and the different providers than
-  the widget that showed the overlay.
+- The overlay entry is build with its intuitive parent as its `context`, instead of using 
+  the far-away overlay as its `context`. Thus, it has access to the same Theme and the
+  different providers than the widget that showed the overlay.
 
 ## Install
 
