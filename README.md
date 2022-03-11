@@ -1,15 +1,6 @@
 [![Build Status](https://travis-ci.org/rrousselGit/flutter_portal.svg?branch=master)](https://travis-ci.org/rrousselGit/flutter_portal)
 [![pub package](https://img.shields.io/pub/v/flutter_portal.svg)](https://pub.dartlang.org/packages/flutter_portal) [![codecov](https://codecov.io/gh/rrousselGit/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/rrousselGit/flutter_portal)
 
-## Call for maintainer
-
-
-I (@rrousselGit) am sadly unable to maintain flutter_portal at the moment due to a lack of time, and would like to find
-a new maintainer.  
-If you are interested in taking over flutter_portal, open an issue saying that you are interested or reach out to me at darky12s@gmail.com.
-
-Thanks!
-
 ## Motivation
 
 A common use-case for UIs is to show "overlays". They come in all shapes and forms:
@@ -327,3 +318,17 @@ There are a few anchors that are implemented by default, e.g. `Aligned` or
 [addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
 [portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
 [portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
+
+## Acknowledgement
+
+Owners
+
+* [@rrousselGit](https://github.com/rrousselGit): The former owner of this package. Create this package in December 2019, and majorly maintain until early 2022. Contributions include: Implementation of the package, including code, documentations, examples, etc. Change algorithms of rendering. Remove PortalEntry's generic. Allow delaying the disappearance of PortalEntry, useful for leave animations. 
+* [@fzyzcjy](https://github.com/fzyzcjy): The current owner of this package. Contributions include: Allow PortalEntry that binds to a ancestor but not nearest Portal. Make those modified-from-Flutter code in sync with latest Flutter code, with explicit markers to improve maintainability, also obtaining updates and bugfixs. Refactor the code to improve quality. Make the anchoring PR work on stable Flutter.
+
+Contributors
+
+* [@creativecreatorormaybenot](https://github.com/creativecreatorormaybenot): New anchoring logic for advanced use cases, making anchors more flexible, improving code quality, and enhancing non-fragility without additional layout/paint calls.
+* [@Jjagg](https://github.com/Jjagg): Migrate to NNBD.
+* [@mono0926](https://github.com/mono0926): Update dependencies and doc.
+* [@tepcii](https://github.com/tepcii) and [@nilsreichardt](https://github.com/nilsreichardt): Fix doc.
