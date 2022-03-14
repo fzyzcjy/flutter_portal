@@ -4,7 +4,7 @@
 
 # [flutter_portal](https://github.com/fzyzcjy/flutter_portal): Overlay/OverlayEntry, but declarative, context-aware, and elegant
 
-Want to show overlays - tooltips, contextual menus, dialogs, bubbles, etc? This library is an enhancement and replacement to Flutter's built-in [Overlay]/[OverlayEntry].
+Want to show floating overlays - tooltips, contextual menus, dialogs, bubbles, etc? This library is an enhancement and replacement to Flutter's built-in [Overlay]/[OverlayEntry].
 
 ## 🚀 Advantages
 
