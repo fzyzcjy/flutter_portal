@@ -31,6 +31,8 @@ PortalTarget(
 )
 ```
 
+To migrate from 0.x to 1.x, see the last section of the readme.
+
 ## 🪜 Examples
 
 Check-out the `examples` folder for examples on how to use flutter_portal:
@@ -160,7 +162,7 @@ PortalTarget(
     follower: Alignment.topLeft,
     target: Alignment.topRight,
   ),
-  portal: Material(...),
+  portalFollower: Material(...),
   child: RaisedButton(...),
 )
 ```
@@ -298,6 +300,41 @@ defined based on the attributes of the associated portal, target, and follower.
 
 There are a few anchors that are implemented by default, e.g. `Aligned` or
 `Filled`.
+
+## ⛵ Migration from 0.x
+
+There are some breaking changes (mostly introduced by [#44](https://github.com/fzyzcjy/flutter_portal/pull/44)) from 0.x to 1.0, but it can be easily migrated. The following:
+
+```dart
+PortalEntry(
+  portalAnchor: Alignment.topLeft,
+  childAnchor: Alignment.topRight,
+  portal: MyAwesomePortalWidget(),
+  child: MyAwesomeChildWidget(),
+)
+```
+
+Becomes:
+
+```dart
+PortalTarget(
+  anchor: const Aligned(
+    follower: Alignment.topLeft,
+    target: Alignment.topRight,
+  ),
+  portalFollower: MyAwesomePortalWidget(),
+  child: MyAwesomeChildWidget(),
+)
+```
+
+If you originally use `PortalEntry` without `portalAnchor`/`childAnchor` (i.e. make it fullscreen), then you can write as:
+
+```dart
+PortalTarget(
+  anchor: const Filled(),
+  ...
+)
+```
 
 ## ✨ Acknowledgement
 
