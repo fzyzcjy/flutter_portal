@@ -42,20 +42,28 @@ Flutter_portal tries to fix all of these:
 
 ## Install
 
-First, you will need to add `portal` to your `pubspec.yaml`:
+First, you will need to add this library to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter:
-    sdk: flutter
-  flutter_portal: ^0.4.0
+  ...
+  flutter_portal: ^1.0.0
 ```
 
-Then, run `flutter packages get` in your terminal.
+Then, run `flutter pub get` in your terminal.
 
 ## Examples
 
-Make sure to check-out the `examples` folder for examples on how to use flutter_portal.
+Check-out the `examples` folder for examples on how to use flutter_portal:
+
+* [Contextual menu](example/lib/contextual_menu.dart)
+* [Date picker](example/lib/date_picker.dart)
+* [Discovery (Onboarding view)](example/lib/discovery.dart)
+* [Medium clap](example/lib/medium_clap.dart)
+* [Modal](example/lib/modal.dart)
+* [Rounded corners](example/lib/rounded_corners.dart)
+
+Partial screenshots:
 
 | Contextual menu                                                                                                                                                        | Onboarding view                                                                                                                                        |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -177,7 +185,6 @@ PortalEntry(
 <p align="center">
 <img width="200px" src="doc/usage_c.png">
 </p>
-
 What this code means is, this will align the top-left of our menu with the
 top-right or the `RaisedButton`.
 With this, our menu is no-longer full-screen and is now located to the right
@@ -314,12 +321,6 @@ defined based on the attributes of the associated portal, target, and follower.
 There are a few anchors that are implemented by default, e.g. `Aligned` or
 `Filled`.
 
-[overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
-[overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
-[addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
-[portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
-[portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
-
 ## Acknowledgement
 
 Owners
@@ -333,3 +334,9 @@ Contributors
 * [@Jjagg](https://github.com/Jjagg): Migrate to NNBD.
 * [@mono0926](https://github.com/mono0926): Update dependencies and doc.
 * [@tepcii](https://github.com/tepcii) and [@nilsreichardt](https://github.com/nilsreichardt): Fix doc.
+
+[overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
+[overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
+[addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
+[portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
+[portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
