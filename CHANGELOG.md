@@ -1,4 +1,4 @@
-# Unreleased
+# 1.0.0
 
 * New anchoring logic for advanced use cases #44 (@creativecreatorormaybenot for the main PR, @fzyzcjy for Flutter stable compatibility)
 * Allow PortalEntry that binds to a ancestor but not nearest Portal #45 (@fzyzcjy)
