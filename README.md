@@ -54,26 +54,27 @@ Partial screenshots:
 
 ## Usage
 
+1. Add the [Portal] widget. For example, place it above `MaterialApp`. Only one [Portal] is needed per app.
+2. Use [PortalTarget]s whenever you want to show some overlays.
+
+## Tutorial: Show a contextual menu
+
+In this example, we will see how we can use flutter_portal to show a menu
+after clicking on a `RaisedButton`.
+
 ### Add the [Portal] widget
 
-Before doing anything, you must insert the [Portal] widget in your widget tree.
-This widget enabled flutter_portal in your project.
+Before doing anything, you must insert the [Portal] widget in your widget tree. The follower widgets will behave as if they are inserted as children of this widget.
 
 You can place this [Portal] above `MaterialApp` or near the root of a route:
 
 ```dart
 Portal(
-  child: MaterialApp(
-    ...
-  )
+  child: MaterialApp(...)
 )
 ```
 
-### Showing a contextual menu
-
-In this example, we will see how we can use flutter_portal to show a menu
-after clicking on a `RaisedButton`.
-The menu will be aligned to the left of our button.
+### The button
 
 First, we need to create a `StatefulWidget` that renders our `RaisedButton`:
 
@@ -101,30 +102,29 @@ class _MenuExampleState extends State<MenuExample> {
 <p align="center">
 <img src="doc/usage_a.png" alt="image" width="200px">
 </p>
+### The menu - initial iteration
 
-Then, we need to insert our [PortalEntry] in the widget tree.
+Then, we need to insert our [PortalTarget] in the widget tree.
 
 We want our contextual menu to render right next to our `RaisedButton`.
-As such, our [PortalEntry] should be the parent of `RaisedButton` like so:
+As such, our [PortalTarget] should be the parent of `RaisedButton` like so:
 
 ```dart
-Center(
-  child: PortalEntry(
-    visible: // TODO
-    portal: // TODO
-    child: RaisedButton(
-      ...
-    ),
-  ),
-)
+child: PortalTarget(
+  visible: // TODO
+  anchor: // TODO
+  portalFollower: // TODO
+  child: RaisedButton(...),
+),
 ```
 
-We can pass our menu to [PortalEntry]:
+We can pass our menu to [PortalTarget]:
 
 ```dart
-PortalEntry(
+PortalTarget(
   visible: true,
-  portal: Material(
+  anchor: Filled(),
+  portalFollower: Material(
     elevation: 8,
     child: IntrinsicWidth(
       child: Column(
@@ -146,20 +146,22 @@ PortalEntry(
 
 At this stage, you may notice two things:
 
-- our menu is full-screen
+- our menu is full-screen (because `anchor` is `Filled`)
 - our menu is always visible (because `visible` is _true_)
 
-Let's fix the full-screen issue first and change our code so that our
-menu renders on the _right_ of our `RaisedButton`.
+### Change alignment
 
-To align our menu around our button, we can specify the `childAnchor` and
-`portalAnchor` parameters:
+Let's fix the full-screen issue first and change our code so that our menu renders on the _right_ of our `RaisedButton`.
+
+To align our menu around our button, we can change the `anchor` parameter:
 
 ```dart
-PortalEntry(
+PortalTarget(
   visible: true,
-  portalAnchor: Alignment.topLeft,
-  childAnchor: Alignment.topRight,
+  anchor: const Aligned(
+    follower: Alignment.topLeft,
+    target: Alignment.topRight,
+  ),
   portal: Material(...),
   child: RaisedButton(...),
 )
@@ -169,9 +171,9 @@ PortalEntry(
 <img width="200px" src="doc/usage_c.png">
 </p>
 What this code means is, this will align the top-left of our menu with the
-top-right or the `RaisedButton`.
-With this, our menu is no-longer full-screen and is now located to the right
-of our button.
+top-right or the `RaisedButton`. With this, our menu is no-longer full-screen and is now located to the right of our button.
+
+### Show the menu
 
 Finally, we can update our code such that the menu show only when clicking
 on the button.
@@ -189,7 +191,7 @@ class _MenuExampleState extends State<MenuExample> {
 We then pass this `isMenuOpen` variable to our [PortalEntry]:
 
 ```dart
-PortalEntry(
+PortalTarget(
   visible: isMenuOpen,
   ...
 )
@@ -209,31 +211,26 @@ RaisedButton(
 ),
 ```
 
+### Hide the menu
+
 One final step is to close the menu when the user clicks randomly outside
 of the menu.
 
-This can be implemented with a second [PortalEntry] combined with [GestureDetector]
-like so:
+This can be implemented with a second [PortalEntry] combined with [GestureDetector] like so:
 
 ```dart
-Center(
-  child: PortalEntry(
-    visible: isMenuOpen,
-    portal: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        setState(() {
-          isMenuOpen = false;
-        });
-      },
-    ),
-    child: PortalEntry(
-      // our previous PortalEntry
-      portal: Material(...)
-      child: RaisedButton(...),
-    ),
+PortalTarget(
+  visible: isMenuOpen,
+  portal: GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: () {
+      setState(() {
+        isMenuOpen = false;
+      });
+    },
   ),
-)
+  ...
+),
 ```
 
 ## Concepts
@@ -320,6 +317,6 @@ Contributors
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
-[addpostframecallback]: https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html
 [portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
 [portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
+[portaltarget]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalTarget-class.html
