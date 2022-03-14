@@ -2,55 +2,38 @@
 [![pub package](https://img.shields.io/pub/v/flutter_portal.svg)](https://pub.dartlang.org/packages/flutter_portal)
 [![codecov](https://codecov.io/gh/fzyzcjy/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/fzyzcjy/flutter_portal)
 
-## Motivation
+## [flutter_portal](https://github.com/fzyzcjy/flutter_portal): Overlay/OverlayEntry, but declarative, context-aware, and elegant
 
-A common use-case for UIs is to show "overlays". They come in all shapes and forms:
+Want to show overlays - tooltips, contextual menus, dialogs, bubbles, etc? This library is an enhancement and replacement to Flutter's built-in [Overlay]/[OverlayEntry].
 
-- tooltips
-- contextual menus
-- dialogs
-- etc
+## 🚀 Advantages
 
-In Flutter, these are usually shown by using [Overlay]/[OverlayEntry].
-The problem is, [OverlayEntry] is **not** a widget, and is manipulated using
-imperative code.
+Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]?
 
-This has a few issues:
+* **Declarative, not imperative**: Like everything else in the Flutter world, overlays (portals) are declarative now. Simply put your floating UI in the normal widget tree. <sub>The [OverlayEntry] is **not** a widget, and is manipulated imperatively using `.insert()` etc.</sub>
+* **Alignment, done easily**: Built-in support for aligning an overlay next to a UI component. <sub>A custom contextual menu from scratch in a few lines of code; while [Overlay] makes it nontrivial to align the tooltip/menu next to a widget.</sub>
+* **The intuitive `Context`**: The overlay entry is build with its intuitive parent as its `context`. <sub>While the [Overlay] approach uses the far-away overlay as its `context`.</sub>
 
-- Implementing a custom tooltip/contextual menu is difficult.
-  It is not trivial to align the tooltip/menu next to a widget.
+As a consequence, also have the following pros:
 
-- When our application is killed by the OS, the state of our modals are not restored.
-  There are _some_ way to to that, but it is signicantly harder than using `RestorableProperty`.
+* **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely.<sub>When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
+* **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>While the [Overlay] approach will yield confusing Themes and providers.</sub>
 
-- It causes issues with `Theme` and other context-based variables.
-  For some confusing reasons, it is possible that the theme obtained by `Theme.of`
-  inside dialogs/menus is different from the theme of the widget that showed these overlays.
+Show me the code:
 
-Flutter_portal tries to fix all of these:
-
-- It has built-in support for aligning an overlay next to a UI component.
-  You can create a custom contextual menu from scratch in a few lines of code.
-
-- Overlays are now showed declaratively, by inserting them in the widget tree.
-  This makes showing an overlay as simple as doing a `setState` – which combines
-  nicely with `RestorableProperty`.
-
-- The overlay entry is build with its intuitive parent as its `context`, instead of using 
-  the far-away overlay as its `context`. Thus, it has access to the same Theme and the
-  different providers than the widget that showed the overlay.
-
-## Install
-
-First, you will need to add this library to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  ...
-  flutter_portal: ^1.0.0
+```dart
+PortalTarget(
+  // Declarative
+  portalFollower: MyAwesomeOverlayWidget(),
+  // Align anywhere you like. Now `portalFollower` floats at right of `child`
+  anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topRight),
+  child: MyChildWidget(),
+)
 ```
 
-Then, run `flutter pub get` in your terminal.
+## Installation
+
+Follow the [standard](https://docs.flutter.dev/development/packages-and-plugins/using-packages) procedure of installing this package. The simplest way may be `flutter pub add flutter_portal`.
 
 ## Examples
 
@@ -321,7 +304,7 @@ defined based on the attributes of the associated portal, target, and follower.
 There are a few anchors that are implemented by default, e.g. `Aligned` or
 `Filled`.
 
-## Acknowledgement
+## ✨ Acknowledgement
 
 Owners
 
