@@ -34,4 +34,12 @@ jobs:
         run: flutter analyze
 
       - name: Run tests
-        run: flutter test
+        run: flutter test --coverage --coverage-path coverage/lcov.info
+
+      - uses: codecov/codecov-action@v2
+        with:
+          # token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: main-tests
+          fail_ci_if_error: true
+          verbose: true
