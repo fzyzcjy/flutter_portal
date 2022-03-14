@@ -19,7 +19,7 @@ As a consequence, also have the following pros:
 * **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely.<sub>When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
 * **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>While the [Overlay] approach will yield confusing Themes and providers.</sub>
 
-Show me the code:
+### 👀 Show me the code
 
 ```dart
 PortalTarget(
@@ -31,11 +31,7 @@ PortalTarget(
 )
 ```
 
-## Installation
-
-Follow the [standard](https://docs.flutter.dev/development/packages-and-plugins/using-packages) procedure of installing this package. The simplest way may be `flutter pub add flutter_portal`.
-
-## Examples
+## 🪜 Examples
 
 Check-out the `examples` folder for examples on how to use flutter_portal:
 
@@ -52,12 +48,13 @@ Partial screenshots:
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | <img width="300px" alt="Screenshot 2020-10-04 at 22 20 30" src="doc/contextual_menu.png"> | <img src="doc/onboarding_view.gif" alt="Discovery example" style="300px"> |
 
-## Usage
+## 🧭 Usage
 
-1. Add the [Portal] widget. For example, place it above `MaterialApp`. Only one [Portal] is needed per app.
-2. Use [PortalTarget]s whenever you want to show some overlays.
+1. Install it. Follow the [standard](https://docs.flutter.dev/development/packages-and-plugins/using-packages) procedure of installing this package. The simplest way may be `flutter pub add flutter_portal`.
+2. Add the [Portal] widget. For example, place it above `MaterialApp`. Only one [Portal] is needed per app.
+3. Use [PortalTarget]s whenever you want to show some overlays.
 
-## Tutorial: Show a contextual menu
+## 📚 Tutorial: Show a contextual menu
 
 In this example, we will see how we can use flutter_portal to show a menu
 after clicking on a `RaisedButton`.
@@ -233,7 +230,7 @@ PortalTarget(
 ),
 ```
 
-## Concepts
+## 🎼 Concepts
 
 There are a few concepts that are useful to fully understand when using
 `flutter_portal`. That is especially true if you want to support custom use
