@@ -7,7 +7,7 @@ repository:
   name: flutter_portal
 
   # A short description of the repository that will show up on GitHub
-  description: Overlay/OverlayEntry, but better
+  description: Overlay/OverlayEntry, but declarative, context-aware, and elegant
 
   # A URL with more information about the repository
   homepage: https://pub.dev/packages/flutter_portal

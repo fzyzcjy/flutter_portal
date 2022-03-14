@@ -2,7 +2,7 @@
 [![pub package](https://img.shields.io/pub/v/flutter_portal.svg)](https://pub.dartlang.org/packages/flutter_portal)
 [![codecov](https://codecov.io/gh/fzyzcjy/flutter_portal/branch/master/graph/badge.svg)](https://codecov.io/gh/fzyzcjy/flutter_portal)
 
-## [flutter_portal](https://github.com/fzyzcjy/flutter_portal): Overlay/OverlayEntry, but declarative, context-aware, and elegant
+# [flutter_portal](https://github.com/fzyzcjy/flutter_portal): Overlay/OverlayEntry, but declarative, context-aware, and elegant
 
 Want to show overlays - tooltips, contextual menus, dialogs, bubbles, etc? This library is an enhancement and replacement to Flutter's built-in [Overlay]/[OverlayEntry].
 
