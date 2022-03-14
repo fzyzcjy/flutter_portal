@@ -10,14 +10,14 @@ Want to show floating overlays - tooltips, contextual menus, dialogs, bubbles, e
 
 Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]?
 
-* **Declarative, not imperative**: Like everything else in the Flutter world, overlays (portals) are declarative now. Simply put your floating UI in the normal widget tree. <sub>The [OverlayEntry] is **not** a widget, and is manipulated imperatively using `.insert()` etc.</sub>
-* **Alignment, done easily**: Built-in support for aligning an overlay next to a UI component. <sub>A custom contextual menu from scratch in a few lines of code; while [Overlay] makes it nontrivial to align the tooltip/menu next to a widget.</sub>
-* **The intuitive `Context`**: The overlay entry is build with its intuitive parent as its `context`. <sub>While the [Overlay] approach uses the far-away overlay as its `context`.</sub>
+* **Declarative, not imperative**: Like everything else in the Flutter world, overlays (portals) are declarative now. Simply put your floating UI in the normal widget tree. <sub>Compare: The [OverlayEntry] is **not** a widget, and is manipulated imperatively using `.insert()` etc.</sub>
+* **Alignment, done easily**: Built-in support for aligning an overlay next to a UI component. <sub>Compare: A custom contextual menu from scratch in a few lines of code; while [Overlay] makes it nontrivial to align the tooltip/menu next to a widget.</sub>
+* **The intuitive `Context`**: The overlay entry is build with its intuitive parent as its `context`. <sub>Compare The [Overlay] approach uses the far-away overlay as its `context`.</sub>
 
 As a consequence, also have the following pros:
 
-* **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely.<sub>When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
-* **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>While the [Overlay] approach will yield confusing Themes and providers.</sub>
+* **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely. <sub>Compare: When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
+* **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>Compare: The [Overlay] approach will yield confusing Themes and providers.</sub>
 
 ### 👀 Show me the code
 
