@@ -99,6 +99,7 @@ class _MenuExampleState extends State<MenuExample> {
 <p align="center">
 <img src="doc/usage_a.png" alt="image" width="200px">
 </p>
+
 ### The menu - initial iteration
 
 Then, we need to insert our [PortalTarget] in the widget tree.
