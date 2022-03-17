@@ -264,7 +264,8 @@ class CustomFollowerLayer extends ContainerLayer {
     // and providing the previous layer as the child.
     // print('hi _collectTransformForLayerChain layers=$layers');
     for (var index = layers.length - 1; index > 0; index -= 1) {
-      layers[index]?.applyTransform(layers[index - 1], result);
+      // NOTE MODIFIED change `applyTransform` to `hackyApplyTransform`
+      layers[index]?._hackyApplyTransform(layers[index - 1], result);
     }
     return result;
   }
@@ -367,7 +368,8 @@ class CustomFollowerLayer extends ContainerLayer {
     // Further transforms the coordinate system to a hypothetical child (null)
     // of the leader layer, to account for the leader's additional paint offset
     // and layer offset (LeaderLayer._lastOffset).
-    leader.applyTransform(null, forwardTransform);
+    // NOTE MODIFIED change `applyTransform` to `hackyApplyTransform`
+    leader._hackyApplyTransform(null, forwardTransform);
     // NOTE MODIFIED compute the [linkedOffset] by callback
     final linkedOffset = linkedOffsetCallback(leader.offset);
     forwardTransform.translate(linkedOffset.dx, linkedOffset.dy);
@@ -444,5 +446,21 @@ class CustomFollowerLayer extends ContainerLayer {
       linkedOffsetCallback,
     ));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
+  }
+}
+
+extension on ContainerLayer {
+  // fixes https://github.com/fzyzcjy/flutter_portal/issues/56
+  void _hackyApplyTransform(Layer? child, Matrix4 transform) {
+    final that = this;
+
+    // LeaderLayer in Flutter 2.8 - 2.10 is buggy
+    if (that is LeaderLayer) {
+      if (that.offset != Offset.zero) transform.translate(that.offset.dx, that.offset.dy);
+      return;
+    }
+
+    // normal case
+    return applyTransform(child, transform);
   }
 }
