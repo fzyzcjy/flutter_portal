@@ -15,6 +15,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   const CustomCompositedTransformTarget({
     Key? key,
     required this.link,
+    required this.debugLabel,
     Widget? child,
   })  : assert(link != null),
         super(key: key, child: child);
@@ -22,17 +23,23 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   /// @nodoc
   final CustomLayerLink link;
 
+  // NOTE MODIFIED add
+  final String? debugLabel;
+
   @override
   CustomRenderLeaderLayer createRenderObject(BuildContext context) {
     return CustomRenderLeaderLayer(
       link: link,
+      debugLabel: debugLabel,
     );
   }
 
   @override
   void updateRenderObject(
       BuildContext context, CustomRenderLeaderLayer renderObject) {
-    renderObject.link = link;
+    renderObject
+      ..link = link
+      ..debugLabel = debugLabel;
   }
 }
 
@@ -46,6 +53,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     required this.portalLink,
     required this.targetSize,
     required this.anchor,
+    required this.debugLabel,
     Widget? child,
   }) : super(key: key, child: child);
 
@@ -61,6 +69,9 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   /// @nodoc
   final Size targetSize;
 
+  // NOTE MODIFIED add
+  final String? debugLabel;
+
   @override
   CustomRenderFollowerLayer createRenderObject(BuildContext context) {
     return CustomRenderFollowerLayer(
@@ -68,6 +79,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       link: link,
       portalLink: portalLink,
       targetSize: targetSize,
+      debugLabel: debugLabel,
     );
   }
 
@@ -78,6 +90,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       ..link = link
       ..portalLink = portalLink
       ..targetSize = targetSize
-      ..anchor = anchor;
+      ..anchor = anchor
+      ..debugLabel = debugLabel;
   }
 }

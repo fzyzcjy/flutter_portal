@@ -205,6 +205,7 @@ class PortalTarget extends StatefulWidget {
     this.closeDuration,
     this.portalFollower,
     this.ancestorPortalSelector = defaultAncestorPortalSelector,
+    this.debugLabel,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
         super(key: key);
@@ -215,6 +216,7 @@ class PortalTarget extends StatefulWidget {
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
   final AncestorPortalSelector ancestorPortalSelector;
+  final String? debugLabel;
   final Widget child;
 
   @override
@@ -229,6 +231,7 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
       ..add(ObjectFlagProperty<AncestorPortalSelector?>.has(
           'ancestorPortalSelector', ancestorPortalSelector))
+      ..add(DiagnosticsProperty('debugLabel', debugLabel))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 }
@@ -282,6 +285,7 @@ class _PortalTargetState extends State<PortalTarget> {
       children: <Widget>[
         CustomCompositedTransformTarget(
           link: _link,
+          debugLabel: widget.debugLabel,
           child: widget.child,
         ),
         if (_visible)
@@ -299,6 +303,7 @@ class _PortalTargetState extends State<PortalTarget> {
                     portalLink: scope.portalLink,
                     anchor: widget.anchor,
                     targetSize: targetSize,
+                    debugLabel: widget.debugLabel,
                     child: widget.portalFollower,
                   ),
                   child: const SizedBox.shrink(),

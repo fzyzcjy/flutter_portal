@@ -14,9 +14,11 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderLeaderLayer({
     required CustomLayerLink link,
+    required String? debugLabel,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
+        _debugLabel = debugLabel,
         super(child);
 
   /// @nodoc
@@ -41,6 +43,15 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   // [debugDoingThisResize] and [debugDoingThisLayout] are false.
   Size? _previousLayoutSize;
 
+  // NOTE MODIFIED add
+  String? get debugLabel => _debugLabel;
+  String? _debugLabel;
+  set debugLabel(String? value) {
+    if (_debugLabel == value) return;
+    _debugLabel = value;
+    markNeedsPaint();
+  }
+
   @override
   void performLayout() {
     super.performLayout();
@@ -51,12 +62,13 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (layer == null) {
-      layer = CustomLeaderLayer(link: link, offset: offset);
+      layer = CustomLeaderLayer(link: link, offset: offset, debugLabel: debugLabel);
     } else {
       final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
       leaderLayer
         ..link = link
-        ..offset = offset;
+        ..offset = offset
+        ..debugLabel = debugLabel;
     }
     context.pushLayer(layer!, super.paint, Offset.zero);
     assert(layer != null);
@@ -66,6 +78,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
 }
 
@@ -78,11 +91,13 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     required PortalLink portalLink,
     required Size targetSize,
     required Anchor anchor,
+    required String? debugLabel,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
         _portalLink = portalLink,
         _targetSize = targetSize,
+        _debugLabel = debugLabel,
         super(child);
 
   // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
@@ -133,6 +148,15 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
       return;
     }
     _targetSize = value;
+    markNeedsPaint();
+  }
+
+  // NOTE MODIFIED add
+  String? get debugLabel => _debugLabel;
+  String? _debugLabel;
+  set debugLabel(String? value) {
+    if (_debugLabel == value) return;
+    _debugLabel = value;
     markNeedsPaint();
   }
 
@@ -220,11 +244,13 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
       layer = CustomFollowerLayer(
         link: link,
         linkedOffsetCallback: _computeLinkedOffset,
+        debugLabel: debugLabel,
       );
     } else {
       layer
         ?..link = link
-        ..linkedOffsetCallback = _computeLinkedOffset;
+        ..linkedOffsetCallback = _computeLinkedOffset
+        ..debugLabel = debugLabel;
     }
 
     context.pushLayer(
@@ -255,5 +281,6 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
+    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
 }

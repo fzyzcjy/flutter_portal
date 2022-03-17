@@ -69,7 +69,7 @@ class CustomLayerLink {
 class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
   CustomLeaderLayer(
-      {required CustomLayerLink link, Offset offset = Offset.zero})
+      {required CustomLayerLink link, Offset offset = Offset.zero, required this.debugLabel})
       : assert(link != null),
         _link = link,
         _offset = offset;
@@ -102,6 +102,9 @@ class CustomLeaderLayer extends ContainerLayer {
       markNeedsAddToScene();
     }
   }
+
+  // NOTE MODIFIED add
+  String? debugLabel;
 
   @override
   void attach(Object owner) {
@@ -147,6 +150,7 @@ class CustomLeaderLayer extends ContainerLayer {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
 }
 
@@ -173,6 +177,7 @@ class CustomFollowerLayer extends ContainerLayer {
     // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
     // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
+    required this.debugLabel,
   });
 
   CustomLayerLink link;
@@ -194,6 +199,9 @@ class CustomFollowerLayer extends ContainerLayer {
   Matrix4? _lastTransform;
   Matrix4? _invertedTransform;
   bool _inverseDirty = true;
+
+  // NOTE MODIFIED add
+  String? debugLabel;
 
   // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
   // but we just make it a constant zero.
@@ -254,6 +262,7 @@ class CustomFollowerLayer extends ContainerLayer {
     final result = Matrix4.identity();
     // Apply each layer to the matrix in turn, starting from the last layer,
     // and providing the previous layer as the child.
+    // print('hi _collectTransformForLayerChain layers=$layers');
     for (var index = layers.length - 1; index > 0; index -= 1) {
       layers[index]?.applyTransform(layers[index - 1], result);
     }
@@ -434,5 +443,6 @@ class CustomFollowerLayer extends ContainerLayer {
       'linkedOffsetCallback',
       linkedOffsetCallback,
     ));
+    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
 }
