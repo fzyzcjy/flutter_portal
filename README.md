@@ -341,7 +341,7 @@ PortalTarget(
 Owners
 
 * [@rrousselGit](https://github.com/rrousselGit): The former owner of this package. Create this package in December 2019, and majorly maintain until early 2022. Contributions include: Implementation of the package, including code, documentations, examples, etc. Change algorithms of rendering. Remove PortalEntry's generic. Allow delaying the disappearance of PortalEntry, useful for leave animations. 
-* [@fzyzcjy](https://github.com/fzyzcjy): The current owner of this package. Contributions include: Allow PortalEntry that binds to a ancestor but not nearest Portal. Fix the `Failed assertion: '_lastOffset != null'` bug. Make those modified-from-Flutter code in sync with latest Flutter code, with explicit markers to improve maintainability, also obtaining updates and bugfixs. Refactor the code to improve quality. Make the anchoring PR work on stable Flutter. Add `debugLabel` feature.
+* [@fzyzcjy](https://github.com/fzyzcjy): The current owner of this package. Contributions include: Allow PortalEntry that binds to a ancestor but not nearest Portal. Fix the `Failed assertion: '_lastOffset != null'` bug in various cases, which should exist in Flutter 2.8~2.10 and flutter_portal from old to new. Make those modified-from-Flutter code in sync with latest Flutter code, with explicit markers to improve maintainability, also obtaining updates and bugfixs. Refactor the code to improve quality. Make the anchoring PR work on stable Flutter. Add `debugLabel` feature.
 
 Contributors
 
