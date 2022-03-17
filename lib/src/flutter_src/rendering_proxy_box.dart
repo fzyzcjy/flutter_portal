@@ -62,7 +62,8 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (layer == null) {
-      layer = CustomLeaderLayer(link: link, offset: offset, debugLabel: debugLabel);
+      layer =
+          CustomLeaderLayer(link: link, offset: offset, debugLabel: debugLabel);
     } else {
       final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
       leaderLayer

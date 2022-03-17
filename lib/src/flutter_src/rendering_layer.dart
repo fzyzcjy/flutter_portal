@@ -69,7 +69,9 @@ class CustomLayerLink {
 class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
   CustomLeaderLayer(
-      {required CustomLayerLink link, Offset offset = Offset.zero, required this.debugLabel})
+      {required CustomLayerLink link,
+      Offset offset = Offset.zero,
+      required this.debugLabel})
       : assert(link != null),
         _link = link,
         _offset = offset;
@@ -456,7 +458,8 @@ extension on ContainerLayer {
 
     // LeaderLayer in Flutter 2.8 - 2.10 is buggy
     if (that is LeaderLayer) {
-      if (that.offset != Offset.zero) transform.translate(that.offset.dx, that.offset.dy);
+      if (that.offset != Offset.zero)
+        transform.translate(that.offset.dx, that.offset.dy);
       return;
     }
 
