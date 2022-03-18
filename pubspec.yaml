@@ -1,6 +1,6 @@
 name: flutter_portal
 version: 0.4.0
-description: Evolved Overlay/OverlayEntry - declarative, context-aware, and elegant
+description: Evolved Overlay/OverlayEntry - declarative not imperative, intuitive-context, and easy-alignment
 homepage: https://github.com/rrousselGit/flutter_portal
 
 environment:
