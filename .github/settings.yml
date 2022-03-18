@@ -7,7 +7,7 @@ repository:
   name: flutter_portal
 
   # A short description of the repository that will show up on GitHub
-  description: Evolved Overlay/OverlayEntry - declarative, context-aware, and elegant
+  description: Evolved Overlay/OverlayEntry - declarative not imperative, intuitive-context, and easy-alignment
 
   # A URL with more information about the repository
   homepage: https://pub.dev/packages/flutter_portal
