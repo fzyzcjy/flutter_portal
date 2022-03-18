@@ -23,10 +23,11 @@ As a consequence, also have the following pros:
 
 ```dart
 PortalTarget(
-  // Declarative
+  // 1. Declarative: Just provide `portalFollower` as a normal widget
+  // 2. Intuitive BuildConext inside
   portalFollower: MyAwesomeOverlayWidget(),
-  // Align anywhere you like. Now `portalFollower` floats at right of `child`
-  anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topRight),
+  // 3. Align the "follower" relative to the "child" anywhere you like
+  anchor: Aligned.center,
   child: MyChildWidget(),
 )
 ```
