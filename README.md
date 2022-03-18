@@ -24,7 +24,7 @@ As a consequence, also have the following pros:
 ```dart
 PortalTarget(
   // 1. Declarative: Just provide `portalFollower` as a normal widget
-  // 2. Intuitive BuildConext inside
+  // 2. Intuitive BuildContext inside
   portalFollower: MyAwesomeOverlayWidget(),
   // 3. Align the "follower" relative to the "child" anywhere you like
   anchor: Aligned.center,
