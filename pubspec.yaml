@@ -8,8 +8,10 @@ environment:
   flutter: '>=1.21.0'
 
 dependencies:
+  collection: ^1.15.0
   flutter:
     sdk: flutter
+  vector_math: ^2.0.0
 
 dev_dependencies:
   flutter_test:
