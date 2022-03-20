@@ -1,7 +1,7 @@
 name: flutter_portal
-version: 0.4.0
+version: 1.0.0-dev.1
 description: Evolved Overlay/OverlayEntry - declarative not imperative, intuitive-context, and easy-alignment
-homepage: https://github.com/rrousselGit/flutter_portal
+homepage: https://github.com/fzyzcjy/flutter_portal
 
 environment:
   sdk: '>=2.16.0 <3.0.0'
