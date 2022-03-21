@@ -49,7 +49,7 @@ Partial screenshots:
 
 | Contextual menu                                                                                                                                                        | Onboarding view                                                                                                                                        |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <img width="300px" alt="Screenshot 2020-10-04 at 22 20 30" src="doc/contextual_menu.png"> | <img src="doc/onboarding_view.gif" alt="Discovery example" style="300px"> |
+| <img width="300px" src="https://github.com/fzyzcjy/flutter_portal/raw/master/doc/contextual_menu.png"> | <img src="https://github.com/fzyzcjy/flutter_portal/raw/master/doc/onboarding_view.gif" alt="Discovery example" style="300px"> |
 
 ## 🧭 Usage
 
@@ -100,7 +100,7 @@ class _MenuExampleState extends State<MenuExample> {
 ```
 
 <p align="center">
-<img src="doc/usage_a.png" alt="image" width="200px">
+<img src="https://github.com/fzyzcjy/flutter_portal/raw/master/doc/usage_a.png" alt="image" width="200px">
 </p>
 
 ### The menu - initial iteration
@@ -142,7 +142,7 @@ PortalTarget(
 ```
 
 <p align="center">
-<img width="200px" src="doc/usage_b.png">
+<img width="200px" src="https://github.com/fzyzcjy/flutter_portal/raw/master/doc/usage_b.png">
 </p>
 
 At this stage, you may notice two things:
@@ -169,7 +169,7 @@ PortalTarget(
 ```
 
 <p align="center">
-<img width="200px" src="doc/usage_c.png">
+<img width="200px" src="https://github.com/fzyzcjy/flutter_portal/raw/master/doc/usage_c.png">
 </p>
 What this code means is, this will align the top-left of our menu with the
 top-right or the `RaisedButton`. With this, our menu is no-longer full-screen and is now located to the right of our button.
