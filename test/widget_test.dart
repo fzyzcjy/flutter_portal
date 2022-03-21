@@ -1709,6 +1709,71 @@ Future<void> main() async {
     await expectLater(
         find.byKey(containerKey), matchesGoldenFile('main_scope.png'));
   });
+
+  // https://github.com/fzyzcjy/flutter_portal/issues/57
+  testWidgets('multi-Portal and nested-PortalFollower', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    const first = PortalIdentifier('first');
+    const second = PortalIdentifier('second');
+
+    final boilerplateKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Boilerplate(
+        key: boilerplateKey,
+        child: Portal(
+          identifier: first,
+          child: Container(
+            color: Colors.purple.withAlpha(130),
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+            child: Portal(
+              identifier: second,
+              child: Container(
+                color: Colors.blue.withAlpha(130),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+                child: PortalTarget(
+                  ancestorPortalSelector: (id) => id == first,
+                  // ancestorPortalSelector: (id) => id == second,
+                  anchor: Aligned.center,
+                  portalFollower: Container(
+                    color: Colors.teal.withAlpha(130),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 50),
+                    width: 200,
+                    height: 200,
+                    child: PortalTarget(
+                      // ancestorPortalSelector: (id) => id == first,
+                      ancestorPortalSelector: (id) => id == second,
+                      anchor: Aligned.center,
+                      portalFollower: Container(
+                        color: Colors.orange.withAlpha(130),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 50),
+                        width: 50,
+                        height: 50,
+                      ),
+                      child: Container(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    color: Colors.green.withAlpha(130),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(find.byKey(boilerplateKey),
+        matchesGoldenFile('multi_portal_nested_follower.png'));
+  });
 }
 
 class Boilerplate extends StatelessWidget {
