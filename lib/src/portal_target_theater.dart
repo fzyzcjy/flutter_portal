@@ -190,8 +190,15 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
     properties
       ..add(DiagnosticsProperty<PortalLink>('portalLink', portalLink))
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
-      ..add(DiagnosticsProperty<Size>('targetSize', targetSize))
-      ..add(DiagnosticsProperty<RenderBox>('branch', branch));
+      ..add(DiagnosticsProperty<Size>('targetSize', targetSize));
+  }
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() {
+    return <DiagnosticsNode>[
+      if (child != null) child!.toDiagnosticsNode(name: 'child'),
+      if (branch != null) branch!.toDiagnosticsNode(name: 'branch'),
+    ];
   }
 }
 
