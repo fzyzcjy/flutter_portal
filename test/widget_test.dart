@@ -1736,8 +1736,8 @@ Future<void> main() async {
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
                 child: PortalTarget(
                   ancestorPortalSelector: (id) => id == first,
-                  // ancestorPortalSelector: (id) => id == second,
                   anchor: Aligned.center,
+                  debugLabel: 'OuterTargetToFirstPortal',
                   portalFollower: Container(
                     color: Colors.teal.withAlpha(130),
                     padding: const EdgeInsets.symmetric(
@@ -1745,8 +1745,8 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      // ancestorPortalSelector: (id) => id == first,
                       ancestorPortalSelector: (id) => id == second,
+                      debugLabel: 'InnerTargetToSecondPortal',
                       anchor: Aligned.center,
                       portalFollower: Container(
                         color: Colors.orange.withAlpha(130),
