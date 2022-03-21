@@ -1,3 +1,7 @@
+# 1.0.0-dev.2
+
+* Fix broken images in pub
+
 # 1.0.0-dev.1
 
 * New anchoring logic for advanced use cases #44 (@creativecreatorormaybenot for the main PR, @fzyzcjy for Flutter stable compatibility)
