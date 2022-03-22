@@ -493,10 +493,13 @@ class SanityCheckNestedPortalInfo {
   String toString() => 'SanityCheckNestedPortalInfo{'
       'selfDebugLabel: $selfDebugLabel, '
       'parentDebugLabel: $parentDebugLabel, '
-      'selfScope: $selfScope, '
-      'parentScope: $parentScope, '
-      'portalLinkScopeAncestors: $portalLinkScopeAncestors'
+      'selfScope: ${_scopeToString(selfScope)}, '
+      'parentScope: ${_scopeToString(parentScope)}, '
+      'portalLinkScopeAncestors: ${portalLinkScopeAncestors.map(_scopeToString).toList()}'
       '}';
+
+  String _scopeToString(PortalLinkScope scope) =>
+      '$scope(hash=${shortHash(scope)})';
 }
 
 extension on BuildContext {
