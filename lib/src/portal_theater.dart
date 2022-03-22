@@ -58,7 +58,7 @@ class RenderPortalTheater extends RenderProxyBox {
   @override
   void markNeedsLayout() {
     for (final overlay in portalLink.overlays) {
-      overlay.markNeedsLayout();
+      overlay.overlay.markNeedsLayout();
     }
     super.markNeedsLayout();
   }
@@ -68,7 +68,7 @@ class RenderPortalTheater extends RenderProxyBox {
     super.paint(context, offset);
     for (var i = portalLink.overlays.length - 1; i >= 0; i--) {
       final overlay = portalLink.overlays.elementAt(i);
-      context.paintChild(overlay, offset);
+      context.paintChild(overlay.overlay, offset);
     }
   }
 
@@ -76,7 +76,7 @@ class RenderPortalTheater extends RenderProxyBox {
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     final globalPosition = localToGlobal(position); // #42
     for (final overlay in portalLink.overlays) {
-      if (overlay.hitTest(result, position: globalPosition /* #42 */)) {
+      if (overlay.overlay.hitTest(result, position: globalPosition /* #42 */)) {
         return true;
       }
     }

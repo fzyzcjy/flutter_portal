@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'portal.dart';
+import '../flutter_portal.dart';
 import 'portal_theater.dart';
 
 class PortalLink {
@@ -8,10 +8,29 @@ class PortalLink {
 
   BoxConstraints? get constraints => theater?.constraints;
 
-  final overlays = <RenderBox>{};
+  final overlays = <PortalLinkOverlay>{};
 
   @override
   String toString() => 'PortalLink#${shortHash(this)}';
+}
+
+@immutable
+class PortalLinkOverlay {
+  const PortalLinkOverlay(this.overlay, this.anchor);
+
+  final RenderBox overlay;
+  final Anchor anchor;
+
+  // ONLY consider overlay, does NOT consider anchor
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PortalLinkOverlay &&
+          runtimeType == other.runtimeType &&
+          overlay == other.overlay;
+
+  @override
+  int get hashCode => overlay.hashCode;
 }
 
 class PortalLinkScope extends InheritedWidget {

@@ -102,7 +102,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
 
   set branch(RenderBox? value) {
     if (_branch != null) {
-      _portalLink.overlays.remove(branch);
+      _portalLink.overlays.remove(PortalLinkOverlay(branch!, anchor));
       _portalLink.theater!.markNeedsPaint();
       dropChild(_branch!);
     }
@@ -131,7 +131,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   void detach() {
     super.detach();
     if (_branch != null) {
-      _portalLink.overlays.remove(branch);
+      _portalLink.overlays.remove(PortalLinkOverlay(branch!, anchor));
       _portalLink.theater!.markNeedsPaint();
       _branch!.detach();
     }
@@ -154,7 +154,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
       branch!.layout(constraints);
       if (_needsAddEntryInTheater) {
         _needsAddEntryInTheater = false;
-        _portalLink.overlays.add(branch!);
+        _portalLink.overlays.add(PortalLinkOverlay(branch!, anchor));
         _portalLink.theater!.markNeedsPaint();
       }
     }
