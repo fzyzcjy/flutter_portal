@@ -330,16 +330,18 @@ class _PortalTargetState extends State<PortalTarget> {
       final followerParent =
           context.dependOnInheritedElement(followerParentElement)
               as _PortalTargetTheaterFollowerParent;
+      final parentScope = followerParent.usedScope;
 
       final followerParentUsedScopeIndex =
-          portalLinkScopeAncestors.indexOf(followerParent.usedScope);
-      final selfUsedScopeIndex = portalLinkScopeAncestors.indexOf(scope);
+          portalLinkScopeAncestors.indexWhere(parentScope.linkEquals);
+      final selfUsedScopeIndex =
+          portalLinkScopeAncestors.indexWhere(scope.linkEquals);
 
       final info = SanityCheckNestedPortalInfo._(
         selfDebugLabel: widget.debugLabel,
         parentDebugLabel: followerParent.debugSelfWidget.debugLabel,
         selfScope: scope,
-        parentScope: followerParent.usedScope,
+        parentScope: parentScope,
         portalLinkScopeAncestors: portalLinkScopeAncestors,
       );
 

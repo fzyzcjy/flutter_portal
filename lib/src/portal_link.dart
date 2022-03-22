@@ -37,4 +37,6 @@ class PortalLinkScope extends InheritedWidget {
     properties.add(DiagnosticsProperty('portalLink', portalLink));
     properties.add(DiagnosticsProperty('portalIdentifier', portalIdentifier));
   }
+
+  bool linkEquals(PortalLinkScope other) => portalLink == other.portalLink;
 }
