@@ -335,22 +335,24 @@ class _PortalTargetState extends State<PortalTarget> {
           portalLinkScopeAncestors.indexOf(followerParent.usedScope);
       final selfUsedScopeIndex = portalLinkScopeAncestors.indexOf(scope);
 
+      final info = SanityCheckNestedPortalInfo._(
+        selfDebugLabel: widget.debugLabel,
+        parentDebugLabel: followerParent.debugSelfWidget.debugLabel,
+        selfScope: scope,
+        parentScope: followerParent.usedScope,
+        portalLinkScopeAncestors: portalLinkScopeAncestors,
+      );
+
       if (followerParentUsedScopeIndex == -1) {
-        throw Exception('Unfound followerParentUsedScopeIndex');
+        throw Exception('Cannot find followerParentUsedScopeIndex info=$info');
       }
       if (selfUsedScopeIndex == -1) {
-        throw Exception('Unfound selfUsedScopeIndex');
+        throw Exception('Cannot find selfUsedScopeIndex info=$info');
       }
 
       if (selfUsedScopeIndex < followerParentUsedScopeIndex) {
         // see #57
-        throw SanityCheckNestedPortalError._(
-          selfDebugLabel: widget.debugLabel,
-          parentDebugLabel: followerParent.debugSelfWidget.debugLabel,
-          selfScope: scope,
-          parentScope: followerParent.usedScope,
-          portalLinkScopeAncestors: portalLinkScopeAncestors,
-        );
+        throw SanityCheckNestedPortalError._(info);
       }
     }
   }
@@ -459,7 +461,21 @@ Error: Could not find a $T above this $_portalTarget.
 }
 
 class SanityCheckNestedPortalError extends Error {
-  SanityCheckNestedPortalError._({
+  SanityCheckNestedPortalError._(this.info);
+
+  final SanityCheckNestedPortalInfo info;
+
+  @override
+  String toString() => 'SanityCheckNestedPortalError: '
+      'When a `PortalTarget` is in the `PortalTarget.portalFollower` subtree of another `PortalTarget`, '
+      'the `Portal` bound by the first `PortalTarget` should be *lower* than the `Portal` bound by the second. '
+      'However, currently the reverse is true. '
+      'info: $info';
+}
+
+@immutable
+class SanityCheckNestedPortalInfo {
+  const SanityCheckNestedPortalInfo._({
     required this.selfDebugLabel,
     required this.parentDebugLabel,
     required this.selfScope,
@@ -474,12 +490,13 @@ class SanityCheckNestedPortalError extends Error {
   final List<PortalLinkScope> portalLinkScopeAncestors;
 
   @override
-  String toString() => 'SanityCheckNestedPortalError: '
-      'When a `PortalTarget` is in the `PortalTarget.portalFollower` subtree of another `PortalTarget`, '
-      'the `Portal` bound by the first `PortalTarget` should be *lower* than the `Portal` bound by the second. '
-      'However, currently the reverse is true. '
-      '(selfDebugLabel=$selfDebugLabel parentDebugLabel=$parentDebugLabel '
-      'selfScope=$selfScope parentScope=$parentScope portalLinkScopeAncestors=$portalLinkScopeAncestors)';
+  String toString() => 'SanityCheckNestedPortalInfo{'
+      'selfDebugLabel: $selfDebugLabel, '
+      'parentDebugLabel: $parentDebugLabel, '
+      'selfScope: $selfScope, '
+      'parentScope: $parentScope, '
+      'portalLinkScopeAncestors: $portalLinkScopeAncestors'
+      '}';
 }
 
 extension on BuildContext {

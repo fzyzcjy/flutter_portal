@@ -1711,7 +1711,9 @@ Future<void> main() async {
   });
 
   // https://github.com/fzyzcjy/flutter_portal/issues/57
-  testWidgets('multi-Portal and nested-PortalFollower - the case that should throw', (tester) async {
+  testWidgets(
+      'multi-Portal and nested-PortalFollower - the case that should throw',
+      (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
@@ -1736,7 +1738,8 @@ Future<void> main() async {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
                   ancestorPortalSelector: (id) => id == first,
-                  anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topLeft),
+                  anchor: const Aligned(
+                      follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToFirstPortal',
                   portalFollower: Container(
                     color: Colors.teal,
@@ -1747,7 +1750,9 @@ Future<void> main() async {
                     child: PortalTarget(
                       ancestorPortalSelector: (id) => id == second,
                       debugLabel: 'InnerTargetToSecondPortal',
-                      anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topLeft),
+                      anchor: const Aligned(
+                          follower: Alignment.topLeft,
+                          target: Alignment.topLeft),
                       portalFollower: Container(
                         color: Colors.orange,
                         padding: const EdgeInsets.symmetric(
@@ -1773,14 +1778,18 @@ Future<void> main() async {
 
     final exception = tester.takeException() as SanityCheckNestedPortalError;
     // print('exception: $exception');
-    expect(exception.selfDebugLabel, 'InnerTargetToSecondPortal');
-    expect(exception.parentDebugLabel, 'OuterTargetToFirstPortal');
-    expect(exception.selfScope.portalIdentifier, second);
-    expect(exception.parentScope.portalIdentifier, first);
-    expect(exception.portalLinkScopeAncestors.map((e) => e.portalIdentifier), [second, first]);
+    expect(exception.info.selfDebugLabel, 'InnerTargetToSecondPortal');
+    expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
+    expect(exception.info.selfScope.portalIdentifier, second);
+    expect(exception.info.parentScope.portalIdentifier, first);
+    expect(
+        exception.info.portalLinkScopeAncestors.map((e) => e.portalIdentifier),
+        [second, first]);
   });
 
-  testWidgets('multi-Portal and nested-PortalFollower - the case that should NOT throw', (tester) async {
+  testWidgets(
+      'multi-Portal and nested-PortalFollower - the case that should NOT throw',
+      (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
@@ -1802,10 +1811,11 @@ Future<void> main() async {
               child: Container(
                 color: Colors.blue,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
                   ancestorPortalSelector: (id) => id == second,
-                  anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topLeft),
+                  anchor: const Aligned(
+                      follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToSecondPortal',
                   portalFollower: Container(
                     color: Colors.teal,
@@ -1818,7 +1828,9 @@ Future<void> main() async {
                     child: PortalTarget(
                       ancestorPortalSelector: (id) => id == first,
                       debugLabel: 'InnerTargetToFirstPortal',
-                      anchor: const Aligned(follower: Alignment.topLeft, target: Alignment.topLeft),
+                      anchor: const Aligned(
+                          follower: Alignment.topLeft,
+                          target: Alignment.topLeft),
                       portalFollower: Container(
                         color: Colors.orange,
                         margin: const EdgeInsets.symmetric(
@@ -1844,8 +1856,8 @@ Future<void> main() async {
       ),
     );
 
-    await expectLater(
-        find.byKey(boilerplateKey), matchesGoldenFile('multi_portal_nested_follower.png'));
+    await expectLater(find.byKey(boilerplateKey),
+        matchesGoldenFile('multi_portal_nested_follower.png'));
   });
 }
 
