@@ -1,3 +1,7 @@
+# 1.0.0-dev.3
+
+* Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.`
+
 # 1.0.0-dev.2
 
 * Fix broken images in pub
