@@ -90,12 +90,6 @@ class _PortalState extends State<Portal> {
 /// follower → it is only a typedef.
 typedef PortalFollower = Widget;
 
-typedef AncestorPortalSelector = bool Function(
-    PortalIdentifier portalIdentifier);
-
-bool defaultAncestorPortalSelector(PortalIdentifier portalIdentifier) =>
-    portalIdentifier == const PortalMainIdentifier();
-
 // implementation references [ValueKey]
 @immutable
 class PortalIdentifier<T> {

@@ -204,7 +204,7 @@ class PortalTarget extends StatefulWidget {
     this.anchor = const Filled(),
     this.closeDuration,
     this.portalFollower,
-    this.ancestorPortalSelector = defaultAncestorPortalSelector,
+    this.ancestorPortalIdentifier = const PortalMainIdentifier(),
     this.debugLabel,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
@@ -215,7 +215,7 @@ class PortalTarget extends StatefulWidget {
   final Anchor anchor;
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
-  final AncestorPortalSelector ancestorPortalSelector;
+  final PortalIdentifier<dynamic> ancestorPortalIdentifier;
   final String? debugLabel;
   final Widget child;
 
@@ -229,8 +229,8 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
-      ..add(ObjectFlagProperty<AncestorPortalSelector?>.has(
-          'ancestorPortalSelector', ancestorPortalSelector))
+      ..add(DiagnosticsProperty<PortalIdentifier>(
+          'ancestorPortalIdentifier', ancestorPortalIdentifier))
       ..add(DiagnosticsProperty('debugLabel', debugLabel))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
@@ -248,7 +248,7 @@ class _PortalTargetState extends State<PortalTarget> {
         final scope =
             context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
                 (scope) =>
-                    widget.ancestorPortalSelector(scope.portalIdentifier));
+                    widget.ancestorPortalIdentifier == scope.portalIdentifier);
         if (scope == null) {
           throw PortalNotFoundError._(widget);
         }

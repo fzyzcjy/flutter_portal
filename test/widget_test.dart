@@ -1541,7 +1541,7 @@ Future<void> main() async {
 
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      ancestorPortalSelector: (id) => id == firstPortal,
+      ancestorPortalIdentifier: firstPortal,
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1555,7 +1555,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [secondPortal]
-      ancestorPortalSelector: (id) => id == secondPortal,
+      ancestorPortalIdentifier: secondPortal,
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1569,7 +1569,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      ancestorPortalSelector: (id) => id == firstPortal,
+      ancestorPortalIdentifier: firstPortal,
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1628,8 +1628,7 @@ Future<void> main() async {
         ),
         child: PortalTarget(
           // should be bound to "non-main"
-          ancestorPortalSelector: (id) =>
-              id == const PortalIdentifier<String>('non-main'),
+          ancestorPortalIdentifier: const PortalIdentifier<String>('non-main'),
           anchor: const Aligned(
             follower: Alignment.topRight,
             target: Alignment.topRight,
@@ -1664,8 +1663,8 @@ Future<void> main() async {
                 identifier: const PortalIdentifier<String>('non-main'),
                 child: PortalTarget(
                   // should be bound to "non-main"
-                  ancestorPortalSelector: (id) =>
-                      id == const PortalIdentifier<String>('non-main'),
+                  ancestorPortalIdentifier:
+                      const PortalIdentifier<String>('non-main'),
                   anchor: const Aligned(
                     follower: Alignment.topLeft,
                     target: Alignment.topLeft,
@@ -1731,7 +1730,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  ancestorPortalSelector: (id) => id == first,
+                  ancestorPortalIdentifier: first,
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToFirstPortal',
@@ -1742,7 +1741,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      ancestorPortalSelector: (id) => id == second,
+                      ancestorPortalIdentifier: second,
                       debugLabel: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
@@ -1807,7 +1806,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  ancestorPortalSelector: (id) => id == second,
+                  ancestorPortalIdentifier: second,
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToSecondPortal',
@@ -1820,7 +1819,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      ancestorPortalSelector: (id) => id == first,
+                      ancestorPortalIdentifier: first,
                       debugLabel: 'InnerTargetToFirstPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
