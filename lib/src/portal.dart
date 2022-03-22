@@ -43,10 +43,12 @@ import 'portal_theater.dart';
 class Portal extends StatefulWidget {
   const Portal({
     Key? key,
+    this.debugName,
     this.identifier = const PortalMainIdentifier(),
     required this.child,
   }) : super(key: key);
 
+  final String? debugName;
   final PortalIdentifier identifier;
   final Widget child;
 
@@ -56,6 +58,7 @@ class Portal extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(StringProperty('debugName', debugName));
     properties
         .add(DiagnosticsProperty<PortalIdentifier>('identifier', identifier));
   }
@@ -67,9 +70,11 @@ class _PortalState extends State<Portal> {
   @override
   Widget build(BuildContext context) {
     return PortalLinkScope(
+      debugName: widget.debugName,
       portalIdentifier: widget.identifier,
       portalLink: _portalLink,
       child: PortalTheater(
+        debugName: widget.debugName,
         portalLink: _portalLink,
         child: widget.child,
       ),

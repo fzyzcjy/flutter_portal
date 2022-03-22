@@ -6,16 +6,19 @@ import 'portal_link.dart';
 class PortalTheater extends SingleChildRenderObjectWidget {
   const PortalTheater({
     Key? key,
+    required this.debugName,
     required PortalLink portalLink,
     required Widget child,
   })  : _portalLink = portalLink,
         super(key: key, child: child);
 
+  // ignore: diagnostic_describe_all_properties
+  final String? debugName;
   final PortalLink _portalLink;
 
   @override
   RenderPortalTheater createRenderObject(BuildContext context) {
-    return RenderPortalTheater(_portalLink);
+    return RenderPortalTheater(debugName, _portalLink);
   }
 
   @override
@@ -23,14 +26,18 @@ class PortalTheater extends SingleChildRenderObjectWidget {
     BuildContext context,
     RenderPortalTheater renderObject,
   ) {
-    renderObject.portalLink = _portalLink;
+    renderObject
+      ..debugName = debugName
+      ..portalLink = _portalLink;
   }
 }
 
 class RenderPortalTheater extends RenderProxyBox {
-  RenderPortalTheater(this._portalLink) {
+  RenderPortalTheater(this.debugName, this._portalLink) {
     _portalLink.theater = this;
   }
+
+  String? debugName;
 
   PortalLink _portalLink;
 
@@ -80,6 +87,7 @@ class RenderPortalTheater extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(StringProperty('debugName', debugName));
     properties.add(
       DiagnosticsProperty<PortalLink>('portalLink', portalLink),
     );

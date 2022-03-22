@@ -17,11 +17,13 @@ class PortalLink {
 class PortalLinkScope extends InheritedWidget {
   const PortalLinkScope({
     Key? key,
+    required this.debugName,
     required this.portalLink,
     required this.portalIdentifier,
     required Widget child,
   }) : super(key: key, child: child);
 
+  final String? debugName;
   final PortalLink portalLink;
   final PortalIdentifier portalIdentifier;
 
@@ -34,6 +36,7 @@ class PortalLinkScope extends InheritedWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(StringProperty('debugName', debugName));
     properties.add(DiagnosticsProperty('portalLink', portalLink));
     properties.add(DiagnosticsProperty('portalIdentifier', portalIdentifier));
   }
