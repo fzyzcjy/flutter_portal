@@ -449,7 +449,7 @@ class _PortalTargetTheaterFollowerParent extends InheritedWidget {
 }
 
 /// The error that is thrown when a [PortalTarget] fails to find a [Portal].
-class PortalNotFoundError<T extends Portal> extends Error {
+class PortalNotFoundError extends Error {
   PortalNotFoundError._(this._portalTarget);
 
   final PortalTarget _portalTarget;
@@ -457,7 +457,7 @@ class PortalNotFoundError<T extends Portal> extends Error {
   @override
   String toString() {
     return '''
-Error: Could not find a $T above this $_portalTarget.
+Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}).
 ''';
   }
 }

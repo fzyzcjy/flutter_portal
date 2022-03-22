@@ -620,13 +620,7 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalTarget('
-          "anchor: Instance of 'Filled', "
-          'closeDuration: 0:00:05.000000, '
-          'portalFollower: Text, '
-          'has ancestorPortalSelector, '
-          'debugLabel: null, '
-          'child: Text).\n'),
+          'PortalTarget(debugLabel: null).\n'),
     );
   });
 
