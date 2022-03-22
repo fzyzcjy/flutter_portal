@@ -257,12 +257,15 @@ class _PortalTargetState extends State<PortalTarget> {
           return _buildModeFilled(currentVisible, scope);
         }
 
-        return _buildModeNormal(currentVisible, scope);
+        return _buildModeNormal(context, currentVisible, scope);
       },
     );
   }
 
-  Widget _buildModeNormal(bool currentVisible, PortalLinkScope scope) {
+  Widget _buildModeNormal(
+      BuildContext context, bool currentVisible, PortalLinkScope scope) {
+    _sanityCheckNestedPortalTarget(context, scope);
+
     return Stack(
       children: <Widget>[
         CustomCompositedTransformTarget(
@@ -286,7 +289,13 @@ class _PortalTargetState extends State<PortalTarget> {
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     debugLabel: widget.debugLabel,
-                    child: widget.portalFollower,
+                    child: widget.portalFollower == null
+                        ? null
+                        : _PortalTargetTheaterFollowerParent(
+                            usedScope: scope,
+                            debugSelfWidget: widget,
+                            child: widget.portalFollower!,
+                          ),
                   ),
                   child: const SizedBox.shrink(),
                 );
@@ -305,6 +314,46 @@ class _PortalTargetState extends State<PortalTarget> {
       portalLink: scope.portalLink,
       child: widget.child,
     );
+  }
+
+  void _sanityCheckNestedPortalTarget(
+      BuildContext context, PortalLinkScope scope) {
+    final portalLinkScopeAncestors = context
+        .getElementsForInheritedWidgetsOfExactType<PortalLinkScope>()
+        .map((element) =>
+            context.dependOnInheritedElement(element) as PortalLinkScope)
+        .toList();
+
+    for (final followerParentElement
+        in context.getElementsForInheritedWidgetsOfExactType<
+            _PortalTargetTheaterFollowerParent>()) {
+      final followerParent =
+          context.dependOnInheritedElement(followerParentElement)
+              as _PortalTargetTheaterFollowerParent;
+
+      final followerParentUsedScopeIndex =
+          portalLinkScopeAncestors.indexOf(followerParent.usedScope);
+      final selfUsedScopeIndex = portalLinkScopeAncestors.indexOf(scope);
+
+      if (followerParentUsedScopeIndex == -1) {
+        throw Exception('Unfound followerParentUsedScopeIndex');
+      }
+      if (selfUsedScopeIndex == -1) {
+        throw Exception('Unfound selfUsedScopeIndex');
+      }
+
+      if (selfUsedScopeIndex < followerParentUsedScopeIndex) {
+        // see #57
+        throw SanityCheckNestedPortalError._(
+          'When a `PortalTarget` is in the `PortalTarget.portalFollower` subtree of another `PortalTarget`, '
+          'the `Portal` bound by the first `PortalTarget` should be *lower* than the `Portal` bound by the second. '
+          'However, currently the reverse is true. '
+          'self=${widget.debugLabel} parent=${followerParent.debugSelfWidget.debugLabel} '
+          'selfScope=$scope parentScope=${followerParent.usedScope} '
+          'portalLinkScopeAncestors=$portalLinkScopeAncestors',
+        );
+      }
+    }
   }
 }
 
@@ -372,6 +421,30 @@ class _PortalTargetVisibilityBuilderState
   }
 }
 
+class _PortalTargetTheaterFollowerParent extends InheritedWidget {
+  const _PortalTargetTheaterFollowerParent({
+    Key? key,
+    required this.debugSelfWidget,
+    required this.usedScope,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  final PortalTarget debugSelfWidget;
+  final PortalLinkScope usedScope;
+
+  @override
+  bool updateShouldNotify(_PortalTargetTheaterFollowerParent old) {
+    return old.usedScope != usedScope;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty('builder', debugSelfWidget));
+    properties.add(DiagnosticsProperty('usedScope', usedScope));
+  }
+}
+
 /// The error that is thrown when a [PortalTarget] fails to find a [Portal].
 class PortalNotFoundError<T extends Portal> extends Error {
   PortalNotFoundError._(this._portalTarget);
@@ -384,6 +457,15 @@ class PortalNotFoundError<T extends Portal> extends Error {
 Error: Could not find a $T above this $_portalTarget.
 ''';
   }
+}
+
+class SanityCheckNestedPortalError extends Error {
+  SanityCheckNestedPortalError._(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'SanityCheckNestedPortalError: $message';
 }
 
 extension on BuildContext {

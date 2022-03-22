@@ -1,5 +1,4 @@
-// ignore_for_file: diagnostic_describe_all_properties
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'portal.dart';
 import 'portal_theater.dart';
@@ -10,6 +9,9 @@ class PortalLink {
   BoxConstraints? get constraints => theater?.constraints;
 
   final overlays = <RenderBox>{};
+
+  @override
+  String toString() => 'PortalLink#${shortHash(this)}';
 }
 
 class PortalLinkScope extends InheritedWidget {
@@ -27,5 +29,12 @@ class PortalLinkScope extends InheritedWidget {
   bool updateShouldNotify(PortalLinkScope oldWidget) {
     return oldWidget.portalLink != portalLink ||
         oldWidget.portalIdentifier != portalIdentifier;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty('portalLink', portalLink));
+    properties.add(DiagnosticsProperty('portalIdentifier', portalIdentifier));
   }
 }
