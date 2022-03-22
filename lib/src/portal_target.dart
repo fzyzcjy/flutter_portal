@@ -457,7 +457,7 @@ class PortalNotFoundError extends Error {
   @override
   String toString() {
     return '''
-Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}).
+Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}, ancestorPortalIdentifier=${_portalTarget.ancestorPortalIdentifier}).
 ''';
   }
 }

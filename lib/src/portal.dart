@@ -119,4 +119,7 @@ class PortalIdentifier<T> {
 
 class PortalMainIdentifier extends PortalIdentifier<void> {
   const PortalMainIdentifier() : super(null);
+
+  @override
+  String toString() => 'PortalMainIdentifier';
 }
