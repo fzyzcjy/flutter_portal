@@ -238,49 +238,31 @@ class PortalTarget extends StatefulWidget {
 
 class _PortalTargetState extends State<PortalTarget> {
   final _link = CustomLayerLink();
-  late bool _visible = widget.visible;
-  Timer? _timer;
-
-  @override
-  void didUpdateWidget(PortalTarget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!widget.visible) {
-      if (!oldWidget.visible && _visible) {
-        // rebuild when the portal is in progress of being hidden
-      } else if (oldWidget.visible && widget.closeDuration != null) {
-        _timer?.cancel();
-        _timer = Timer(widget.closeDuration!, () {
-          setState(() => _visible = false);
-        });
-      } else {
-        _visible = false;
-      }
-    } else {
-      _timer?.cancel();
-      _timer = null;
-      _visible = widget.visible;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final scope =
-        context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-            (scope) => widget.ancestorPortalSelector(scope.portalIdentifier));
-    if (scope == null) {
-      throw PortalNotFoundError._(widget);
-    }
+    return _PortalTargetVisibilityBuilder(
+      visible: widget.visible,
+      closeDuration: widget.closeDuration,
+      builder: (context, currentVisible) {
+        final scope =
+            context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+                (scope) =>
+                    widget.ancestorPortalSelector(scope.portalIdentifier));
+        if (scope == null) {
+          throw PortalNotFoundError._(widget);
+        }
 
-    if (widget.anchor is Filled) {
-      return PortalTargetTheater(
-        portalFollower: _visible ? widget.portalFollower : null,
-        anchor: widget.anchor,
-        targetSize: Size.zero,
-        portalLink: scope.portalLink,
-        child: widget.child,
-      );
-    }
+        if (widget.anchor is Filled) {
+          return _buildModeFilled(currentVisible, scope);
+        }
 
+        return _buildModeNormal(currentVisible, scope);
+      },
+    );
+  }
+
+  Widget _buildModeNormal(bool currentVisible, PortalLinkScope scope) {
     return Stack(
       children: <Widget>[
         CustomCompositedTransformTarget(
@@ -288,7 +270,7 @@ class _PortalTargetState extends State<PortalTarget> {
           debugLabel: widget.debugLabel,
           child: widget.child,
         ),
-        if (_visible)
+        if (currentVisible)
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -315,10 +297,78 @@ class _PortalTargetState extends State<PortalTarget> {
     );
   }
 
+  Widget _buildModeFilled(bool currentVisible, PortalLinkScope scope) {
+    return PortalTargetTheater(
+      portalFollower: currentVisible ? widget.portalFollower : null,
+      anchor: widget.anchor,
+      targetSize: Size.zero,
+      portalLink: scope.portalLink,
+      child: widget.child,
+    );
+  }
+}
+
+class _PortalTargetVisibilityBuilder extends StatefulWidget {
+  const _PortalTargetVisibilityBuilder({
+    Key? key,
+    required this.visible,
+    required this.closeDuration,
+    required this.builder,
+  }) : super(key: key);
+
+  final bool visible;
+  final Duration? closeDuration;
+  final Widget Function(BuildContext, bool currentVisible) builder;
+
+  @override
+  _PortalTargetVisibilityBuilderState createState() =>
+      _PortalTargetVisibilityBuilderState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('visible', visible));
+    properties
+        .add(DiagnosticsProperty<Duration?>('closeDuration', closeDuration));
+    properties.add(DiagnosticsProperty('builder', builder));
+  }
+}
+
+class _PortalTargetVisibilityBuilderState
+    extends State<_PortalTargetVisibilityBuilder> {
+  late bool _visible = widget.visible;
+  Timer? _timer;
+
+  @override
+  void didUpdateWidget(_PortalTargetVisibilityBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.visible) {
+      if (!oldWidget.visible && _visible) {
+        // rebuild when the portal is in progress of being hidden
+      } else if (oldWidget.visible && widget.closeDuration != null) {
+        _timer?.cancel();
+        _timer = Timer(widget.closeDuration!, () {
+          setState(() => _visible = false);
+        });
+      } else {
+        _visible = false;
+      }
+    } else {
+      _timer?.cancel();
+      _timer = null;
+      _visible = widget.visible;
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, _visible);
   }
 }
 
