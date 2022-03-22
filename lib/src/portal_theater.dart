@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'anchor.dart';
 import 'portal_link.dart';
 
 class PortalTheater extends SingleChildRenderObjectWidget {
@@ -74,9 +75,11 @@ class RenderPortalTheater extends RenderProxyBox {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final globalPosition = localToGlobal(position); // #42
+    final globalPosition = localToGlobal(position);
     for (final overlay in portalLink.overlays) {
-      if (overlay.overlay.hitTest(result, position: globalPosition /* #42 */)) {
+      // See #42, #59 for details
+      final effectivePosition = overlay.anchor is Filled ? position : globalPosition;
+      if (overlay.overlay.hitTest(result, position: effectivePosition)) {
         return true;
       }
     }
