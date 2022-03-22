@@ -345,12 +345,11 @@ class _PortalTargetState extends State<PortalTarget> {
       if (selfUsedScopeIndex < followerParentUsedScopeIndex) {
         // see #57
         throw SanityCheckNestedPortalError._(
-          'When a `PortalTarget` is in the `PortalTarget.portalFollower` subtree of another `PortalTarget`, '
-          'the `Portal` bound by the first `PortalTarget` should be *lower* than the `Portal` bound by the second. '
-          'However, currently the reverse is true. '
-          'self=${widget.debugLabel} parent=${followerParent.debugSelfWidget.debugLabel} '
-          'selfScope=$scope parentScope=${followerParent.usedScope} '
-          'portalLinkScopeAncestors=$portalLinkScopeAncestors',
+          selfDebugLabel: widget.debugLabel,
+          parentDebugLabel: followerParent.debugSelfWidget.debugLabel,
+          selfScope: scope,
+          parentScope: followerParent.usedScope,
+          portalLinkScopeAncestors: portalLinkScopeAncestors,
         );
       }
     }
@@ -460,12 +459,27 @@ Error: Could not find a $T above this $_portalTarget.
 }
 
 class SanityCheckNestedPortalError extends Error {
-  SanityCheckNestedPortalError._(this.message);
+  SanityCheckNestedPortalError._({
+    required this.selfDebugLabel,
+    required this.parentDebugLabel,
+    required this.selfScope,
+    required this.parentScope,
+    required this.portalLinkScopeAncestors,
+  });
 
-  final String message;
+  final String? selfDebugLabel;
+  final String? parentDebugLabel;
+  final PortalLinkScope selfScope;
+  final PortalLinkScope parentScope;
+  final List<PortalLinkScope> portalLinkScopeAncestors;
 
   @override
-  String toString() => 'SanityCheckNestedPortalError: $message';
+  String toString() => 'SanityCheckNestedPortalError: '
+      'When a `PortalTarget` is in the `PortalTarget.portalFollower` subtree of another `PortalTarget`, '
+      'the `Portal` bound by the first `PortalTarget` should be *lower* than the `Portal` bound by the second. '
+      'However, currently the reverse is true. '
+      '(selfDebugLabel=$selfDebugLabel parentDebugLabel=$parentDebugLabel '
+      'selfScope=$selfScope parentScope=$parentScope portalLinkScopeAncestors=$portalLinkScopeAncestors)';
 }
 
 extension on BuildContext {

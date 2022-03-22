@@ -1771,8 +1771,13 @@ Future<void> main() async {
       ),
     );
 
-    await expectLater(find.byKey(boilerplateKey),
-        matchesGoldenFile('multi_portal_nested_follower.png'));
+    final exception = tester.takeException() as SanityCheckNestedPortalError;
+    // print('exception: $exception');
+    expect(exception.selfDebugLabel, 'InnerTargetToSecondPortal');
+    expect(exception.parentDebugLabel, 'OuterTargetToFirstPortal');
+    expect(exception.selfScope.portalIdentifier, second);
+    expect(exception.parentScope.portalIdentifier, first);
+    expect(exception.portalLinkScopeAncestors.map((e) => e.portalIdentifier), [second, first]);
   });
 }
 
