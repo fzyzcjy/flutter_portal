@@ -1875,15 +1875,18 @@ Future<void> main() async {
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Container(
-              color: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: PortalTarget(
-                portalCandidateIdentifiers: const [first],
-                anchor: const Aligned(
-                    follower: Alignment.topLeft, target: Alignment.topLeft),
-                debugLabel: 'OuterTargetToFirstPortal',
-                portalFollower: Portal(
+            child: PortalTarget(
+              portalCandidateIdentifiers: const [first],
+              anchor: const Aligned(
+                  follower: Alignment.topLeft, target: Alignment.topLeft),
+              debugLabel: 'OuterTargetToFirstPortal',
+              portalFollower: Container(
+                color: Colors.blue,
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                child: Portal(
                   identifier: second,
                   child: Container(
                     color: Colors.teal,
@@ -1891,8 +1894,8 @@ Future<void> main() async {
                         horizontal: 10, vertical: 10),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    width: 200,
-                    height: 200,
+                    width: 150,
+                    height: 150,
                     child: PortalTarget(
                       portalCandidateIdentifiers: const [second],
                       debugLabel: 'InnerTargetToSecondPortal',
@@ -1914,9 +1917,9 @@ Future<void> main() async {
                     ),
                   ),
                 ),
-                child: Container(
-                  color: Colors.green,
-                ),
+              ),
+              child: Container(
+                color: Colors.green,
               ),
             ),
           ),
