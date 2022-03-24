@@ -403,6 +403,9 @@ class CustomFollowerLayer extends ContainerLayer {
     }
     _establishTransform();
     if (_lastTransform != null) {
+      // NOTE MODIFIED this line is moved from below, such that it is run before addChildrenToScene
+      _lastOffset = unlinkedOffset;
+
       engineLayer = builder.pushTransform(
         _lastTransform!.storage,
         // NOTE MODIFIED [_engineLayer] to [engineLayer]
@@ -410,7 +413,9 @@ class CustomFollowerLayer extends ContainerLayer {
       );
       addChildrenToScene(builder);
       builder.pop();
-      _lastOffset = unlinkedOffset;
+
+      // NOTE MODIFIED move this line to above, such that it is run before addChildrenToScene
+      // _lastOffset = unlinkedOffset;
     } else {
       _lastOffset = null;
       final matrix =
