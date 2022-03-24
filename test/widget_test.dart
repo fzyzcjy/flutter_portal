@@ -1708,7 +1708,7 @@ Future<void> main() async {
 
   // https://github.com/fzyzcjy/flutter_portal/issues/57
   testWidgets(
-      'multi-Portal and nested-PortalFollower - the case that should throw',
+      'multi-Portal and nested-PortalFollower: PortalA - PortalB - TargetToPortalA - TargetToPortalB',
       (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
@@ -1784,7 +1784,7 @@ Future<void> main() async {
   });
 
   testWidgets(
-      'multi-Portal and nested-PortalFollower - the case that should NOT throw',
+      'multi-Portal and nested-PortalFollower: PortalA - PortalB - TargetToPortalB - TargetToPortalA',
       (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
@@ -1853,7 +1853,79 @@ Future<void> main() async {
     );
 
     await expectLater(find.byKey(boilerplateKey),
-        matchesGoldenFile('multi_portal_nested_follower.png'));
+        matchesGoldenFile('multi_portal_nested_follower_1.png'));
+  });
+
+  testWidgets(
+      'multi-Portal and nested-PortalFollower: PortalA - TargetToPortalA - PortalB - TargetToPortalB',
+      (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    const first = PortalIdentifier('first');
+    const second = PortalIdentifier('second');
+
+    final boilerplateKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Boilerplate(
+        key: boilerplateKey,
+        child: Portal(
+          identifier: first,
+          child: Container(
+            color: Colors.purple,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Container(
+              color: Colors.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: PortalTarget(
+                portalCandidateIdentifiers: const [first],
+                anchor: const Aligned(
+                    follower: Alignment.topLeft, target: Alignment.topLeft),
+                debugLabel: 'OuterTargetToFirstPortal',
+                portalFollower: Portal(
+                  identifier: second,
+                  child: Container(
+                    color: Colors.teal,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    width: 200,
+                    height: 200,
+                    child: PortalTarget(
+                      portalCandidateIdentifiers: const [second],
+                      debugLabel: 'InnerTargetToSecondPortal',
+                      anchor: const Aligned(
+                          follower: Alignment.topLeft,
+                          target: Alignment.topLeft),
+                      portalFollower: Container(
+                        color: Colors.orange,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        width: 10,
+                        height: 10,
+                      ),
+                      child: Container(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+                child: Container(
+                  color: Colors.green,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(find.byKey(boilerplateKey),
+        matchesGoldenFile('multi_portal_nested_follower_2.png'));
   });
 }
 
