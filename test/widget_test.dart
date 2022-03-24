@@ -620,7 +620,7 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalTarget(debugLabel: null, ancestorPortalIdentifier=PortalMainIdentifier).\n'),
+          'PortalTarget(debugLabel: null, portalCandidateIdentifiers=[PortalMainIdentifier]).\n'),
     );
   });
 
@@ -1541,7 +1541,7 @@ Future<void> main() async {
 
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      ancestorPortalIdentifier: firstPortal,
+      portalCandidateIdentifiers: const [firstPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1555,7 +1555,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [secondPortal]
-      ancestorPortalIdentifier: secondPortal,
+      portalCandidateIdentifiers: const [secondPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1569,7 +1569,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      ancestorPortalIdentifier: firstPortal,
+      portalCandidateIdentifiers: const [firstPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1628,7 +1628,9 @@ Future<void> main() async {
         ),
         child: PortalTarget(
           // should be bound to "non-main"
-          ancestorPortalIdentifier: const PortalIdentifier<String>('non-main'),
+          portalCandidateIdentifiers: const [
+            PortalIdentifier<String>('non-main')
+          ],
           anchor: const Aligned(
             follower: Alignment.topRight,
             target: Alignment.topRight,
@@ -1663,8 +1665,9 @@ Future<void> main() async {
                 identifier: const PortalIdentifier<String>('non-main'),
                 child: PortalTarget(
                   // should be bound to "non-main"
-                  ancestorPortalIdentifier:
-                      const PortalIdentifier<String>('non-main'),
+                  portalCandidateIdentifiers: const [
+                    PortalIdentifier<String>('non-main')
+                  ],
                   anchor: const Aligned(
                     follower: Alignment.topLeft,
                     target: Alignment.topLeft,
@@ -1730,7 +1733,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  ancestorPortalIdentifier: first,
+                  portalCandidateIdentifiers: const [first],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToFirstPortal',
@@ -1741,7 +1744,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      ancestorPortalIdentifier: second,
+                      portalCandidateIdentifiers: const [second],
                       debugLabel: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
@@ -1806,7 +1809,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  ancestorPortalIdentifier: second,
+                  portalCandidateIdentifiers: const [second],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugLabel: 'OuterTargetToSecondPortal',
@@ -1819,7 +1822,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      ancestorPortalIdentifier: first,
+                      portalCandidateIdentifiers: const [first],
                       debugLabel: 'InnerTargetToFirstPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,

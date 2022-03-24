@@ -204,7 +204,7 @@ class PortalTarget extends StatefulWidget {
     this.anchor = const Filled(),
     this.closeDuration,
     this.portalFollower,
-    this.ancestorPortalIdentifier = const PortalMainIdentifier(),
+    this.portalCandidateIdentifiers = const [PortalMainIdentifier()],
     this.debugLabel,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
@@ -215,7 +215,7 @@ class PortalTarget extends StatefulWidget {
   final Anchor anchor;
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
-  final PortalIdentifier<dynamic> ancestorPortalIdentifier;
+  final List<PortalIdentifier<dynamic>> portalCandidateIdentifiers;
   final String? debugLabel;
   final Widget child;
 
@@ -229,8 +229,8 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
-      ..add(DiagnosticsProperty<PortalIdentifier>(
-          'ancestorPortalIdentifier', ancestorPortalIdentifier))
+      ..add(DiagnosticsProperty<List<PortalIdentifier>>(
+          'portalCandidateIdentifiers', portalCandidateIdentifiers))
       ..add(DiagnosticsProperty('debugLabel', debugLabel))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
@@ -245,10 +245,7 @@ class _PortalTargetState extends State<PortalTarget> {
       visible: widget.visible,
       closeDuration: widget.closeDuration,
       builder: (context, currentVisible) {
-        final scope =
-            context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-                (scope) =>
-                    widget.ancestorPortalIdentifier == scope.portalIdentifier);
+        final scope = _dependOnScope();
         if (scope == null) {
           throw PortalNotFoundError._(widget);
         }
@@ -260,6 +257,18 @@ class _PortalTargetState extends State<PortalTarget> {
         return _buildModeNormal(context, currentVisible, scope);
       },
     );
+  }
+
+  PortalLinkScope? _dependOnScope() {
+    for (final portalIdentifier in widget.portalCandidateIdentifiers) {
+      final scope =
+          context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+              (scope) => portalIdentifier == scope.portalIdentifier);
+      if (scope != null) {
+        return scope;
+      }
+    }
+    return null;
   }
 
   Widget _buildModeNormal(
@@ -457,7 +466,7 @@ class PortalNotFoundError extends Error {
   @override
   String toString() {
     return '''
-Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}, ancestorPortalIdentifier=${_portalTarget.ancestorPortalIdentifier}).
+Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}, portalCandidateIdentifiers=${_portalTarget.portalCandidateIdentifiers}).
 ''';
   }
 }
