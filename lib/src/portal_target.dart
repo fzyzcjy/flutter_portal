@@ -341,6 +341,15 @@ class _PortalTargetState extends State<PortalTarget> {
               as _PortalTargetTheaterFollowerParent;
       final parentScope = followerParent.usedScope;
 
+      // #60
+      final underPortalForCurrent = followerParentElement
+              .getSpecificElementForInheritedWidgetsOfExactType<
+                  PortalLinkScope>(scope.linkEquals) !=
+          null;
+      if (!underPortalForCurrent) {
+        break;
+      }
+
       final followerParentUsedScopeIndex =
           portalLinkScopeAncestors.indexWhere(parentScope.linkEquals);
       final selfUsedScopeIndex =
@@ -533,12 +542,16 @@ extension on BuildContext {
     }
   }
 
+  InheritedElement? getSpecificElementForInheritedWidgetsOfExactType<
+          T extends InheritedWidget>(bool Function(T) test) =>
+      getElementsForInheritedWidgetsOfExactType<T>()
+          .where((element) => test(element.widget as T))
+          .firstOrNull;
+
   /// https://stackoverflow.com/questions/71200969
   T? dependOnSpecificInheritedWidgetOfExactType<T extends InheritedWidget>(
       bool Function(T) test) {
-    final element = getElementsForInheritedWidgetsOfExactType<T>()
-        .where((element) => test(element.widget as T))
-        .firstOrNull;
+    final element = getSpecificElementForInheritedWidgetsOfExactType<T>(test);
     if (element == null) {
       return null;
     }
