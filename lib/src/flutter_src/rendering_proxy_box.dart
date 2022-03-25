@@ -253,7 +253,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     //   leaderOffset,
     //   ancestor: theater,
     // );
-    // new method #61
+    // new method #61, #62
     final theaterShift = link.leader!.portalTheaterToLeaderOffset;
 
     final theaterRect = theaterShift & theater.size;

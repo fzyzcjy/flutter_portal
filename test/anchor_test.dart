@@ -141,7 +141,7 @@ void main() {
     expect(offsetAccessed, true);
   });
 
-  // try to reproduce #61 (not reproduced yet)
+  // try to reproduce #61 and #62
   testWidgets('anchor gets correct input', (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
