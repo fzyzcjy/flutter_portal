@@ -1,6 +1,9 @@
 # 1.0.0-dev.3
 
-* Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.`
+* Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.` (@fzyzcjy)
+* `Aligned.backup` is always used even if it should not; cause: `getFollowerOffset`'s `portalRect` argument is wrong #63 (@fzyzcjy)
+* `CustomRenderFollowerLayer._computeLinkedOffset` is wrong especially when having a RepaintBoundary at ancestor which is quite common #62 (@fzyzcjy)
+* `_RenderPortalTargetTheater.applyPaintTransform` is wrong when using operations like `globalToLocal(ancestor: something)`; it only works correctly with `globalToLocal()` without ancestors param #61 (@fzyzcjy)
 
 # 1.0.0-dev.2
 
