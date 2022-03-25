@@ -205,7 +205,7 @@ class PortalTarget extends StatefulWidget {
     this.closeDuration,
     this.portalFollower,
     this.portalCandidateIdentifiers = const [PortalMainIdentifier()],
-    this.debugLabel,
+    this.debugName,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
         super(key: key);
@@ -216,7 +216,7 @@ class PortalTarget extends StatefulWidget {
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
   final List<PortalIdentifier<dynamic>> portalCandidateIdentifiers;
-  final String? debugLabel;
+  final String? debugName;
   final Widget child;
 
   @override
@@ -231,7 +231,7 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
       ..add(DiagnosticsProperty<List<PortalIdentifier>>(
           'portalCandidateIdentifiers', portalCandidateIdentifiers))
-      ..add(DiagnosticsProperty('debugLabel', debugLabel))
+      ..add(DiagnosticsProperty('debugName', debugName))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 
@@ -297,7 +297,7 @@ class _PortalTargetState extends State<PortalTarget> {
         CustomCompositedTransformTarget(
           link: _link,
           portalLink: scope.portalLink,
-          debugLabel: widget.debugLabel,
+          debugName: widget.debugName,
           child: widget.child,
         ),
         if (currentVisible)
@@ -315,7 +315,7 @@ class _PortalTargetState extends State<PortalTarget> {
                     portalLink: scope.portalLink,
                     anchor: widget.anchor,
                     targetSize: targetSize,
-                    debugLabel: widget.debugLabel,
+                    debugName: widget.debugName,
                     child: widget.portalFollower == null
                         ? null
                         : _PortalTargetTheaterFollowerParent(
@@ -374,8 +374,8 @@ class _PortalTargetState extends State<PortalTarget> {
           portalLinkScopeAncestors.indexWhere(scope.linkEquals);
 
       final info = SanityCheckNestedPortalInfo._(
-        selfDebugLabel: widget.debugLabel,
-        parentDebugLabel: followerParent.debugSelfWidget.debugLabel,
+        selfDebugLabel: widget.debugName,
+        parentDebugLabel: followerParent.debugSelfWidget.debugName,
         selfScope: scope,
         parentScope: parentScope,
         portalLinkScopeAncestors: portalLinkScopeAncestors,
@@ -493,7 +493,7 @@ class PortalNotFoundError extends Error {
   @override
   String toString() {
     return '''
-Error: Could not find a Portal above this PortalTarget(debugLabel: ${_portalTarget.debugLabel}, portalCandidateIdentifiers=${_portalTarget.portalCandidateIdentifiers}).
+Error: Could not find a Portal above this PortalTarget(debugName: ${_portalTarget.debugName}, portalCandidateIdentifiers=${_portalTarget.portalCandidateIdentifiers}).
 ''';
   }
 }

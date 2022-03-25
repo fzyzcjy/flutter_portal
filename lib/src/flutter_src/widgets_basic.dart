@@ -17,7 +17,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
     required this.link,
     // NOTE MODIFIED some arguments
     required this.portalLink,
-    required this.debugLabel,
+    required this.debugName,
     Widget? child,
   })  : assert(link != null),
         super(key: key, child: child);
@@ -29,14 +29,14 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   final PortalLink portalLink;
 
   // NOTE MODIFIED add
-  final String? debugLabel;
+  final String? debugName;
 
   @override
   CustomRenderLeaderLayer createRenderObject(BuildContext context) {
     return CustomRenderLeaderLayer(
       link: link,
       portalLink: portalLink,
-      debugLabel: debugLabel,
+      debugName: debugName,
     );
   }
 
@@ -46,7 +46,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
     renderObject
       ..link = link
       ..portalLink = portalLink
-      ..debugLabel = debugLabel;
+      ..debugName = debugName;
   }
 }
 
@@ -60,7 +60,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     required this.portalLink,
     required this.targetSize,
     required this.anchor,
-    required this.debugLabel,
+    required this.debugName,
     Widget? child,
   }) : super(key: key, child: child);
 
@@ -77,7 +77,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Size targetSize;
 
   // NOTE MODIFIED add
-  final String? debugLabel;
+  final String? debugName;
 
   @override
   CustomRenderFollowerLayer createRenderObject(BuildContext context) {
@@ -86,7 +86,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       link: link,
       portalLink: portalLink,
       targetSize: targetSize,
-      debugLabel: debugLabel,
+      debugName: debugName,
     );
   }
 
@@ -98,6 +98,6 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       ..portalLink = portalLink
       ..targetSize = targetSize
       ..anchor = anchor
-      ..debugLabel = debugLabel;
+      ..debugName = debugName;
   }
 }

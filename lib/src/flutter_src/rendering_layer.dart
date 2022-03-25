@@ -73,7 +73,7 @@ class CustomLeaderLayer extends ContainerLayer {
     required CustomLayerLink link,
     Offset offset = Offset.zero,
     required Offset portalTheaterToLeaderOffset,
-    required this.debugLabel,
+    required this.debugName,
   })  : assert(link != null),
         _link = link,
         _portalTheaterToLeaderOffset = portalTheaterToLeaderOffset,
@@ -128,7 +128,7 @@ class CustomLeaderLayer extends ContainerLayer {
   }
 
   // NOTE MODIFIED add
-  String? debugLabel;
+  String? debugName;
 
   @override
   void attach(Object owner) {
@@ -176,7 +176,7 @@ class CustomLeaderLayer extends ContainerLayer {
     properties.add(DiagnosticsProperty<Offset>(
         'portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
+    properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
 
@@ -203,7 +203,7 @@ class CustomFollowerLayer extends ContainerLayer {
     // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
     // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
-    required this.debugLabel,
+    required this.debugName,
   });
 
   CustomLayerLink link;
@@ -225,7 +225,7 @@ class CustomFollowerLayer extends ContainerLayer {
   bool _inverseDirty = true;
 
   // NOTE MODIFIED add
-  String? debugLabel;
+  String? debugName;
 
   // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
   // but we just make it a constant zero.
@@ -475,7 +475,7 @@ class CustomFollowerLayer extends ContainerLayer {
       'linkedOffsetCallback',
       linkedOffsetCallback,
     ));
-    properties.add(DiagnosticsProperty('debugLabel', debugLabel));
+    properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
 

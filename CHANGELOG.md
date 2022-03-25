@@ -15,7 +15,7 @@
 * Allow PortalEntry that binds to a ancestor but not nearest Portal #45 (@fzyzcjy)
 * Enhance scope searching strategy: Defaults to "main" scope if provided #51 (@fzyzcjy)
 * Sync those modified-from-Flutter code with latest Flutter code and some refactor (@fzyzcjy #50)
-* Add debugLabel to ease debugging (@fzyzcjy)
+* Add debugName to ease debugging (@fzyzcjy)
 * Fix `Failed assertion: '_lastOffset != null' in various cases`, which should exist in Flutter 2.8~2.10 and flutter_portal from old to new (@fzyzcjy #56)
 * New readme and documentations (@fzyzcjy)
 

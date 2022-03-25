@@ -620,7 +620,7 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalTarget(debugLabel: null, portalCandidateIdentifiers=[PortalMainIdentifier]).\n'),
+          'PortalTarget(debugName: null, portalCandidateIdentifiers=[PortalMainIdentifier]).\n'),
     );
   });
 
@@ -1736,7 +1736,7 @@ Future<void> main() async {
                   portalCandidateIdentifiers: const [first],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
-                  debugLabel: 'OuterTargetToFirstPortal',
+                  debugName: 'OuterTargetToFirstPortal',
                   portalFollower: Container(
                     color: Colors.teal,
                     padding: const EdgeInsets.symmetric(
@@ -1745,7 +1745,7 @@ Future<void> main() async {
                     height: 200,
                     child: PortalTarget(
                       portalCandidateIdentifiers: const [second],
-                      debugLabel: 'InnerTargetToSecondPortal',
+                      debugName: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
                           target: Alignment.topLeft),
@@ -1812,7 +1812,7 @@ Future<void> main() async {
                   portalCandidateIdentifiers: const [second],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
-                  debugLabel: 'OuterTargetToSecondPortal',
+                  debugName: 'OuterTargetToSecondPortal',
                   portalFollower: Container(
                     color: Colors.teal,
                     margin: const EdgeInsets.symmetric(
@@ -1823,7 +1823,7 @@ Future<void> main() async {
                     height: 200,
                     child: PortalTarget(
                       portalCandidateIdentifiers: const [first],
-                      debugLabel: 'InnerTargetToFirstPortal',
+                      debugName: 'InnerTargetToFirstPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
                           target: Alignment.topLeft),
@@ -1879,7 +1879,7 @@ Future<void> main() async {
               portalCandidateIdentifiers: const [first],
               anchor: const Aligned(
                   follower: Alignment.topLeft, target: Alignment.topLeft),
-              debugLabel: 'OuterTargetToFirstPortal',
+              debugName: 'OuterTargetToFirstPortal',
               portalFollower: Container(
                 color: Colors.blue,
                 margin:
@@ -1898,7 +1898,7 @@ Future<void> main() async {
                     height: 150,
                     child: PortalTarget(
                       portalCandidateIdentifiers: const [second],
-                      debugLabel: 'InnerTargetToSecondPortal',
+                      debugName: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
                           target: Alignment.topLeft),
