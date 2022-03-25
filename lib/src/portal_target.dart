@@ -234,6 +234,34 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty('debugLabel', debugLabel))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
+
+  /// See which [Portal] will indeed be used given the configuration
+  /// Visible only for debugging purpose.
+  static String? debugResolvePortal(
+    BuildContext context,
+    List<PortalIdentifier<dynamic>> portalCandidateIdentifiers,
+  ) {
+    final scope = _dependOnScope(context, portalCandidateIdentifiers);
+    if (scope == null) {
+      return null;
+    }
+    return '(debugName: ${scope.debugName}, portalIdentifier: ${scope.portalIdentifier})';
+  }
+
+  static PortalLinkScope? _dependOnScope(
+    BuildContext context,
+    List<PortalIdentifier<dynamic>> portalCandidateIdentifiers,
+  ) {
+    for (final portalIdentifier in portalCandidateIdentifiers) {
+      final scope =
+          context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
+              (scope) => portalIdentifier == scope.portalIdentifier);
+      if (scope != null) {
+        return scope;
+      }
+    }
+    return null;
+  }
 }
 
 class _PortalTargetState extends State<PortalTarget> {
@@ -245,7 +273,8 @@ class _PortalTargetState extends State<PortalTarget> {
       visible: widget.visible,
       closeDuration: widget.closeDuration,
       builder: (context, currentVisible) {
-        final scope = _dependOnScope();
+        final scope = PortalTarget._dependOnScope(
+            context, widget.portalCandidateIdentifiers);
         if (scope == null) {
           throw PortalNotFoundError._(widget);
         }
@@ -257,18 +286,6 @@ class _PortalTargetState extends State<PortalTarget> {
         return _buildModeNormal(context, currentVisible, scope);
       },
     );
-  }
-
-  PortalLinkScope? _dependOnScope() {
-    for (final portalIdentifier in widget.portalCandidateIdentifiers) {
-      final scope =
-          context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-              (scope) => portalIdentifier == scope.portalIdentifier);
-      if (scope != null) {
-        return scope;
-      }
-    }
-    return null;
   }
 
   Widget _buildModeNormal(
