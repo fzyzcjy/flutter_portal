@@ -3,9 +3,7 @@
 
 // ignore_for_file: unnecessary_null_comparison, curly_braces_in_flow_control_structures, omit_local_variable_types, comment_references, always_put_control_body_on_new_line
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:common_flutter/utils/debug.dart';
 
 import '../anchor.dart';
 import '../portal_link.dart';
@@ -105,6 +103,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
 }

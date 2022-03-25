@@ -62,7 +62,8 @@ class CustomLayerLink {
   Size? leaderSize;
 
   @override
-  String toString() => '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
+  String toString() =>
+      '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
 /// @nodoc
@@ -142,8 +143,11 @@ class CustomLeaderLayer extends ContainerLayer {
   }
 
   @override
-  bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, {required bool onlyFirst}) {
-    return super.findAnnotations<S>(result, localPosition - offset, onlyFirst: onlyFirst);
+  bool findAnnotations<S extends Object>(
+      AnnotationResult<S> result, Offset localPosition,
+      {required bool onlyFirst}) {
+    return super.findAnnotations<S>(result, localPosition - offset,
+        onlyFirst: onlyFirst);
   }
 
   @override
@@ -169,7 +173,8 @@ class CustomLeaderLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
-    properties.add(DiagnosticsProperty<Offset>('portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
+    properties.add(DiagnosticsProperty<Offset>(
+        'portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
@@ -247,10 +252,13 @@ class CustomFollowerLayer extends ContainerLayer {
   }
 
   @override
-  bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, {required bool onlyFirst}) {
+  bool findAnnotations<S extends Object>(
+      AnnotationResult<S> result, Offset localPosition,
+      {required bool onlyFirst}) {
     if (link.leader == null) {
       if (showWhenUnlinked) {
-        return super.findAnnotations(result, localPosition - unlinkedOffset, onlyFirst: onlyFirst);
+        return super.findAnnotations(result, localPosition - unlinkedOffset,
+            onlyFirst: onlyFirst);
       }
       return false;
     }
@@ -258,7 +266,8 @@ class CustomFollowerLayer extends ContainerLayer {
     if (transformedOffset == null) {
       return false;
     }
-    return super.findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
+    return super
+        .findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
   }
 
   /// @nodoc
@@ -266,7 +275,8 @@ class CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform == null) {
       return null;
     }
-    final result = Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
+    final result =
+        Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
     result.multiply(_lastTransform!);
     return result;
   }
@@ -328,8 +338,10 @@ class CustomFollowerLayer extends ContainerLayer {
     }
 
     // Common ancestor is neither the leader nor the follower.
-    final leaderSubtreeBelowAncestor = leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
-    final followerSubtreeBelowAncestor = followerToCommonAncestor[followerToCommonAncestor.length - 2];
+    final leaderSubtreeBelowAncestor =
+        leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
+    final followerSubtreeBelowAncestor =
+        followerToCommonAncestor[followerToCommonAncestor.length - 2];
 
     Layer? sibling = leaderSubtreeBelowAncestor;
     while (sibling != null) {
@@ -429,7 +441,8 @@ class CustomFollowerLayer extends ContainerLayer {
       // _lastOffset = unlinkedOffset;
     } else {
       _lastOffset = null;
-      final matrix = Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+      final matrix =
+          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
         oldLayer: engineLayer as ui.TransformEngineLayer?,
@@ -446,7 +459,8 @@ class CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform != null) {
       transform.multiply(_lastTransform!);
     } else {
-      transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
+      transform.multiply(
+          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
     }
   }
 
@@ -454,7 +468,8 @@ class CustomFollowerLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(TransformProperty('transform', getLastTransform(), defaultValue: null));
+    properties.add(
+        TransformProperty('transform', getLastTransform(), defaultValue: null));
     // NOTE MODIFIED
     properties.add(DiagnosticsProperty<Offset Function()>(
       'linkedOffsetCallback',
@@ -471,7 +486,8 @@ extension on ContainerLayer {
 
     // LeaderLayer in Flutter 2.8 - 2.10 is buggy
     if (that is LeaderLayer) {
-      if (that.offset != Offset.zero) transform.translate(that.offset.dx, that.offset.dy);
+      if (that.offset != Offset.zero)
+        transform.translate(that.offset.dx, that.offset.dy);
       return;
     }
 
