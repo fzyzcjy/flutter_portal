@@ -204,7 +204,7 @@ class PortalTarget extends StatefulWidget {
     this.anchor = const Filled(),
     this.closeDuration,
     this.portalFollower,
-    this.portalCandidateIdentifiers = const [PortalMainIdentifier()],
+    this.portalCandidateLabels = const [PortalLabel.main],
     this.debugName,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
@@ -215,7 +215,7 @@ class PortalTarget extends StatefulWidget {
   final Anchor anchor;
   final Duration? closeDuration;
   final PortalFollower? portalFollower;
-  final List<PortalIdentifier<dynamic>> portalCandidateIdentifiers;
+  final List<PortalLabel<dynamic>> portalCandidateLabels;
   final String? debugName;
   final Widget child;
 
@@ -229,8 +229,8 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
-      ..add(DiagnosticsProperty<List<PortalIdentifier>>(
-          'portalCandidateIdentifiers', portalCandidateIdentifiers))
+      ..add(DiagnosticsProperty<List<PortalLabel>>(
+          'portalCandidateLabels', portalCandidateLabels))
       ..add(DiagnosticsProperty('debugName', debugName))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
@@ -239,23 +239,23 @@ class PortalTarget extends StatefulWidget {
   /// Visible only for debugging purpose.
   static String? debugResolvePortal(
     BuildContext context,
-    List<PortalIdentifier<dynamic>> portalCandidateIdentifiers,
+    List<PortalLabel<dynamic>> portalCandidateLabels,
   ) {
-    final scope = _dependOnScope(context, portalCandidateIdentifiers);
+    final scope = _dependOnScope(context, portalCandidateLabels);
     if (scope == null) {
       return null;
     }
-    return '(debugName: ${scope.debugName}, portalIdentifier: ${scope.portalIdentifier})';
+    return '(debugName: ${scope.debugName}, portalLabel: ${scope.portalLabel})';
   }
 
   static PortalLinkScope? _dependOnScope(
     BuildContext context,
-    List<PortalIdentifier<dynamic>> portalCandidateIdentifiers,
+    List<PortalLabel<dynamic>> portalCandidateLabels,
   ) {
-    for (final portalIdentifier in portalCandidateIdentifiers) {
+    for (final portalLabel in portalCandidateLabels) {
       final scope =
           context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-              (scope) => portalIdentifier == scope.portalIdentifier);
+              (scope) => portalLabel == scope.portalLabel);
       if (scope != null) {
         return scope;
       }
@@ -273,8 +273,8 @@ class _PortalTargetState extends State<PortalTarget> {
       visible: widget.visible,
       closeDuration: widget.closeDuration,
       builder: (context, currentVisible) {
-        final scope = PortalTarget._dependOnScope(
-            context, widget.portalCandidateIdentifiers);
+        final scope =
+            PortalTarget._dependOnScope(context, widget.portalCandidateLabels);
         if (scope == null) {
           throw PortalNotFoundError._(widget);
         }
@@ -493,7 +493,7 @@ class PortalNotFoundError extends Error {
   @override
   String toString() {
     return '''
-Error: Could not find a Portal above this PortalTarget(debugName: ${_portalTarget.debugName}, portalCandidateIdentifiers=${_portalTarget.portalCandidateIdentifiers}).
+Error: Could not find a Portal above this PortalTarget(debugName: ${_portalTarget.debugName}, portalCandidateLabels=${_portalTarget.portalCandidateLabels}).
 ''';
   }
 }

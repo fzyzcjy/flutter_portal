@@ -38,18 +38,18 @@ class PortalLinkScope extends InheritedWidget {
     Key? key,
     required this.debugName,
     required this.portalLink,
-    required this.portalIdentifier,
+    required this.portalLabel,
     required Widget child,
   }) : super(key: key, child: child);
 
   final String? debugName;
   final PortalLink portalLink;
-  final PortalIdentifier portalIdentifier;
+  final PortalLabel portalLabel;
 
   @override
   bool updateShouldNotify(PortalLinkScope oldWidget) {
     return oldWidget.portalLink != portalLink ||
-        oldWidget.portalIdentifier != portalIdentifier;
+        oldWidget.portalLabel != portalLabel;
   }
 
   @override
@@ -57,7 +57,7 @@ class PortalLinkScope extends InheritedWidget {
     super.debugFillProperties(properties);
     properties.add(StringProperty('debugName', debugName));
     properties.add(DiagnosticsProperty('portalLink', portalLink));
-    properties.add(DiagnosticsProperty('portalIdentifier', portalIdentifier));
+    properties.add(DiagnosticsProperty('portalLabel', portalLabel));
   }
 
   bool linkEquals(PortalLinkScope other) => portalLink == other.portalLink;

@@ -620,7 +620,7 @@ Future<void> main() async {
     expect(
       exception.toString(),
       equals('Error: Could not find a Portal above this '
-          'PortalTarget(debugName: null, portalCandidateIdentifiers=[PortalMainIdentifier]).\n'),
+          'PortalTarget(debugName: null, portalCandidateLabels=[PortalLabel.main]).\n'),
     );
   });
 
@@ -1531,8 +1531,8 @@ Future<void> main() async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    const firstPortal = PortalIdentifier('first');
-    const secondPortal = PortalIdentifier('second');
+    const firstPortal = PortalLabel('first');
+    const secondPortal = PortalLabel('second');
     expect(firstPortal != secondPortal, true);
 
     final containerKey = GlobalKey();
@@ -1541,7 +1541,7 @@ Future<void> main() async {
 
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      portalCandidateIdentifiers: const [firstPortal],
+      portalCandidateLabels: const [firstPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1555,7 +1555,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [secondPortal]
-      portalCandidateIdentifiers: const [secondPortal],
+      portalCandidateLabels: const [secondPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1569,7 +1569,7 @@ Future<void> main() async {
     );
     child = PortalTarget(
       // should put to [firstPortal], thus be higher than [secondPortal] in z-index
-      portalCandidateIdentifiers: const [firstPortal],
+      portalCandidateLabels: const [firstPortal],
       anchor: const Aligned(
         follower: Alignment.topLeft,
         target: Alignment.topLeft,
@@ -1587,13 +1587,13 @@ Future<void> main() async {
         child: Container(
           key: containerKey,
           child: Portal(
-            identifier: firstPortal,
+            label: firstPortal,
             child: Container(
               color: Colors.blue.withAlpha(50),
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Portal(
-                  identifier: secondPortal,
+                  label: secondPortal,
                   child: child,
                 ),
               ),
@@ -1614,7 +1614,7 @@ Future<void> main() async {
     final containerKey = GlobalKey();
 
     final inner = Portal(
-      identifier: const PortalMainIdentifier(),
+      label: PortalLabel.main,
       child: PortalTarget(
         // should be bound to **inner** "main"
         anchor: const Aligned(
@@ -1628,9 +1628,7 @@ Future<void> main() async {
         ),
         child: PortalTarget(
           // should be bound to "non-main"
-          portalCandidateIdentifiers: const [
-            PortalIdentifier<String>('non-main')
-          ],
+          portalCandidateLabels: const [PortalLabel<String>('non-main')],
           anchor: const Aligned(
             follower: Alignment.topRight,
             target: Alignment.topRight,
@@ -1644,7 +1642,7 @@ Future<void> main() async {
             color: Colors.blue.withAlpha(50),
             padding: const EdgeInsets.all(10),
             child: Portal(
-              identifier: const PortalMainIdentifier(),
+              label: PortalLabel.main,
               child: Container(color: Colors.purple.withAlpha(50)),
             ),
           ),
@@ -1657,16 +1655,16 @@ Future<void> main() async {
         child: Container(
           key: containerKey,
           child: Portal(
-            identifier: const PortalMainIdentifier(),
+            label: PortalLabel.main,
             child: Container(
               color: Colors.blue.withAlpha(50),
               padding: const EdgeInsets.all(10),
               child: Portal(
-                identifier: const PortalIdentifier<String>('non-main'),
+                label: const PortalLabel<String>('non-main'),
                 child: PortalTarget(
                   // should be bound to "non-main"
-                  portalCandidateIdentifiers: const [
-                    PortalIdentifier<String>('non-main')
+                  portalCandidateLabels: const [
+                    PortalLabel<String>('non-main')
                   ],
                   anchor: const Aligned(
                     follower: Alignment.topLeft,
@@ -1713,8 +1711,8 @@ Future<void> main() async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    const first = PortalIdentifier('first');
-    const second = PortalIdentifier('second');
+    const first = PortalLabel('first');
+    const second = PortalLabel('second');
 
     final boilerplateKey = GlobalKey();
 
@@ -1722,18 +1720,18 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          identifier: first,
+          label: first,
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Portal(
-              identifier: second,
+              label: second,
               child: Container(
                 color: Colors.blue,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  portalCandidateIdentifiers: const [first],
+                  portalCandidateLabels: const [first],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugName: 'OuterTargetToFirstPortal',
@@ -1744,7 +1742,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      portalCandidateIdentifiers: const [second],
+                      portalCandidateLabels: const [second],
                       debugName: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
@@ -1776,10 +1774,9 @@ Future<void> main() async {
     // print('exception: $exception');
     expect(exception.info.selfDebugLabel, 'InnerTargetToSecondPortal');
     expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
-    expect(exception.info.selfScope.portalIdentifier, second);
-    expect(exception.info.parentScope.portalIdentifier, first);
-    expect(
-        exception.info.portalLinkScopeAncestors.map((e) => e.portalIdentifier),
+    expect(exception.info.selfScope.portalLabel, second);
+    expect(exception.info.parentScope.portalLabel, first);
+    expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabel),
         [second, first]);
   });
 
@@ -1789,8 +1786,8 @@ Future<void> main() async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    const first = PortalIdentifier('first');
-    const second = PortalIdentifier('second');
+    const first = PortalLabel('first');
+    const second = PortalLabel('second');
 
     final boilerplateKey = GlobalKey();
 
@@ -1798,18 +1795,18 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          identifier: first,
+          label: first,
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Portal(
-              identifier: second,
+              label: second,
               child: Container(
                 color: Colors.blue,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: PortalTarget(
-                  portalCandidateIdentifiers: const [second],
+                  portalCandidateLabels: const [second],
                   anchor: const Aligned(
                       follower: Alignment.topLeft, target: Alignment.topLeft),
                   debugName: 'OuterTargetToSecondPortal',
@@ -1822,7 +1819,7 @@ Future<void> main() async {
                     width: 200,
                     height: 200,
                     child: PortalTarget(
-                      portalCandidateIdentifiers: const [first],
+                      portalCandidateLabels: const [first],
                       debugName: 'InnerTargetToFirstPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,
@@ -1862,8 +1859,8 @@ Future<void> main() async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    const first = PortalIdentifier('first');
-    const second = PortalIdentifier('second');
+    const first = PortalLabel('first');
+    const second = PortalLabel('second');
 
     final boilerplateKey = GlobalKey();
 
@@ -1871,12 +1868,12 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          identifier: first,
+          label: first,
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: PortalTarget(
-              portalCandidateIdentifiers: const [first],
+              portalCandidateLabels: const [first],
               anchor: const Aligned(
                   follower: Alignment.topLeft, target: Alignment.topLeft),
               debugName: 'OuterTargetToFirstPortal',
@@ -1887,7 +1884,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: Portal(
-                  identifier: second,
+                  label: second,
                   child: Container(
                     color: Colors.teal,
                     margin: const EdgeInsets.symmetric(
@@ -1897,7 +1894,7 @@ Future<void> main() async {
                     width: 150,
                     height: 150,
                     child: PortalTarget(
-                      portalCandidateIdentifiers: const [second],
+                      portalCandidateLabels: const [second],
                       debugName: 'InnerTargetToSecondPortal',
                       anchor: const Aligned(
                           follower: Alignment.topLeft,

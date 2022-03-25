@@ -44,12 +44,12 @@ class Portal extends StatefulWidget {
   const Portal({
     Key? key,
     this.debugName,
-    this.identifier = const PortalMainIdentifier(),
+    this.label = PortalLabel.main,
     required this.child,
   }) : super(key: key);
 
   final String? debugName;
-  final PortalIdentifier identifier;
+  final PortalLabel label;
   final Widget child;
 
   @override
@@ -59,8 +59,7 @@ class Portal extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(StringProperty('debugName', debugName));
-    properties
-        .add(DiagnosticsProperty<PortalIdentifier>('identifier', identifier));
+    properties.add(DiagnosticsProperty<PortalLabel>('label', label));
   }
 }
 
@@ -71,7 +70,7 @@ class _PortalState extends State<Portal> {
   Widget build(BuildContext context) {
     return PortalLinkScope(
       debugName: widget.debugName,
-      portalIdentifier: widget.identifier,
+      portalLabel: widget.label,
       portalLink: _portalLink,
       child: PortalTheater(
         debugName: widget.debugName,
@@ -92,19 +91,21 @@ typedef PortalFollower = Widget;
 
 // implementation references [ValueKey]
 @immutable
-class PortalIdentifier<T> {
-  /// Creates a portal identifier that delegates its [operator==] to the given value.
-  const PortalIdentifier(this.value);
+class PortalLabel<T> {
+  /// Creates a portal label that delegates its [operator==] to the given value.
+  const PortalLabel(this.value);
 
-  /// The value to which this portal identifier delegates its [operator==]
+  /// The value to which this portal label delegates its [operator==]
   final T value;
+
+  static const main = _PortalMainLabel();
 
   @override
   bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is PortalIdentifier<T> && other.value == value;
+    return other is PortalLabel<T> && other.value == value;
   }
 
   @override
@@ -117,9 +118,9 @@ class PortalIdentifier<T> {
   }
 }
 
-class PortalMainIdentifier extends PortalIdentifier<void> {
-  const PortalMainIdentifier() : super(null);
+class _PortalMainLabel extends PortalLabel<void> {
+  const _PortalMainLabel() : super(null);
 
   @override
-  String toString() => 'PortalMainIdentifier';
+  String toString() => 'PortalLabel.main';
 }
