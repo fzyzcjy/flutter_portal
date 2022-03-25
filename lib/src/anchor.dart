@@ -97,12 +97,15 @@ class Aligned implements Anchor {
     this.widthFactor,
     this.heightFactor,
     this.backup,
+    this.debugName,
   });
 
   static const center = Aligned(
     follower: Alignment.center,
     target: Alignment.center,
   );
+
+  final String? debugName;
 
   /// The reference point on the follower element.
   final Alignment follower;
@@ -179,14 +182,26 @@ class Aligned implements Anchor {
     if (other is! Aligned) {
       return false;
     }
-    return follower == other.follower &&
+    return debugName == other.debugName &&
+        follower == other.follower &&
         target == other.target &&
         offset == other.offset &&
         backup == other.backup;
   }
 
   @override
-  int get hashCode => Object.hash(follower, target, offset, backup);
+  int get hashCode => Object.hash(debugName, follower, target, offset, backup);
+
+  @override
+  String toString() => 'Aligned{'
+      'debugName: $debugName, '
+      'follower: $follower, '
+      'target: $target, '
+      'offset: $offset, '
+      'widthFactor: $widthFactor, '
+      'heightFactor: $heightFactor, '
+      'backup: $backup'
+      '}';
 }
 
 extension on Size {
