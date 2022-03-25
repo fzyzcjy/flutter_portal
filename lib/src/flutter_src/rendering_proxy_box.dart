@@ -82,10 +82,6 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
     final portalTheaterToLeaderOffset =
         globalToLocal(Offset.zero, ancestor: theater);
 
-    print('hi CustomRenderLeaderLayer paint ($debugLabel) offset=$offset '
-        'offset-relative-to-theater=${globalToLocal(offset, ancestor: theater)} '
-        'this.globalToLocal(Offset.zero, ancestor: portalLink.theater!)=${this.globalToLocal(Offset.zero, ancestor: theater)}');
-
     if (layer == null) {
       layer = CustomLeaderLayer(
         link: link,
@@ -240,7 +236,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
   /// the leader is only attached to the [CustomLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
-  Offset _computeLinkedOffset(Offset leaderOffset) {
+  Offset _computeLinkedOffset() {
     assert(
       portalLink.theater != null,
       'The theater must be set in the OverlayLink when the '
@@ -249,8 +245,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     );
     final theater = portalLink.theater!;
 
-    // TODO new method!
-    final theaterShift = link.leader!.portalTheaterToLeaderOffset;
+    // old method
     // // In order to compute the theater rect, we must first offset (shift) it by
     // // the position of the top-left corner of the target in the coordinate space
     // // of the theater since we are working with it relative to the target.
@@ -258,27 +253,10 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     //   leaderOffset,
     //   ancestor: theater,
     // );
+    // new method #61
+    final theaterShift = link.leader!.portalTheaterToLeaderOffset;
 
     final theaterRect = theaterShift & theater.size;
-
-    // if (true || debugLabel == 'CSTextMarkSpanSegmentSideWidget-toolbar') {
-    //   final lines = <String>[];
-    //   lines.add('START' + '=' * 50);
-    //   lines.add(
-    //       'hi computeLinkedOffset (self=$debugLabel, theater=${theater.debugName}) '
-    //       'leaderOffset=$leaderOffset theaterShift=$theaterShift theaterSize=${theater.size} '
-    //       'theater-to-FollowerLayer=${this.globalToLocal(Offset.zero, ancestor: theater)} '
-    //       'FollowerLayer.globalToLocal=${this.globalToLocal(Offset.zero)} '
-    //       'Portal(Theater).globalToLocal=${theater.globalToLocal(Offset.zero)} ');
-    //   this.myGetTransformTo(
-    //       theater, "$debugLabel theater-to-FollowerLayer", lines);
-    //   this.myGetTransformTo(null, "$debugLabel FollowerLayer", lines);
-    //   theater.myGetTransformTo(null, "$debugLabel Portal(Theater)", lines);
-    //   lines.add('END' + '=' * 50);
-    //
-    //   print(lines.join('\n'));
-    //   //   debugDumpTextToFile(lines.join('\n'), filePrefix: 'portal');
-    // }
 
     return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
@@ -334,36 +312,5 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
-  }
-}
-
-extension on RenderObject {
-  Matrix4 myGetTransformTo(
-      RenderObject? ancestor, String hiName, List<String> lines) {
-    final bool ancestorSpecified = ancestor != null;
-    assert(attached);
-    if (ancestor == null) {
-      final AbstractNode? rootNode = owner!.rootNode;
-      if (rootNode is RenderObject) ancestor = rootNode;
-    }
-    final List<RenderObject> renderers = <RenderObject>[];
-    for (RenderObject renderer = this;
-        renderer != ancestor;
-        renderer = renderer.parent! as RenderObject) {
-      renderers.add(renderer);
-      assert(
-          renderer.parent != null); // Failed to find ancestor in parent chain.
-    }
-    // print('hi myGetTransformTo renderer.parent=${renderers.last.parent} ancestor=$ancestor');
-    if (ancestorSpecified) renderers.add(ancestor!);
-    lines.add('hi myGetTransformTo $hiName renderers=$renderers');
-    final Matrix4 transform = Matrix4.identity();
-    for (int index = renderers.length - 1; index > 0; index -= 1) {
-      renderers[index].applyPaintTransform(renderers[index - 1], transform);
-      lines.add(
-          'hi myGetTransformTo $hiName inside-loop after index=$index renderers[index]=${renderers[index]} transform=$transform');
-    }
-    lines.add('hi myGetTransformTo $hiName ans=$transform');
-    return transform;
   }
 }

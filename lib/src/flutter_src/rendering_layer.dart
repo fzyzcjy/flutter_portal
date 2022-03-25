@@ -212,9 +212,7 @@ class CustomFollowerLayer extends ContainerLayer {
   /// therefore the leader layer offset does not need to be added to the
   /// returned offset. The returned offset should only be the offset from the
   /// leader layer.
-  /// The `leaderOffset` is only passed in case it needs to be used inside of
-  /// the callback for computation reasons.
-  Offset Function(Offset leaderOffset) linkedOffsetCallback;
+  Offset Function() linkedOffsetCallback;
 
   Offset? _lastOffset;
   Matrix4? _lastTransform;
@@ -244,7 +242,7 @@ class CustomFollowerLayer extends ContainerLayer {
     // NOTE MODIFIED compute [linkedOffset] by callback, instead of using a field
     // We know the link leader cannot be null since we return early in
     // findAnnotations otherwise.
-    final linkedOffset = linkedOffsetCallback(link.leader!.offset);
+    final linkedOffset = linkedOffsetCallback();
     return Offset(result[0] - linkedOffset.dx, result[1] - linkedOffset.dy);
   }
 
@@ -386,7 +384,7 @@ class CustomFollowerLayer extends ContainerLayer {
     // NOTE MODIFIED change `applyTransform` to `hackyApplyTransform`
     leader._hackyApplyTransform(null, forwardTransform);
     // NOTE MODIFIED compute the [linkedOffset] by callback
-    final linkedOffset = linkedOffsetCallback(leader.offset);
+    final linkedOffset = linkedOffsetCallback();
     forwardTransform.translate(linkedOffset.dx, linkedOffset.dy);
 
     final inverseTransform = _collectTransformForLayerChain(inverseLayers);
@@ -458,7 +456,7 @@ class CustomFollowerLayer extends ContainerLayer {
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(TransformProperty('transform', getLastTransform(), defaultValue: null));
     // NOTE MODIFIED
-    properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(
+    properties.add(DiagnosticsProperty<Offset Function()>(
       'linkedOffsetCallback',
       linkedOffsetCallback,
     ));
