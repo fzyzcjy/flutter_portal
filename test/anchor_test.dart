@@ -80,9 +80,13 @@ void main() {
   testWidgets('$Aligned defers to backup if needed', (tester) async {
     var offsetAccessed = false;
     final backupAligned = _TestAligned(
-      source: Alignment.bottomLeft,
+      follower: Alignment.bottomLeft,
       target: Alignment.topLeft,
-      onGetSourceOffset: () => offsetAccessed = true,
+      onGetSourceOffset: (
+              {required followerSize,
+              required targetSize,
+              required portalRect}) =>
+          offsetAccessed = true,
     );
     final entry = PortalTarget(
       anchor: Aligned(
@@ -136,6 +140,67 @@ void main() {
 
     expect(offsetAccessed, true);
   });
+
+  // try to reproduce #61 (not reproduced yet)
+  testWidgets('anchor gets correct input', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    var calledGetSourceOffset = false;
+    final anchor = _TestAligned(
+      follower: Alignment.topLeft,
+      target: Alignment.bottomLeft,
+      onGetSourceOffset: (
+          {required followerSize, required targetSize, required portalRect}) {
+        // print('hi $followerSize $targetSize $portalRect');
+        expect(followerSize, const Size(20, 20));
+        expect(targetSize, const Size(10, 10));
+        expect(portalRect, const Rect.fromLTWH(-20, -20, 50, 50));
+
+        calledGetSourceOffset = true;
+      },
+    );
+
+    final entry = PortalTarget(
+      anchor: anchor,
+      portalFollower: Container(
+        width: 20,
+        height: 20,
+        color: Colors.green,
+      ),
+      child: Container(
+        width: 10,
+        height: 10,
+        color: Colors.red,
+      ),
+    );
+
+    final mainKey = GlobalKey();
+    await tester.pumpWidget(Container(
+      color: Colors.white,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          key: mainKey,
+          child: Container(
+            width: 50,
+            height: 50,
+            color: Colors.blue,
+            child: Portal(
+              child: Center(
+                child: entry,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+
+    // some verifications are done inside that callback
+    expect(calledGetSourceOffset, true);
+
+    await expectLater(find.byKey(mainKey), matchesGoldenFile('anchor.png'));
+  });
 }
 
 class _TestAnchor extends Anchor {
@@ -179,20 +244,24 @@ class _TestAnchor extends Anchor {
 
 class _TestAligned extends Aligned {
   const _TestAligned({
-    required Alignment source,
+    required Alignment follower,
     required Alignment target,
     Offset offset = Offset.zero,
     double? widthFactor,
     double? heightFactor,
     required this.onGetSourceOffset,
   }) : super(
-            follower: source,
+            follower: follower,
             target: target,
             offset: offset,
             widthFactor: widthFactor,
             heightFactor: heightFactor);
 
-  final VoidCallback onGetSourceOffset;
+  final void Function({
+    required Size followerSize,
+    required Size targetSize,
+    required Rect portalRect,
+  }) onGetSourceOffset;
 
   @override
   Offset getFollowerOffset({
@@ -200,7 +269,11 @@ class _TestAligned extends Aligned {
     required Size targetSize,
     required Rect portalRect,
   }) {
-    onGetSourceOffset();
+    onGetSourceOffset(
+      followerSize: followerSize,
+      targetSize: targetSize,
+      portalRect: portalRect,
+    );
     return super.getFollowerOffset(
       followerSize: followerSize,
       targetSize: targetSize,
