@@ -186,7 +186,7 @@ void main() {
             color: Colors.blue.shade200,
             child: RepaintBoundary(
               child: Container(
-                margin: const EdgeInsets.all(10),
+                margin: const EdgeInsets.symmetric(vertical: 15),
                 width: 50,
                 height: 50,
                 color: Colors.blue,
