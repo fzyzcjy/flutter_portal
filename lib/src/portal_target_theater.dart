@@ -164,7 +164,10 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
     if (child == branch) {
       // ignore all transformations applied between Portal and PortalTarget
-      transform.setFrom(portalLink.theater!.getTransformTo(null));
+      // #61
+      final theater = portalLink.theater!;
+      transform.multiply(getTransformTo(theater)..invert());
+      // transform.setFrom(portalLink.theater!.getTransformTo(null)); // old buggy method
     }
   }
 
