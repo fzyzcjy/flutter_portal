@@ -62,24 +62,26 @@ class CustomLayerLink {
   Size? leaderSize;
 
   @override
-  String toString() =>
-      '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
+  String toString() => '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
 /// @nodoc
 class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
-  CustomLeaderLayer(
-      {required CustomLayerLink link,
-      Offset offset = Offset.zero,
-      required this.debugLabel})
-      : assert(link != null),
+  CustomLeaderLayer({
+    required CustomLayerLink link,
+    Offset offset = Offset.zero,
+    required Offset portalTheaterToLeaderOffset,
+    required this.debugLabel,
+  })  : assert(link != null),
         _link = link,
+        _portalTheaterToLeaderOffset = portalTheaterToLeaderOffset,
         _offset = offset;
 
   /// @nodoc
   CustomLayerLink get link => _link;
   CustomLayerLink _link;
+
   set link(CustomLayerLink value) {
     assert(value != null);
     if (_link == value) {
@@ -95,12 +97,30 @@ class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
   Offset get offset => _offset;
   Offset _offset;
+
   set offset(Offset value) {
     assert(value != null);
     if (value == _offset) {
       return;
     }
     _offset = value;
+    if (!alwaysNeedsAddToScene) {
+      markNeedsAddToScene();
+    }
+  }
+
+  /// @nodoc
+  Offset get portalTheaterToLeaderOffset => _portalTheaterToLeaderOffset;
+  Offset _portalTheaterToLeaderOffset;
+
+  set portalTheaterToLeaderOffset(Offset value) {
+    assert(value != null);
+    if (value == _portalTheaterToLeaderOffset) {
+      return;
+    }
+    _portalTheaterToLeaderOffset = value;
+
+    // TODO(fzyzcjy): what to do when this value is changed???
     if (!alwaysNeedsAddToScene) {
       markNeedsAddToScene();
     }
@@ -122,11 +142,8 @@ class CustomLeaderLayer extends ContainerLayer {
   }
 
   @override
-  bool findAnnotations<S extends Object>(
-      AnnotationResult<S> result, Offset localPosition,
-      {required bool onlyFirst}) {
-    return super.findAnnotations<S>(result, localPosition - offset,
-        onlyFirst: onlyFirst);
+  bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, {required bool onlyFirst}) {
+    return super.findAnnotations<S>(result, localPosition - offset, onlyFirst: onlyFirst);
   }
 
   @override
@@ -152,6 +169,7 @@ class CustomLeaderLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
+    properties.add(DiagnosticsProperty<Offset>('portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
   }
@@ -209,6 +227,7 @@ class CustomFollowerLayer extends ContainerLayer {
   // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
   // but we just make it a constant zero.
   static const unlinkedOffset = Offset.zero;
+
   // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
   static const showWhenUnlinked = CustomRenderFollowerLayer.showWhenUnlinked;
 
@@ -230,13 +249,10 @@ class CustomFollowerLayer extends ContainerLayer {
   }
 
   @override
-  bool findAnnotations<S extends Object>(
-      AnnotationResult<S> result, Offset localPosition,
-      {required bool onlyFirst}) {
+  bool findAnnotations<S extends Object>(AnnotationResult<S> result, Offset localPosition, {required bool onlyFirst}) {
     if (link.leader == null) {
       if (showWhenUnlinked) {
-        return super.findAnnotations(result, localPosition - unlinkedOffset,
-            onlyFirst: onlyFirst);
+        return super.findAnnotations(result, localPosition - unlinkedOffset, onlyFirst: onlyFirst);
       }
       return false;
     }
@@ -244,8 +260,7 @@ class CustomFollowerLayer extends ContainerLayer {
     if (transformedOffset == null) {
       return false;
     }
-    return super
-        .findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
+    return super.findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
   }
 
   /// @nodoc
@@ -253,8 +268,7 @@ class CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform == null) {
       return null;
     }
-    final result =
-        Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
+    final result = Matrix4.translationValues(-_lastOffset!.dx, -_lastOffset!.dy, 0);
     result.multiply(_lastTransform!);
     return result;
   }
@@ -316,10 +330,8 @@ class CustomFollowerLayer extends ContainerLayer {
     }
 
     // Common ancestor is neither the leader nor the follower.
-    final leaderSubtreeBelowAncestor =
-        leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
-    final followerSubtreeBelowAncestor =
-        followerToCommonAncestor[followerToCommonAncestor.length - 2];
+    final leaderSubtreeBelowAncestor = leaderToCommonAncestor[leaderToCommonAncestor.length - 2];
+    final followerSubtreeBelowAncestor = followerToCommonAncestor[followerToCommonAncestor.length - 2];
 
     Layer? sibling = leaderSubtreeBelowAncestor;
     while (sibling != null) {
@@ -419,8 +431,7 @@ class CustomFollowerLayer extends ContainerLayer {
       // _lastOffset = unlinkedOffset;
     } else {
       _lastOffset = null;
-      final matrix =
-          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+      final matrix = Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
         oldLayer: engineLayer as ui.TransformEngineLayer?,
@@ -437,8 +448,7 @@ class CustomFollowerLayer extends ContainerLayer {
     if (_lastTransform != null) {
       transform.multiply(_lastTransform!);
     } else {
-      transform.multiply(
-          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
+      transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
     }
   }
 
@@ -446,8 +456,7 @@ class CustomFollowerLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(
-        TransformProperty('transform', getLastTransform(), defaultValue: null));
+    properties.add(TransformProperty('transform', getLastTransform(), defaultValue: null));
     // NOTE MODIFIED
     properties.add(DiagnosticsProperty<Offset Function(Offset leaderOffset)>(
       'linkedOffsetCallback',
@@ -464,8 +473,7 @@ extension on ContainerLayer {
 
     // LeaderLayer in Flutter 2.8 - 2.10 is buggy
     if (that is LeaderLayer) {
-      if (that.offset != Offset.zero)
-        transform.translate(that.offset.dx, that.offset.dy);
+      if (that.offset != Offset.zero) transform.translate(that.offset.dx, that.offset.dy);
       return;
     }
 

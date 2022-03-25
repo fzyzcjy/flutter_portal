@@ -279,6 +279,7 @@ class _PortalTargetState extends State<PortalTarget> {
       children: <Widget>[
         CustomCompositedTransformTarget(
           link: _link,
+          portalLink: scope.portalLink,
           debugLabel: widget.debugLabel,
           child: widget.child,
         ),

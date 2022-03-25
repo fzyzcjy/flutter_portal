@@ -15,6 +15,8 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   const CustomCompositedTransformTarget({
     Key? key,
     required this.link,
+    // NOTE MODIFIED some arguments
+    required this.portalLink,
     required this.debugLabel,
     Widget? child,
   })  : assert(link != null),
@@ -23,6 +25,9 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   /// @nodoc
   final CustomLayerLink link;
 
+  /// @nodoc
+  final PortalLink portalLink;
+
   // NOTE MODIFIED add
   final String? debugLabel;
 
@@ -30,6 +35,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   CustomRenderLeaderLayer createRenderObject(BuildContext context) {
     return CustomRenderLeaderLayer(
       link: link,
+      portalLink: portalLink,
       debugLabel: debugLabel,
     );
   }
@@ -39,6 +45,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
       BuildContext context, CustomRenderLeaderLayer renderObject) {
     renderObject
       ..link = link
+      ..portalLink = portalLink
       ..debugLabel = debugLabel;
   }
 }

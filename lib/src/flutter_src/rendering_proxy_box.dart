@@ -3,7 +3,9 @@
 
 // ignore_for_file: unnecessary_null_comparison, curly_braces_in_flow_control_structures, omit_local_variable_types, comment_references, always_put_control_body_on_new_line
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
+import 'package:common_flutter/utils/debug.dart';
 
 import '../anchor.dart';
 import '../portal_link.dart';
@@ -14,10 +16,13 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   /// @nodoc
   CustomRenderLeaderLayer({
     required CustomLayerLink link,
+    // NOTE MODIFIED some arguments
+    required PortalLink portalLink,
     required String? debugLabel,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
+        _portalLink = portalLink,
         _debugLabel = debugLabel,
         super(child);
 
@@ -32,6 +37,18 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
     if (_previousLayoutSize != null) {
       _link.leaderSize = _previousLayoutSize;
     }
+    markNeedsPaint();
+  }
+
+  /// @nodoc
+  PortalLink get portalLink => _portalLink;
+  PortalLink _portalLink;
+
+  set portalLink(PortalLink value) {
+    if (_portalLink == value) {
+      return;
+    }
+    _portalLink = value;
     markNeedsPaint();
   }
 
@@ -61,14 +78,27 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    final theater = portalLink.theater!;
+    final portalTheaterToLeaderOffset =
+        globalToLocal(Offset.zero, ancestor: theater);
+
+    print('hi CustomRenderLeaderLayer paint ($debugLabel) offset=$offset '
+        'offset-relative-to-theater=${globalToLocal(offset, ancestor: theater)} '
+        'this.globalToLocal(Offset.zero, ancestor: portalLink.theater!)=${this.globalToLocal(Offset.zero, ancestor: theater)}');
+
     if (layer == null) {
-      layer =
-          CustomLeaderLayer(link: link, offset: offset, debugLabel: debugLabel);
+      layer = CustomLeaderLayer(
+        link: link,
+        offset: offset,
+        portalTheaterToLeaderOffset: portalTheaterToLeaderOffset,
+        debugLabel: debugLabel,
+      );
     } else {
       final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
       leaderLayer
         ..link = link
         ..offset = offset
+        ..portalTheaterToLeaderOffset = portalTheaterToLeaderOffset
         ..debugLabel = debugLabel;
     }
     context.pushLayer(layer!, super.paint, Offset.zero);
@@ -219,15 +249,36 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     );
     final theater = portalLink.theater!;
 
-    // In order to compute the theater rect, we must first offset (shift) it by
-    // the position of the top-left corner of the target in the coordinate space
-    // of the theater since we are working with it relative to the target.
-    final theaterShift = -globalToLocal(
-      leaderOffset,
-      ancestor: theater,
-    );
+    // TODO new method!
+    final theaterShift = link.leader!.portalTheaterToLeaderOffset;
+    // // In order to compute the theater rect, we must first offset (shift) it by
+    // // the position of the top-left corner of the target in the coordinate space
+    // // of the theater since we are working with it relative to the target.
+    // final theaterShift = -globalToLocal(
+    //   leaderOffset,
+    //   ancestor: theater,
+    // );
 
     final theaterRect = theaterShift & theater.size;
+
+    // if (true || debugLabel == 'CSTextMarkSpanSegmentSideWidget-toolbar') {
+    //   final lines = <String>[];
+    //   lines.add('START' + '=' * 50);
+    //   lines.add(
+    //       'hi computeLinkedOffset (self=$debugLabel, theater=${theater.debugName}) '
+    //       'leaderOffset=$leaderOffset theaterShift=$theaterShift theaterSize=${theater.size} '
+    //       'theater-to-FollowerLayer=${this.globalToLocal(Offset.zero, ancestor: theater)} '
+    //       'FollowerLayer.globalToLocal=${this.globalToLocal(Offset.zero)} '
+    //       'Portal(Theater).globalToLocal=${theater.globalToLocal(Offset.zero)} ');
+    //   this.myGetTransformTo(
+    //       theater, "$debugLabel theater-to-FollowerLayer", lines);
+    //   this.myGetTransformTo(null, "$debugLabel FollowerLayer", lines);
+    //   theater.myGetTransformTo(null, "$debugLabel Portal(Theater)", lines);
+    //   lines.add('END' + '=' * 50);
+    //
+    //   print(lines.join('\n'));
+    //   //   debugDumpTextToFile(lines.join('\n'), filePrefix: 'portal');
+    // }
 
     return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
@@ -283,5 +334,36 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugLabel', debugLabel));
+  }
+}
+
+extension on RenderObject {
+  Matrix4 myGetTransformTo(
+      RenderObject? ancestor, String hiName, List<String> lines) {
+    final bool ancestorSpecified = ancestor != null;
+    assert(attached);
+    if (ancestor == null) {
+      final AbstractNode? rootNode = owner!.rootNode;
+      if (rootNode is RenderObject) ancestor = rootNode;
+    }
+    final List<RenderObject> renderers = <RenderObject>[];
+    for (RenderObject renderer = this;
+        renderer != ancestor;
+        renderer = renderer.parent! as RenderObject) {
+      renderers.add(renderer);
+      assert(
+          renderer.parent != null); // Failed to find ancestor in parent chain.
+    }
+    // print('hi myGetTransformTo renderer.parent=${renderers.last.parent} ancestor=$ancestor');
+    if (ancestorSpecified) renderers.add(ancestor!);
+    lines.add('hi myGetTransformTo $hiName renderers=$renderers');
+    final Matrix4 transform = Matrix4.identity();
+    for (int index = renderers.length - 1; index > 0; index -= 1) {
+      renderers[index].applyPaintTransform(renderers[index - 1], transform);
+      lines.add(
+          'hi myGetTransformTo $hiName inside-loop after index=$index renderers[index]=${renderers[index]} transform=$transform');
+    }
+    lines.add('hi myGetTransformTo $hiName ans=$transform');
+    return transform;
   }
 }
