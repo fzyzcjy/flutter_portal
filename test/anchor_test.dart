@@ -177,18 +177,24 @@ void main() {
 
     final mainKey = GlobalKey();
     await tester.pumpWidget(Container(
-      color: Colors.white,
+      color: Colors.blue.shade50,
       child: Directionality(
         textDirection: TextDirection.ltr,
         child: Center(
           key: mainKey,
           child: Container(
-            width: 50,
-            height: 50,
-            color: Colors.blue,
-            child: Portal(
-              child: Center(
-                child: entry,
+            color: Colors.blue.shade200,
+            child: RepaintBoundary(
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                width: 50,
+                height: 50,
+                color: Colors.blue,
+                child: Portal(
+                  child: Center(
+                    child: entry,
+                  ),
+                ),
               ),
             ),
           ),
