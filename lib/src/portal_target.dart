@@ -245,7 +245,7 @@ class PortalTarget extends StatefulWidget {
     if (scope == null) {
       return null;
     }
-    return '(debugName: ${scope.debugName}, portalLabel: ${scope.portalLabel})';
+    return '(debugName: ${scope.debugName}, portalLabel: ${scope.portalLabels})';
   }
 
   static PortalLinkScope? _dependOnScope(
@@ -255,7 +255,7 @@ class PortalTarget extends StatefulWidget {
     for (final portalLabel in portalCandidateLabels) {
       final scope =
           context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-              (scope) => portalLabel == scope.portalLabel);
+              (scope) => scope.portalLabels.contains(portalLabel));
       if (scope != null) {
         return scope;
       }

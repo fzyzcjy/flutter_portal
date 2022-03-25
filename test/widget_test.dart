@@ -1587,13 +1587,13 @@ Future<void> main() async {
         child: Container(
           key: containerKey,
           child: Portal(
-            label: firstPortal,
+            labels: const [firstPortal],
             child: Container(
               color: Colors.blue.withAlpha(50),
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Portal(
-                  label: secondPortal,
+                  labels: const [secondPortal],
                   child: child,
                 ),
               ),
@@ -1614,7 +1614,7 @@ Future<void> main() async {
     final containerKey = GlobalKey();
 
     final inner = Portal(
-      label: PortalLabel.main,
+      labels: const [PortalLabel.main],
       child: PortalTarget(
         // should be bound to **inner** "main"
         anchor: const Aligned(
@@ -1642,7 +1642,7 @@ Future<void> main() async {
             color: Colors.blue.withAlpha(50),
             padding: const EdgeInsets.all(10),
             child: Portal(
-              label: PortalLabel.main,
+              labels: const [PortalLabel.main],
               child: Container(color: Colors.purple.withAlpha(50)),
             ),
           ),
@@ -1655,12 +1655,12 @@ Future<void> main() async {
         child: Container(
           key: containerKey,
           child: Portal(
-            label: PortalLabel.main,
+            labels: const [PortalLabel.main],
             child: Container(
               color: Colors.blue.withAlpha(50),
               padding: const EdgeInsets.all(10),
               child: Portal(
-                label: const PortalLabel<String>('non-main'),
+                labels: const [PortalLabel<String>('non-main')],
                 child: PortalTarget(
                   // should be bound to "non-main"
                   portalCandidateLabels: const [
@@ -1720,12 +1720,12 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          label: first,
+          labels: const [first],
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Portal(
-              label: second,
+              labels: const [second],
               child: Container(
                 color: Colors.blue,
                 padding:
@@ -1774,9 +1774,9 @@ Future<void> main() async {
     // print('exception: $exception');
     expect(exception.info.selfDebugLabel, 'InnerTargetToSecondPortal');
     expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
-    expect(exception.info.selfScope.portalLabel, second);
-    expect(exception.info.parentScope.portalLabel, first);
-    expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabel),
+    expect(exception.info.selfScope.portalLabels, second);
+    expect(exception.info.parentScope.portalLabels, first);
+    expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabels),
         [second, first]);
   });
 
@@ -1795,12 +1795,12 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          label: first,
+          labels: const [first],
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Portal(
-              label: second,
+              labels: const [second],
               child: Container(
                 color: Colors.blue,
                 padding:
@@ -1868,7 +1868,7 @@ Future<void> main() async {
       Boilerplate(
         key: boilerplateKey,
         child: Portal(
-          label: first,
+          labels: const [first],
           child: Container(
             color: Colors.purple,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -1884,7 +1884,7 @@ Future<void> main() async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: Portal(
-                  label: second,
+                  labels: const [second],
                   child: Container(
                     color: Colors.teal,
                     margin: const EdgeInsets.symmetric(
