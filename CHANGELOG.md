@@ -4,6 +4,8 @@
 * `Aligned.backup` is always used even if it should not; cause: `getFollowerOffset`'s `portalRect` argument is wrong #63 (@fzyzcjy)
 * `CustomRenderFollowerLayer._computeLinkedOffset` is wrong especially when having a RepaintBoundary at ancestor which is quite common #62 (@fzyzcjy)
 * `_RenderPortalTargetTheater.applyPaintTransform` is wrong when using operations like `globalToLocal(ancestor: something)`; it only works correctly with `globalToLocal()` without ancestors param #61 (@fzyzcjy)
+* `localToGlobal` or similar methods are wrong for widgets in the subtree of portal follower #65 (@fzyzcjy)
+* Touch (click) events are drifted (shifted incorrectly) for `PortalTarget`s #64 (@fzyzcjy)
 
 # 1.0.0-dev.2
 
