@@ -1869,10 +1869,10 @@ Future<void> main() async {
     // print('exception: $exception');
     expect(exception.info.selfDebugLabel, 'InnerTargetToSecondPortal');
     expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
-    expect(exception.info.selfScope.portalLabels, second);
-    expect(exception.info.parentScope.portalLabels, first);
+    expect(exception.info.selfScope.portalLabels, [second]);
+    expect(exception.info.parentScope.portalLabels, [first]);
     expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabels),
-        [second, first]);
+        [[second], [first]]);
   });
 
   testWidgets(
