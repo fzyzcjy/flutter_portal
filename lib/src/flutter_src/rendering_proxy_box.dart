@@ -273,12 +273,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
       layer = CustomFollowerLayer(
         link: link,
         linkedOffsetCallback: _computeLinkedOffset,
+        unlinkedOffset: offset,
         debugName: debugName,
       );
     } else {
       layer
         ?..link = link
         ..linkedOffsetCallback = _computeLinkedOffset
+        ..unlinkedOffset = offset
         ..debugName = debugName;
     }
 

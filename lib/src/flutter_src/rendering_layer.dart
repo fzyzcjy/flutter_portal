@@ -1,7 +1,7 @@
 // NOTE adapted from Flutter beta 2.11.0-0.1.pre (notice beta, not stable)
 // Please place a `NOTE MODIFIED` marker whenever you change the Flutter code
 
-// ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types, avoid_types_on_closure_parameters, always_put_control_body_on_new_line
+// ignore_for_file: comment_references, unnecessary_null_comparison, curly_braces_in_flow_control_structures, prefer_int_literals, diagnostic_describe_all_properties, omit_local_variable_types, avoid_types_on_closure_parameters, always_put_control_body_on_new_line, unnecessary_null_checks
 
 import 'dart:ui' as ui;
 
@@ -203,6 +203,7 @@ class CustomFollowerLayer extends ContainerLayer {
     // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
     // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
+    this.unlinkedOffset = Offset.zero,
     required this.debugName,
   });
 
@@ -227,9 +228,7 @@ class CustomFollowerLayer extends ContainerLayer {
   // NOTE MODIFIED add
   String? debugName;
 
-  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
-  // but we just make it a constant zero.
-  static const unlinkedOffset = Offset.zero;
+  Offset? unlinkedOffset;
 
   // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
   static const showWhenUnlinked = CustomRenderFollowerLayer.showWhenUnlinked;
@@ -257,7 +256,7 @@ class CustomFollowerLayer extends ContainerLayer {
       {required bool onlyFirst}) {
     if (link.leader == null) {
       if (showWhenUnlinked) {
-        return super.findAnnotations(result, localPosition - unlinkedOffset,
+        return super.findAnnotations(result, localPosition - unlinkedOffset!,
             onlyFirst: onlyFirst);
       }
       return false;
@@ -427,7 +426,7 @@ class CustomFollowerLayer extends ContainerLayer {
     _establishTransform();
     if (_lastTransform != null) {
       // NOTE MODIFIED this line is moved from below, such that it is run before addChildrenToScene
-      _lastOffset = unlinkedOffset;
+      _lastOffset = unlinkedOffset!;
 
       engineLayer = builder.pushTransform(
         _lastTransform!.storage,
@@ -438,11 +437,11 @@ class CustomFollowerLayer extends ContainerLayer {
       builder.pop();
 
       // NOTE MODIFIED move this line to above, such that it is run before addChildrenToScene
-      // _lastOffset = unlinkedOffset;
+      // _lastOffset = unlinkedOffset!;
     } else {
       _lastOffset = null;
       final matrix =
-          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+          Matrix4.translationValues(unlinkedOffset!.dx, unlinkedOffset!.dy, 0);
       engineLayer = builder.pushTransform(
         matrix.storage,
         oldLayer: engineLayer as ui.TransformEngineLayer?,
@@ -460,7 +459,7 @@ class CustomFollowerLayer extends ContainerLayer {
       transform.multiply(_lastTransform!);
     } else {
       transform.multiply(
-          Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
+          Matrix4.translationValues(unlinkedOffset!.dx, unlinkedOffset!.dy, 0));
     }
   }
 
