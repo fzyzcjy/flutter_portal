@@ -75,12 +75,9 @@ class RenderPortalTheater extends RenderProxyBox {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final globalPosition = localToGlobal(position);
     for (final overlay in portalLink.overlays) {
-      // See #42, #59 for details
-      final effectivePosition =
-          overlay.anchor is Filled ? position : globalPosition;
-      if (overlay.overlay.hitTest(result, position: effectivePosition)) {
+      // See #42, #59, #64 for details
+      if (overlay.overlay.hitTest(result, position: position)) {
         return true;
       }
     }
