@@ -772,6 +772,53 @@ Future<void> main() async {
     expect(childClickCount, equals(0));
   });
 
+  testWidgets('click when portal is shifted', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    final containerKey = GlobalKey();
+    final pointerDownEvents = <PointerDownEvent>[];
+
+    await tester.pumpWidget(
+      Container(
+        key: containerKey,
+        color: Colors.white,
+        padding: const EdgeInsets.all(10),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Portal(
+            child: PortalTarget(
+              anchor: const Aligned(
+                target: Alignment.bottomLeft,
+                follower: Alignment.bottomLeft,
+              ),
+              portalFollower: Listener(
+                onPointerDown: pointerDownEvents.add,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  color: Colors.green,
+                ),
+              ),
+              child: Container(
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tapAt(const Offset(25, 85));
+
+    await expectLater(
+        find.byKey(containerKey), matchesGoldenFile('click_when_shifted.png'));
+
+    final event = pointerDownEvents.single;
+    expect(event.localPosition, const Offset(15, 15));
+    expect(event.position, const Offset(25, 85));
+  });
+
   testWidgets('if portal is not above child, we can click on both',
       (tester) async {
     var portalClickCount = 0;
