@@ -772,6 +772,51 @@ Future<void> main() async {
     expect(childClickCount, equals(0));
   });
 
+  // #65
+  testWidgets('localToGlobal when portal is shifted', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    final containerKey = GlobalKey();
+    final portalFollowerKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Container(
+        key: containerKey,
+        color: Colors.white,
+        padding: const EdgeInsets.all(10),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Portal(
+            child: PortalTarget(
+              anchor: const Aligned(
+                target: Alignment.bottomLeft,
+                follower: Alignment.bottomLeft,
+              ),
+              portalFollower: Container(
+                key: portalFollowerKey,
+                width: 20,
+                height: 20,
+                color: Colors.green,
+              ),
+              child: Container(
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+        find.byKey(containerKey), matchesGoldenFile('local_to_global_when_shifted.png'));
+
+    final portalFollowerRenderBox = portalFollowerKey.currentContext!.findRenderObject()! as RenderBox;
+    expect(portalFollowerRenderBox.localToGlobal(Offset.zero), const Offset(10, 70));
+    expect(portalFollowerRenderBox.globalToLocal(Offset.zero), const Offset(-10, -70));
+  });
+
+  // #64
   testWidgets('click when portal is shifted', (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
