@@ -808,12 +808,15 @@ Future<void> main() async {
       ),
     );
 
-    await expectLater(
-        find.byKey(containerKey), matchesGoldenFile('local_to_global_when_shifted.png'));
+    await expectLater(find.byKey(containerKey),
+        matchesGoldenFile('local_to_global_when_shifted.png'));
 
-    final portalFollowerRenderBox = portalFollowerKey.currentContext!.findRenderObject()! as RenderBox;
-    expect(portalFollowerRenderBox.localToGlobal(Offset.zero), const Offset(10, 70));
-    expect(portalFollowerRenderBox.globalToLocal(Offset.zero), const Offset(-10, -70));
+    final portalFollowerRenderBox =
+        portalFollowerKey.currentContext!.findRenderObject()! as RenderBox;
+    expect(portalFollowerRenderBox.localToGlobal(Offset.zero),
+        const Offset(10, 70));
+    expect(portalFollowerRenderBox.globalToLocal(Offset.zero),
+        const Offset(-10, -70));
   });
 
   // #64
