@@ -1871,8 +1871,10 @@ Future<void> main() async {
     expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
     expect(exception.info.selfScope.portalLabels, [second]);
     expect(exception.info.parentScope.portalLabels, [first]);
-    expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabels),
-        [[second], [first]]);
+    expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabels), [
+      [second],
+      [first]
+    ]);
   });
 
   testWidgets(

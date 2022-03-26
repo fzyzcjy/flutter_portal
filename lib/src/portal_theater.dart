@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'anchor.dart';
 import 'portal_link.dart';
 
 class PortalTheater extends SingleChildRenderObjectWidget {
