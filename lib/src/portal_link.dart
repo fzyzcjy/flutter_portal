@@ -38,12 +38,14 @@ class PortalLinkScope extends InheritedWidget {
     Key? key,
     required this.debugName,
     required this.portalLink,
+    required this.portalContentPadding,
     required this.portalLabels,
     required Widget child,
   }) : super(key: key, child: child);
 
   final String? debugName;
   final PortalLink portalLink;
+  final EdgeInsets portalContentPadding;
   final List<PortalLabel> portalLabels;
 
   @override
@@ -57,6 +59,8 @@ class PortalLinkScope extends InheritedWidget {
     super.debugFillProperties(properties);
     properties.add(StringProperty('debugName', debugName));
     properties.add(DiagnosticsProperty('portalLink', portalLink));
+    properties
+        .add(DiagnosticsProperty('portalContentPadding', portalContentPadding));
     properties.add(DiagnosticsProperty('portalLabel', portalLabels));
   }
 
