@@ -321,7 +321,7 @@ class _PortalTargetState extends State<PortalTarget> {
                         : _PortalTargetTheaterFollowerParent(
                             usedScope: scope,
                             debugSelfWidget: widget,
-                            child: _buildPaddedPortalFollower(scope)!,
+                            child: widget.portalFollower!,
                           ),
                   ),
                   child: const SizedBox.shrink(),
@@ -335,23 +335,11 @@ class _PortalTargetState extends State<PortalTarget> {
 
   Widget _buildModeFilled(bool currentVisible, PortalLinkScope scope) {
     return PortalTargetTheater(
-      portalFollower: currentVisible ? _buildPaddedPortalFollower(scope) : null,
+      portalFollower: currentVisible ? widget.portalFollower : null,
       anchor: widget.anchor,
       targetSize: Size.zero,
       portalLink: scope.portalLink,
       child: widget.child,
-    );
-  }
-
-  Widget? _buildPaddedPortalFollower(PortalLinkScope scope) {
-    final portalFollower = widget.portalFollower;
-    if (portalFollower == null) {
-      return null;
-    }
-
-    return Padding(
-      padding: scope.portalContentPadding,
-      child: portalFollower,
     );
   }
 

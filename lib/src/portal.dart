@@ -44,13 +44,11 @@ class Portal extends StatefulWidget {
   const Portal({
     Key? key,
     this.debugName,
-    this.contentPadding = EdgeInsets.zero,
     this.labels = const [PortalLabel.main],
     required this.child,
   }) : super(key: key);
 
   final String? debugName;
-  final EdgeInsets contentPadding;
   final List<PortalLabel> labels;
   final Widget child;
 
@@ -61,8 +59,6 @@ class Portal extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(StringProperty('debugName', debugName));
-    properties
-        .add(DiagnosticsProperty<EdgeInsets>('contentPadding', contentPadding));
     properties.add(DiagnosticsProperty('labels', labels));
   }
 }
@@ -75,7 +71,6 @@ class _PortalState extends State<Portal> {
     return PortalLinkScope(
       debugName: widget.debugName,
       portalLabels: widget.labels,
-      portalContentPadding: widget.contentPadding,
       portalLink: _portalLink,
       child: PortalTheater(
         debugName: widget.debugName,
