@@ -2024,6 +2024,58 @@ Future<void> main() async {
     await expectLater(find.byKey(boilerplateKey),
         matchesGoldenFile('multi_portal_nested_follower_2.png'));
   });
+
+  testWidgets('Portal contentPadding', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    final containerKey = GlobalKey();
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Container(
+          key: containerKey,
+          child: Portal(
+            contentPadding: const EdgeInsets.all(20),
+            child: Container(
+              color: Colors.blue,
+              child: PortalTarget(
+                anchor: const Filled(),
+                portalFollower: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red, width: 2),
+                  ),
+                ),
+                child: PortalTarget(
+                  anchor: const Aligned(
+                    follower: Alignment.bottomLeft,
+                    target: Alignment.bottomLeft,
+                  ),
+                  portalFollower: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.orange, width: 2),
+                    ),
+                    height: 20,
+                    width: 20,
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+        find.byKey(containerKey), matchesGoldenFile('content_padding.png'));
+  });
 }
 
 class Boilerplate extends StatelessWidget {
