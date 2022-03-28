@@ -187,10 +187,10 @@ class Aligned implements Anchor {
       alignToPortalY ? followerAlignPortal.height : followerAlignTarget.height,
     );
 
-    print('hi getFollowerOffset '
-        'followerSize=$followerSize targetSize=$targetSize portalRect=$portalRect '
-        'followerAlignPortal=$followerAlignPortal followerAlignTarget=$followerAlignTarget '
-        'followerRect=$followerRect');
+    // print('hi getFollowerOffset '
+    //     'followerSize=$followerSize targetSize=$targetSize portalRect=$portalRect '
+    //     'followerAlignPortal=$followerAlignPortal followerAlignTarget=$followerAlignTarget '
+    //     'followerRect=$followerRect');
 
     if (!portalRect.fullyContains(followerRect)) {
       final backup = this.backup;
