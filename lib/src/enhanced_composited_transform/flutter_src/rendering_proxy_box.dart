@@ -5,16 +5,17 @@
 
 import 'package:flutter/rendering.dart';
 
-import '../anchor.dart';
+import '../../anchor.dart';
+import '../theater_info.dart';
 import 'rendering_layer.dart';
 
 /// @nodoc
-class CustomRenderLeaderLayer extends RenderProxyBox {
+class EnhancedRenderLeaderLayer extends RenderProxyBox {
   /// @nodoc
-  CustomRenderLeaderLayer({
-    required CustomLayerLink link,
+  EnhancedRenderLeaderLayer({
+    required EnhancedLayerLink link,
     // NOTE MODIFIED some arguments
-    required CustomCompositedTransformTheaterInfo theaterInfo,
+    required EnhancedCompositedTransformTheaterInfo theaterInfo,
     required String? debugName,
     RenderBox? child,
   })  : assert(link != null),
@@ -24,9 +25,9 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
         super(child);
 
   /// @nodoc
-  CustomLayerLink get link => _link;
-  CustomLayerLink _link;
-  set link(CustomLayerLink value) {
+  EnhancedLayerLink get link => _link;
+  EnhancedLayerLink _link;
+  set link(EnhancedLayerLink value) {
     assert(value != null);
     if (_link == value) return;
     _link.leaderSize = null;
@@ -38,10 +39,10 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  CustomCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
-  CustomCompositedTransformTheaterInfo _theaterInfo;
+  EnhancedCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
+  EnhancedCompositedTransformTheaterInfo _theaterInfo;
 
-  set theaterInfo(CustomCompositedTransformTheaterInfo value) {
+  set theaterInfo(EnhancedCompositedTransformTheaterInfo value) {
     if (_theaterInfo == value) {
       return;
     }
@@ -80,14 +81,14 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (layer == null) {
-      layer = CustomLeaderLayer(
+      layer = EnhancedLeaderLayer(
         link: link,
         offset: offset,
         theaterRectRelativeToLeader: _theaterRectRelativeToLeader,
         debugName: debugName,
       );
     } else {
-      final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
+      final EnhancedLeaderLayer leaderLayer = layer! as EnhancedLeaderLayer;
       leaderLayer
         ..link = link
         ..offset = offset
@@ -101,20 +102,20 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<CustomCompositedTransformTheaterInfo>(
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<EnhancedCompositedTransformTheaterInfo>(
         'theaterInfo', theaterInfo));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
 
 /// @nodoc
-class CustomRenderFollowerLayer extends RenderProxyBox {
+class EnhancedRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
-  CustomRenderFollowerLayer({
-    required CustomLayerLink link,
+  EnhancedRenderFollowerLayer({
+    required EnhancedLayerLink link,
     // NOTE MODIFIED some arguments
-    required CustomCompositedTransformTheaterInfo theaterInfo,
+    required EnhancedCompositedTransformTheaterInfo theaterInfo,
     required Size targetSize,
     required Anchor anchor,
     required String? debugName,
@@ -142,10 +143,10 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  CustomLayerLink get link => _link;
-  CustomLayerLink _link;
+  EnhancedLayerLink get link => _link;
+  EnhancedLayerLink _link;
 
-  set link(CustomLayerLink value) {
+  set link(EnhancedLayerLink value) {
     if (_link == value) {
       return;
     }
@@ -154,10 +155,10 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  CustomCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
-  CustomCompositedTransformTheaterInfo _theaterInfo;
+  EnhancedCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
+  EnhancedCompositedTransformTheaterInfo _theaterInfo;
 
-  set theaterInfo(CustomCompositedTransformTheaterInfo value) {
+  set theaterInfo(EnhancedCompositedTransformTheaterInfo value) {
     if (_theaterInfo == value) {
       return;
     }
@@ -197,7 +198,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 
   /// @nodoc
   @override
-  CustomFollowerLayer? get layer => super.layer as CustomFollowerLayer?;
+  EnhancedFollowerLayer? get layer => super.layer as EnhancedFollowerLayer?;
 
   /// @nodoc
   Matrix4 getCurrentTransform() {
@@ -233,7 +234,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// [PortalTarget].
   ///
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
-  /// the leader is only attached to the [CustomLayerLink] in [LeaderLayer.attach],
+  /// the leader is only attached to the [EnhancedLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset() {
     return anchor.getFollowerOffset(
@@ -249,7 +250,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     // NOTE MODIFIED removed original [effectiveLinkedOffset] calculation, and replace with callback
 
     if (layer == null) {
-      layer = CustomFollowerLayer(
+      layer = EnhancedFollowerLayer(
         link: link,
         linkedOffsetCallback: _computeLinkedOffset,
         unlinkedOffset: offset,
@@ -285,8 +286,8 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<CustomCompositedTransformTheaterInfo>(
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<EnhancedCompositedTransformTheaterInfo>(
         'theaterInfo', theaterInfo));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
@@ -294,9 +295,4 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
-}
-
-// ignore: one_member_abstracts
-abstract class CustomCompositedTransformTheaterInfo {
-  Rect theaterRectRelativeToLeader(CustomRenderLeaderLayer leaderLayer);
 }

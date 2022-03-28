@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'anchor.dart';
-import 'flutter_src/rendering_layer.dart';
-import 'flutter_src/widgets_basic.dart';
+import 'enhanced_composited_transform/flutter_src/rendering_layer.dart';
+import 'enhanced_composited_transform/flutter_src/widgets_basic.dart';
 import 'portal.dart';
 import 'portal_link.dart';
 import 'portal_target_theater.dart';
@@ -265,7 +265,7 @@ class PortalTarget extends StatefulWidget {
 }
 
 class _PortalTargetState extends State<PortalTarget> {
-  final _link = CustomLayerLink();
+  final _link = EnhancedLayerLink();
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +294,7 @@ class _PortalTargetState extends State<PortalTarget> {
 
     return Stack(
       children: <Widget>[
-        CustomCompositedTransformTarget(
+        EnhancedCompositedTransformTarget(
           link: _link,
           theaterInfo: scope.theaterInfo,
           debugName: widget.debugName,
@@ -310,7 +310,7 @@ class _PortalTargetState extends State<PortalTarget> {
                   portalLink: scope.portalLink,
                   anchor: widget.anchor,
                   targetSize: targetSize,
-                  portalFollower: CustomCompositedTransformFollower(
+                  portalFollower: EnhancedCompositedTransformFollower(
                     link: _link,
                     theaterInfo: scope.theaterInfo,
                     anchor: widget.anchor,

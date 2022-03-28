@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'flutter_src/rendering_proxy_box.dart';
+import 'enhanced_composited_transform/flutter_src/rendering_proxy_box.dart';
+import 'enhanced_composited_transform/theater_info.dart';
 import 'portal_link.dart';
 import 'portal_target.dart';
 import 'portal_theater.dart';
@@ -67,7 +68,7 @@ class Portal extends StatefulWidget {
 class _PortalState extends State<Portal> {
   final _portalLink = PortalLink();
   late final _theaterInfo =
-      CustomCompositedTransformTheaterInfoForPortal(_portalLink);
+      EnhancedCompositedTransformTheaterInfoForPortal(_portalLink);
 
   @override
   Widget build(BuildContext context) {
@@ -129,14 +130,14 @@ class _PortalMainLabel extends PortalLabel<void> {
   String toString() => 'PortalLabel.main';
 }
 
-class CustomCompositedTransformTheaterInfoForPortal
-    extends CustomCompositedTransformTheaterInfo {
-  CustomCompositedTransformTheaterInfoForPortal(this.portalLink);
+class EnhancedCompositedTransformTheaterInfoForPortal
+    extends EnhancedCompositedTransformTheaterInfo {
+  EnhancedCompositedTransformTheaterInfoForPortal(this.portalLink);
 
   final PortalLink portalLink;
 
   @override
-  Rect theaterRectRelativeToLeader(CustomRenderLeaderLayer leaderLayer) {
+  Rect theaterRectRelativeToLeader(EnhancedRenderLeaderLayer leaderLayer) {
     assert(
       portalLink.theater != null,
       'The theater must be set in the OverlayLink when the '

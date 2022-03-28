@@ -4,14 +4,15 @@
 // ignore_for_file: unnecessary_null_comparison, diagnostic_describe_all_properties
 
 import 'package:flutter/material.dart';
-import '../anchor.dart';
+import '../../anchor.dart';
+import '../theater_info.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
 
 /// @nodoc
-class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
+class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
   /// @nodoc
-  const CustomCompositedTransformTarget({
+  const EnhancedCompositedTransformTarget({
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
@@ -22,17 +23,17 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
         super(key: key, child: child);
 
   /// @nodoc
-  final CustomLayerLink link;
+  final EnhancedLayerLink link;
 
   /// @nodoc
-  final CustomCompositedTransformTheaterInfo theaterInfo;
+  final EnhancedCompositedTransformTheaterInfo theaterInfo;
 
   // NOTE MODIFIED add
   final String? debugName;
 
   @override
-  CustomRenderLeaderLayer createRenderObject(BuildContext context) {
-    return CustomRenderLeaderLayer(
+  EnhancedRenderLeaderLayer createRenderObject(BuildContext context) {
+    return EnhancedRenderLeaderLayer(
       link: link,
       theaterInfo: theaterInfo,
       debugName: debugName,
@@ -41,7 +42,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, CustomRenderLeaderLayer renderObject) {
+      BuildContext context, EnhancedRenderLeaderLayer renderObject) {
     renderObject
       ..link = link
       ..theaterInfo = theaterInfo
@@ -50,9 +51,10 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
 }
 
 /// @nodoc
-class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
+class EnhancedCompositedTransformFollower
+    extends SingleChildRenderObjectWidget {
   /// @nodoc
-  const CustomCompositedTransformFollower({
+  const EnhancedCompositedTransformFollower({
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
@@ -67,10 +69,10 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final Anchor anchor;
 
   /// @nodoc
-  final CustomLayerLink link;
+  final EnhancedLayerLink link;
 
   /// @nodoc
-  final CustomCompositedTransformTheaterInfo theaterInfo;
+  final EnhancedCompositedTransformTheaterInfo theaterInfo;
 
   /// @nodoc
   final Size targetSize;
@@ -79,8 +81,8 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final String? debugName;
 
   @override
-  CustomRenderFollowerLayer createRenderObject(BuildContext context) {
-    return CustomRenderFollowerLayer(
+  EnhancedRenderFollowerLayer createRenderObject(BuildContext context) {
+    return EnhancedRenderFollowerLayer(
       anchor: anchor,
       link: link,
       theaterInfo: theaterInfo,
@@ -91,7 +93,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, CustomRenderFollowerLayer renderObject) {
+      BuildContext context, EnhancedRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
       ..theaterInfo = theaterInfo

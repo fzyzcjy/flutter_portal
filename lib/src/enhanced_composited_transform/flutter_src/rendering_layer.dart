@@ -13,16 +13,16 @@ import 'package:vector_math/vector_math_64.dart';
 import 'rendering_proxy_box.dart';
 
 /// @nodoc
-class CustomLayerLink {
-  /// The [CustomLeaderLayer] connected to this link.
-  CustomLeaderLayer? get leader => _leader;
-  CustomLeaderLayer? _leader;
+class EnhancedLayerLink {
+  /// The [EnhancedLeaderLayer] connected to this link.
+  EnhancedLeaderLayer? get leader => _leader;
+  EnhancedLeaderLayer? _leader;
 
-  void _registerLeader(CustomLeaderLayer leader) {
+  void _registerLeader(EnhancedLeaderLayer leader) {
     assert(_leader != leader);
     assert(() {
       if (_leader != null) {
-        _debugPreviousLeaders ??= <CustomLeaderLayer>{};
+        _debugPreviousLeaders ??= <EnhancedLeaderLayer>{};
         _debugScheduleLeadersCleanUpCheck();
         return _debugPreviousLeaders!.add(_leader!);
       }
@@ -31,7 +31,7 @@ class CustomLayerLink {
     _leader = leader;
   }
 
-  void _unregisterLeader(CustomLeaderLayer leader) {
+  void _unregisterLeader(EnhancedLeaderLayer leader) {
     if (_leader == leader) {
       _leader = null;
     } else {
@@ -40,7 +40,7 @@ class CustomLayerLink {
   }
 
   /// @nodoc
-  Set<CustomLeaderLayer>? _debugPreviousLeaders;
+  Set<EnhancedLeaderLayer>? _debugPreviousLeaders;
   bool _debugLeaderCheckScheduled = false;
 
   /// @nodoc
@@ -69,10 +69,10 @@ class CustomLayerLink {
 typedef TheaterRectRelativeToLeader = Rect Function();
 
 /// @nodoc
-class CustomLeaderLayer extends ContainerLayer {
+class EnhancedLeaderLayer extends ContainerLayer {
   /// @nodoc
-  CustomLeaderLayer({
-    required CustomLayerLink link,
+  EnhancedLeaderLayer({
+    required EnhancedLayerLink link,
     Offset offset = Offset.zero,
     required TheaterRectRelativeToLeader theaterRectRelativeToLeader,
     required this.debugName,
@@ -82,10 +82,10 @@ class CustomLeaderLayer extends ContainerLayer {
         _offset = offset;
 
   /// @nodoc
-  CustomLayerLink get link => _link;
-  CustomLayerLink _link;
+  EnhancedLayerLink get link => _link;
+  EnhancedLayerLink _link;
 
-  set link(CustomLayerLink value) {
+  set link(EnhancedLayerLink value) {
     assert(value != null);
     if (_link == value) {
       return;
@@ -173,7 +173,7 @@ class CustomLeaderLayer extends ContainerLayer {
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
     properties.add(DiagnosticsProperty(
         'theaterRectRelativeToLeader', theaterRectRelativeToLeader));
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
@@ -191,12 +191,12 @@ class CustomLeaderLayer extends ContainerLayer {
 /// [FollowerLayer.unlinkedOffset] being [Offset.zero]).
 ///
 /// For documentation of undocumented code, see [FollowerLayer].
-class CustomFollowerLayer extends ContainerLayer {
+class EnhancedFollowerLayer extends ContainerLayer {
   // NOTE MODIFIED the comments
   /// Creates a follower layer.
   ///
   /// The [link] property must not be null.
-  CustomFollowerLayer({
+  EnhancedFollowerLayer({
     required this.link,
     // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
     // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
@@ -205,7 +205,7 @@ class CustomFollowerLayer extends ContainerLayer {
     required this.debugName,
   });
 
-  CustomLayerLink link;
+  EnhancedLayerLink link;
 
   // NOTE MODIFIED added this field
   /// Callback that is called to compute the linked offset of the follower layer
@@ -229,7 +229,7 @@ class CustomFollowerLayer extends ContainerLayer {
   Offset? unlinkedOffset;
 
   // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
-  static const showWhenUnlinked = CustomRenderFollowerLayer.showWhenUnlinked;
+  static const showWhenUnlinked = EnhancedRenderFollowerLayer.showWhenUnlinked;
 
   Offset? _transformOffset(Offset localPosition) {
     if (_inverseDirty) {
@@ -464,7 +464,7 @@ class CustomFollowerLayer extends ContainerLayer {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
     properties.add(
         TransformProperty('transform', getLastTransform(), defaultValue: null));
     // NOTE MODIFIED

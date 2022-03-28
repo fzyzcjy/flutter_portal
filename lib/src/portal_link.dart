@@ -46,7 +46,7 @@ class PortalLinkScope extends InheritedWidget {
 
   final String? debugName;
   final PortalLink portalLink;
-  final CustomCompositedTransformTheaterInfoForPortal theaterInfo;
+  final EnhancedCompositedTransformTheaterInfoForPortal theaterInfo;
   final List<PortalLabel> portalLabels;
 
   @override
