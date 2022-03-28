@@ -13,7 +13,7 @@ void main() {
 
     const targetSize = Size(20, 20);
 
-    var tapCount = 0;
+    PointerDownEvent? lastPointerDownEvent;
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -45,9 +45,11 @@ void main() {
                     link: link,
                     targetSize: targetSize,
                     anchor: Aligned.center,
-                    child: InkWell(
-                      onTap: () => tapCount++,
+                    child: Listener(
+                      onPointerDown: (e) => lastPointerDownEvent = e,
                       child: Container(
+                        width: targetSize.width,
+                        height: targetSize.height,
                         color: Colors.green.withAlpha(150),
                       ),
                     ),
@@ -63,10 +65,14 @@ void main() {
     await expectLater(
         find.byKey(containerKey), matchesGoldenFile('enhanced_composited_transform_tap.png'));
 
+    lastPointerDownEvent = null;
     await tester.tapAt(const Offset(35, 45));
-    expect(tapCount, 1);
+    expect(lastPointerDownEvent!.position, const Offset(35, 45));
+    expect(lastPointerDownEvent!.localPosition, const Offset(15, 15));
 
+    lastPointerDownEvent = null;
     await tester.tapAt(const Offset(25, 35));
-    expect(tapCount, 2);
+    expect(lastPointerDownEvent!.position, const Offset(25, 35));
+    expect(lastPointerDownEvent!.localPosition, const Offset(5, 5));
   });
 }
