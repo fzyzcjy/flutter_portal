@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-import '../flutter_portal.dart';
-
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
@@ -17,12 +15,12 @@ abstract class Anchor {
   /// to [getFollowerOffset]. No assumptions should be made about the coordinate
   /// space, i.e. only the size of the target should be considered.
   ///
-  /// The [portalConstraints] represent the full available space to place the
+  /// The [theaterConstraints] represent the full available space to place the
   /// follower element in. This is irrespective of where the target is
   /// positioned within the full available space.
   BoxConstraints getFollowerConstraints({
     required Size targetSize,
-    required BoxConstraints portalConstraints,
+    required BoxConstraints theaterConstraints,
   });
 
   /// Returns the offset at which to position the follower element in relation
@@ -35,7 +33,7 @@ abstract class Anchor {
   /// element should be anchored to. This must be the same value that is passed
   /// to [getFollowerConstraints].
   ///
-  /// The [portalRect] represents the bounds of the full available space to
+  /// The [theaterRect] represents the bounds of the full available space to
   /// place the follower element in. Note that this is also relative to the top
   /// left of the [targetSize].
   /// This means that every offset going into or coming out of this function is
@@ -51,13 +49,13 @@ abstract class Anchor {
   /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
   ///
   ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetSize].
-  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [portalRect].
+  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [theaterRect].
   ///  * `Size(30, 30)` for the [followerSize].
   ///  * `Offset(20, 20)` as the return value.
   Offset getFollowerOffset({
     required Size followerSize,
     required Size targetSize,
-    required Rect portalRect,
+    required Rect theaterRect,
   });
 }
 
@@ -70,16 +68,16 @@ class Filled implements Anchor {
   @override
   BoxConstraints getFollowerConstraints({
     required Size targetSize,
-    required BoxConstraints portalConstraints,
+    required BoxConstraints theaterConstraints,
   }) {
-    return BoxConstraints.tight(portalConstraints.biggest);
+    return BoxConstraints.tight(theaterConstraints.biggest);
   }
 
   @override
   Offset getFollowerOffset({
     required Size followerSize,
     required Size targetSize,
-    required Rect portalRect,
+    required Rect theaterRect,
   }) {
     return Offset.zero;
   }
@@ -118,7 +116,7 @@ class Aligned implements Anchor {
   /// The reference point on the target element, if enabled
   final Alignment target;
 
-  /// The reference point on the [Portal], if enabled
+  /// The reference point on the `Portal`, if enabled
   final Alignment portal;
 
   /// Whether to use [portal] instead of [target] for X and/or Y axis
@@ -149,12 +147,12 @@ class Aligned implements Anchor {
   @override
   BoxConstraints getFollowerConstraints({
     required Size targetSize,
-    required BoxConstraints portalConstraints,
+    required BoxConstraints theaterConstraints,
   }) {
     final widthFactor = this.widthFactor;
     final heightFactor = this.heightFactor;
 
-    return portalConstraints.loosen().tighten(
+    return theaterConstraints.loosen().tighten(
           width: widthFactor == null ? null : targetSize.width * widthFactor,
           height:
               heightFactor == null ? null : targetSize.height * heightFactor,
@@ -165,13 +163,13 @@ class Aligned implements Anchor {
   Offset getFollowerOffset({
     required Size followerSize,
     required Size targetSize,
-    required Rect portalRect,
+    required Rect theaterRect,
   }) {
     final followerAlignPortal = followerSize.alignedTo(
-      portalRect.size,
+      theaterRect.size,
       followerAlignment: follower,
       targetAlignment: portal,
-      offset: portalRect.topLeft + offset,
+      offset: theaterRect.topLeft + offset,
     );
     final followerAlignTarget = followerSize.alignedTo(
       targetSize,
@@ -188,20 +186,20 @@ class Aligned implements Anchor {
     );
 
     final followerRect = followerRectBeforeClamp.shiftToWithinBound(
-        portalRect, shiftToWithinBound);
+        theaterRect, shiftToWithinBound);
 
     // print('hi getFollowerOffset '
-    //     'followerSize=$followerSize targetSize=$targetSize portalRect=$portalRect '
+    //     'followerSize=$followerSize targetSize=$targetSize theaterRect=$theaterRect '
     //     'followerAlignPortal=$followerAlignPortal followerAlignTarget=$followerAlignTarget '
     //     'followerRect=$followerRect');
 
-    if (!portalRect.fullyContains(followerRect)) {
+    if (!theaterRect.fullyContains(followerRect)) {
       final backup = this.backup;
       if (backup != null) {
         return backup.getFollowerOffset(
           followerSize: followerSize,
           targetSize: targetSize,
-          portalRect: portalRect,
+          theaterRect: theaterRect,
         );
       }
     }

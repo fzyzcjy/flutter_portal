@@ -148,7 +148,7 @@ class _RenderPortalTargetTheater extends RenderProxyBox {
     super.performLayout();
     if (branch != null) {
       final constraints = anchor.getFollowerConstraints(
-        portalConstraints: portalLink.constraints!,
+        theaterConstraints: portalLink.constraints!,
         targetSize: targetSize,
       );
       branch!.layout(constraints);

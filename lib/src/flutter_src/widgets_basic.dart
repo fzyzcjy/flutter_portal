@@ -5,7 +5,6 @@
 
 import 'package:flutter/material.dart';
 import '../anchor.dart';
-import '../portal_link.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
 
@@ -16,7 +15,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.portalLink,
+    required this.theaterInfo,
     required this.debugName,
     Widget? child,
   })  : assert(link != null),
@@ -26,7 +25,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   final CustomLayerLink link;
 
   /// @nodoc
-  final PortalLink portalLink;
+  final CustomCompositedTransformTheaterInfo theaterInfo;
 
   // NOTE MODIFIED add
   final String? debugName;
@@ -35,7 +34,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
   CustomRenderLeaderLayer createRenderObject(BuildContext context) {
     return CustomRenderLeaderLayer(
       link: link,
-      portalLink: portalLink,
+      theaterInfo: theaterInfo,
       debugName: debugName,
     );
   }
@@ -45,7 +44,7 @@ class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
       BuildContext context, CustomRenderLeaderLayer renderObject) {
     renderObject
       ..link = link
-      ..portalLink = portalLink
+      ..theaterInfo = theaterInfo
       ..debugName = debugName;
   }
 }
@@ -57,7 +56,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.portalLink,
+    required this.theaterInfo,
     required this.targetSize,
     required this.anchor,
     required this.debugName,
@@ -71,7 +70,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final CustomLayerLink link;
 
   /// @nodoc
-  final PortalLink portalLink;
+  final CustomCompositedTransformTheaterInfo theaterInfo;
 
   /// @nodoc
   final Size targetSize;
@@ -84,7 +83,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
     return CustomRenderFollowerLayer(
       anchor: anchor,
       link: link,
-      portalLink: portalLink,
+      theaterInfo: theaterInfo,
       targetSize: targetSize,
       debugName: debugName,
     );
@@ -95,7 +94,7 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
       BuildContext context, CustomRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
-      ..portalLink = portalLink
+      ..theaterInfo = theaterInfo
       ..targetSize = targetSize
       ..anchor = anchor
       ..debugName = debugName;

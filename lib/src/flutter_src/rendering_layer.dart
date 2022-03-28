@@ -66,7 +66,7 @@ class CustomLayerLink {
       '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
-typedef PortalTheaterToLeaderOffset = Offset? Function();
+typedef TheaterRectRelativeToLeader = Rect Function();
 
 /// @nodoc
 class CustomLeaderLayer extends ContainerLayer {
@@ -74,11 +74,11 @@ class CustomLeaderLayer extends ContainerLayer {
   CustomLeaderLayer({
     required CustomLayerLink link,
     Offset offset = Offset.zero,
-    required PortalTheaterToLeaderOffset portalTheaterToLeaderOffset,
+    required TheaterRectRelativeToLeader theaterRectRelativeToLeader,
     required this.debugName,
   })  : assert(link != null),
         _link = link,
-        _portalTheaterToLeaderOffset = portalTheaterToLeaderOffset,
+        _theaterRectRelativeToLeader = theaterRectRelativeToLeader,
         _offset = offset;
 
   /// @nodoc
@@ -113,16 +113,16 @@ class CustomLeaderLayer extends ContainerLayer {
   }
 
   /// @nodoc
-  PortalTheaterToLeaderOffset get portalTheaterToLeaderOffset =>
-      _portalTheaterToLeaderOffset;
-  PortalTheaterToLeaderOffset _portalTheaterToLeaderOffset;
+  TheaterRectRelativeToLeader get theaterRectRelativeToLeader =>
+      _theaterRectRelativeToLeader;
+  TheaterRectRelativeToLeader _theaterRectRelativeToLeader;
 
-  set portalTheaterToLeaderOffset(PortalTheaterToLeaderOffset value) {
+  set theaterRectRelativeToLeader(TheaterRectRelativeToLeader value) {
     assert(value != null);
-    if (value == _portalTheaterToLeaderOffset) {
+    if (value == _theaterRectRelativeToLeader) {
       return;
     }
-    _portalTheaterToLeaderOffset = value;
+    _theaterRectRelativeToLeader = value;
   }
 
   // NOTE MODIFIED add
@@ -172,7 +172,7 @@ class CustomLeaderLayer extends ContainerLayer {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
     properties.add(DiagnosticsProperty(
-        'portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
+        'theaterRectRelativeToLeader', theaterRectRelativeToLeader));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }

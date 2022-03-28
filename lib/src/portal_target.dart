@@ -296,7 +296,7 @@ class _PortalTargetState extends State<PortalTarget> {
       children: <Widget>[
         CustomCompositedTransformTarget(
           link: _link,
-          portalLink: scope.portalLink,
+          theaterInfo: scope.theaterInfo,
           debugName: widget.debugName,
           child: widget.child,
         ),
@@ -312,7 +312,7 @@ class _PortalTargetState extends State<PortalTarget> {
                   targetSize: targetSize,
                   portalFollower: CustomCompositedTransformFollower(
                     link: _link,
-                    portalLink: scope.portalLink,
+                    theaterInfo: scope.theaterInfo,
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     debugName: widget.debugName,

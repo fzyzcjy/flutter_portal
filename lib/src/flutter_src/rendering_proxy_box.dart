@@ -6,7 +6,6 @@
 import 'package:flutter/rendering.dart';
 
 import '../anchor.dart';
-import '../portal_link.dart';
 import 'rendering_layer.dart';
 
 /// @nodoc
@@ -15,12 +14,12 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   CustomRenderLeaderLayer({
     required CustomLayerLink link,
     // NOTE MODIFIED some arguments
-    required PortalLink portalLink,
+    required CustomCompositedTransformTheaterInfo theaterInfo,
     required String? debugName,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
-        _portalLink = portalLink,
+        _theaterInfo = theaterInfo,
         _debugName = debugName,
         super(child);
 
@@ -39,14 +38,14 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  PortalLink get portalLink => _portalLink;
-  PortalLink _portalLink;
+  CustomCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
+  CustomCompositedTransformTheaterInfo _theaterInfo;
 
-  set portalLink(PortalLink value) {
-    if (_portalLink == value) {
+  set theaterInfo(CustomCompositedTransformTheaterInfo value) {
+    if (_theaterInfo == value) {
       return;
     }
-    _portalLink = value;
+    _theaterInfo = value;
     markNeedsPaint();
   }
 
@@ -74,12 +73,8 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
     link.leaderSize = size;
   }
 
-  Offset? _computePortalTheaterToLeaderOffset() {
-    final theater = portalLink.theater;
-    if (theater == null) {
-      return null;
-    }
-    return globalToLocal(Offset.zero, ancestor: theater);
+  Rect _theaterRectRelativeToLeader() {
+    return theaterInfo.theaterRectRelativeToLeader(this);
   }
 
   @override
@@ -88,7 +83,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
       layer = CustomLeaderLayer(
         link: link,
         offset: offset,
-        portalTheaterToLeaderOffset: _computePortalTheaterToLeaderOffset,
+        theaterRectRelativeToLeader: _theaterRectRelativeToLeader,
         debugName: debugName,
       );
     } else {
@@ -96,7 +91,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
       leaderLayer
         ..link = link
         ..offset = offset
-        ..portalTheaterToLeaderOffset = _computePortalTheaterToLeaderOffset
+        ..theaterRectRelativeToLeader = _theaterRectRelativeToLeader
         ..debugName = debugName;
     }
     context.pushLayer(layer!, super.paint, Offset.zero);
@@ -107,7 +102,8 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
+    properties.add(DiagnosticsProperty<CustomCompositedTransformTheaterInfo>(
+        'theaterInfo', theaterInfo));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
@@ -118,14 +114,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   CustomRenderFollowerLayer({
     required CustomLayerLink link,
     // NOTE MODIFIED some arguments
-    required PortalLink portalLink,
+    required CustomCompositedTransformTheaterInfo theaterInfo,
     required Size targetSize,
     required Anchor anchor,
     required String? debugName,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
-        _portalLink = portalLink,
+        _theaterInfo = theaterInfo,
         _targetSize = targetSize,
         _debugName = debugName,
         super(child);
@@ -158,14 +154,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  PortalLink get portalLink => _portalLink;
-  PortalLink _portalLink;
+  CustomCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
+  CustomCompositedTransformTheaterInfo _theaterInfo;
 
-  set portalLink(PortalLink value) {
-    if (_portalLink == value) {
+  set theaterInfo(CustomCompositedTransformTheaterInfo value) {
+    if (_theaterInfo == value) {
       return;
     }
-    _portalLink = value;
+    _theaterInfo = value;
     markNeedsPaint();
   }
 
@@ -240,33 +236,11 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// the leader is only attached to the [CustomLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset() {
-    assert(
-      portalLink.theater != null,
-      'The theater must be set in the OverlayLink when the '
-      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
-      'Therefore, it must not be null in any child PortalEntry.',
-    );
-    final theater = portalLink.theater!;
-
-    // old method
-    // // In order to compute the theater rect, we must first offset (shift) it by
-    // // the position of the top-left corner of the target in the coordinate space
-    // // of the theater since we are working with it relative to the target.
-    // final theaterShift = -globalToLocal(
-    //   leaderOffset,
-    //   ancestor: theater,
-    // );
-    // new method #61, #62
-    final theaterShift =
-        link.leader!.portalTheaterToLeaderOffset() ?? Offset.zero;
-
-    final theaterRect = theaterShift & theater.size;
-
     return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
       followerSize: size,
       targetSize: targetSize,
-      portalRect: theaterRect,
+      theaterRect: link.leader!.theaterRectRelativeToLeader(),
     );
   }
 
@@ -312,11 +286,17 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
+    properties.add(DiagnosticsProperty<CustomCompositedTransformTheaterInfo>(
+        'theaterInfo', theaterInfo));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
+}
+
+// ignore: one_member_abstracts
+abstract class CustomCompositedTransformTheaterInfo {
+  Rect theaterRectRelativeToLeader(CustomRenderLeaderLayer leaderLayer);
 }
