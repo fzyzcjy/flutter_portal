@@ -17,7 +17,7 @@ class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
     required this.link,
     // NOTE MODIFIED some arguments
     required this.theaterInfo,
-    required this.debugName,
+    this.debugName,
     Widget? child,
   })  : assert(link != null),
         super(key: key, child: child);
@@ -58,10 +58,9 @@ class EnhancedCompositedTransformFollower
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.theaterInfo,
     required this.targetSize,
     required this.anchor,
-    required this.debugName,
+    this.debugName,
     Widget? child,
   }) : super(key: key, child: child);
 
@@ -70,9 +69,6 @@ class EnhancedCompositedTransformFollower
 
   /// @nodoc
   final EnhancedLayerLink link;
-
-  /// @nodoc
-  final EnhancedCompositedTransformTheaterInfo theaterInfo;
 
   /// @nodoc
   final Size targetSize;
@@ -85,7 +81,6 @@ class EnhancedCompositedTransformFollower
     return EnhancedRenderFollowerLayer(
       anchor: anchor,
       link: link,
-      theaterInfo: theaterInfo,
       targetSize: targetSize,
       debugName: debugName,
     );
@@ -96,7 +91,6 @@ class EnhancedCompositedTransformFollower
       BuildContext context, EnhancedRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
-      ..theaterInfo = theaterInfo
       ..targetSize = targetSize
       ..anchor = anchor
       ..debugName = debugName;

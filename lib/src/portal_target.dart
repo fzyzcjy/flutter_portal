@@ -312,7 +312,6 @@ class _PortalTargetState extends State<PortalTarget> {
                   targetSize: targetSize,
                   portalFollower: EnhancedCompositedTransformFollower(
                     link: _link,
-                    theaterInfo: scope.theaterInfo,
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     debugName: widget.debugName,

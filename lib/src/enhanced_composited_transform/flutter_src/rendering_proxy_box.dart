@@ -115,14 +115,12 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   EnhancedRenderFollowerLayer({
     required EnhancedLayerLink link,
     // NOTE MODIFIED some arguments
-    required EnhancedCompositedTransformTheaterInfo theaterInfo,
     required Size targetSize,
     required EnhancedCompositedTransformAnchor anchor,
     required String? debugName,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
-        _theaterInfo = theaterInfo,
         _targetSize = targetSize,
         _debugName = debugName,
         super(child);
@@ -151,18 +149,6 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
       return;
     }
     _link = value;
-    markNeedsPaint();
-  }
-
-  /// @nodoc
-  EnhancedCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
-  EnhancedCompositedTransformTheaterInfo _theaterInfo;
-
-  set theaterInfo(EnhancedCompositedTransformTheaterInfo value) {
-    if (_theaterInfo == value) {
-      return;
-    }
-    _theaterInfo = value;
     markNeedsPaint();
   }
 
@@ -287,8 +273,6 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<EnhancedCompositedTransformTheaterInfo>(
-        'theaterInfo', theaterInfo));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
