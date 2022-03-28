@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
+import '../flutter_portal.dart';
+
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
@@ -93,6 +95,9 @@ class Aligned implements Anchor {
   const Aligned({
     required this.follower,
     required this.target,
+    this.portal = Alignment.center,
+    this.alignToPortalX = false,
+    this.alignToPortalY = false,
     this.offset = Offset.zero,
     this.widthFactor,
     this.heightFactor,
@@ -110,8 +115,17 @@ class Aligned implements Anchor {
   /// The reference point on the follower element.
   final Alignment follower;
 
-  /// The reference point on the target element
+  /// The reference point on the target element, if enabled
   final Alignment target;
+
+  /// The reference point on the [Portal], if enabled
+  final Alignment portal;
+
+  /// Whether to use [portal] instead of [target] for X axis
+  final bool alignToPortalX;
+
+  /// Same as [alignToPortalX], except for Y axis
+  final bool alignToPortalY;
 
   /// Offset to shift the follower element by after all calculations are made.
   final Offset offset;
@@ -153,12 +167,30 @@ class Aligned implements Anchor {
     required Size targetSize,
     required Rect portalRect,
   }) {
-    final followerRect = followerSize.alignedTo(
+    final followerAlignPortal = followerSize.alignedTo(
+      portalRect.size,
+      followerAlignment: follower,
+      targetAlignment: portal,
+      offset: portalRect.topLeft + offset,
+    );
+    final followerAlignTarget = followerSize.alignedTo(
       targetSize,
       followerAlignment: follower,
       targetAlignment: target,
       offset: offset,
     );
+
+    final followerRect = Rect.fromLTWH(
+      alignToPortalX ? followerAlignPortal.left : followerAlignTarget.left,
+      alignToPortalY ? followerAlignPortal.top : followerAlignTarget.top,
+      alignToPortalX ? followerAlignPortal.width : followerAlignTarget.width,
+      alignToPortalY ? followerAlignPortal.height : followerAlignTarget.height,
+    );
+
+    print('hi getFollowerOffset '
+        'followerSize=$followerSize targetSize=$targetSize portalRect=$portalRect '
+        'followerAlignPortal=$followerAlignPortal followerAlignTarget=$followerAlignTarget '
+        'followerRect=$followerRect');
 
     if (!portalRect.fullyContains(followerRect)) {
       final backup = this.backup;

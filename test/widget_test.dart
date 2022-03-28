@@ -1591,6 +1591,7 @@ Future<void> main() async {
     expect(didClickSecond, isTrue);
   });
 
+  // #17
   testWidgets('overlay partially follow the target in one axis',
       (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
@@ -1600,7 +1601,7 @@ Future<void> main() async {
       Boilerplate(
         child: Portal(
           child: Container(
-            color: Colors.blue,
+            color: Colors.white,
             child: Stack(
               children: [
                 Positioned(
@@ -1612,15 +1613,23 @@ Future<void> main() async {
                     anchor: const Aligned(
                       follower: Alignment.center,
                       target: Alignment.center,
+                      portal: Alignment.center,
+                      alignToPortalX: true,
                     ),
                     portalFollower: Container(
-                      // width: 100,
-                      width: double.infinity,
+                      width: 100,
                       height: 10,
-                      color: Colors.green.withAlpha(150),
+                      color: Colors.green,
+                      child: Center(
+                        child: Container(
+                          width: 80,
+                          height: 4,
+                          color: Colors.green.shade900,
+                        ),
+                      ),
                     ),
                     child: Container(
-                      color: Colors.red.withAlpha(150),
+                      color: Colors.orange,
                     ),
                   ),
                 ),
