@@ -66,13 +66,15 @@ class CustomLayerLink {
       '${describeIdentity(this)}(${_leader != null ? "<linked>" : "<dangling>"})';
 }
 
+typedef PortalTheaterToLeaderOffset = Offset? Function();
+
 /// @nodoc
 class CustomLeaderLayer extends ContainerLayer {
   /// @nodoc
   CustomLeaderLayer({
     required CustomLayerLink link,
     Offset offset = Offset.zero,
-    required Offset portalTheaterToLeaderOffset,
+    required PortalTheaterToLeaderOffset portalTheaterToLeaderOffset,
     required this.debugName,
   })  : assert(link != null),
         _link = link,
@@ -111,20 +113,16 @@ class CustomLeaderLayer extends ContainerLayer {
   }
 
   /// @nodoc
-  Offset get portalTheaterToLeaderOffset => _portalTheaterToLeaderOffset;
-  Offset _portalTheaterToLeaderOffset;
+  PortalTheaterToLeaderOffset get portalTheaterToLeaderOffset =>
+      _portalTheaterToLeaderOffset;
+  PortalTheaterToLeaderOffset _portalTheaterToLeaderOffset;
 
-  set portalTheaterToLeaderOffset(Offset value) {
+  set portalTheaterToLeaderOffset(PortalTheaterToLeaderOffset value) {
     assert(value != null);
     if (value == _portalTheaterToLeaderOffset) {
       return;
     }
     _portalTheaterToLeaderOffset = value;
-
-    // TODO(fzyzcjy): what to do when this value is changed???
-    if (!alwaysNeedsAddToScene) {
-      markNeedsAddToScene();
-    }
   }
 
   // NOTE MODIFIED add
@@ -173,7 +171,7 @@ class CustomLeaderLayer extends ContainerLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Offset>('offset', offset));
-    properties.add(DiagnosticsProperty<Offset>(
+    properties.add(DiagnosticsProperty(
         'portalTheaterToLeaderOffset', portalTheaterToLeaderOffset));
     properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
     properties.add(DiagnosticsProperty('debugName', debugName));

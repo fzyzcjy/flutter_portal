@@ -74,17 +74,21 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
     link.leaderSize = size;
   }
 
+  Offset? _computePortalTheaterToLeaderOffset() {
+    final theater = portalLink.theater;
+    if (theater == null) {
+      return null;
+    }
+    return globalToLocal(Offset.zero, ancestor: theater);
+  }
+
   @override
   void paint(PaintingContext context, Offset offset) {
-    final theater = portalLink.theater!;
-    final portalTheaterToLeaderOffset =
-        globalToLocal(Offset.zero, ancestor: theater);
-
     if (layer == null) {
       layer = CustomLeaderLayer(
         link: link,
         offset: offset,
-        portalTheaterToLeaderOffset: portalTheaterToLeaderOffset,
+        portalTheaterToLeaderOffset: _computePortalTheaterToLeaderOffset,
         debugName: debugName,
       );
     } else {
@@ -92,7 +96,7 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
       leaderLayer
         ..link = link
         ..offset = offset
-        ..portalTheaterToLeaderOffset = portalTheaterToLeaderOffset
+        ..portalTheaterToLeaderOffset = _computePortalTheaterToLeaderOffset
         ..debugName = debugName;
     }
     context.pushLayer(layer!, super.paint, Offset.zero);
@@ -253,7 +257,8 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     //   ancestor: theater,
     // );
     // new method #61, #62
-    final theaterShift = link.leader!.portalTheaterToLeaderOffset;
+    final theaterShift =
+        link.leader!.portalTheaterToLeaderOffset() ?? Offset.zero;
 
     final theaterRect = theaterShift & theater.size;
 
