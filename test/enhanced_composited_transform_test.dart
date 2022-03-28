@@ -28,29 +28,35 @@ void main() {
                 height: 20,
                 child: EnhancedCompositedTransformTarget(
                   link: link,
-                  theaterGetter: () => containerKey.currentContext?.findRenderObject() as RenderBox?,
+                  theaterGetter: () => containerKey.currentContext
+                      ?.findRenderObject() as RenderBox?,
                   child: Container(
-                    color: Colors.red.withAlpha(150),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red, width: 2),
+                    ),
                   ),
                 ),
               ),
-              Positioned(
-                left: 30,
-                top: 40,
-                width: targetSize.width,
-                height: targetSize.height,
+              Positioned.fill(
+                // NOTE should *not* limit size at outside, otherwise has tap problem
+                // left: 30,
+                // top: 40,
+                // width: targetSize.width,
+                // height: targetSize.height,
                 child: Container(
                   color: Colors.blue.withAlpha(150),
                   child: EnhancedCompositedTransformFollower(
                     link: link,
                     targetSize: targetSize,
                     anchor: Aligned.center,
-                    child: Listener(
-                      onPointerDown: (e) => lastPointerDownEvent = e,
-                      child: Container(
-                        width: targetSize.width,
-                        height: targetSize.height,
-                        color: Colors.green.withAlpha(150),
+                    child: Center(
+                      child: Listener(
+                        onPointerDown: (e) => lastPointerDownEvent = e,
+                        child: Container(
+                          width: targetSize.width,
+                          height: targetSize.height,
+                          color: Colors.green.withAlpha(150),
+                        ),
                       ),
                     ),
                   ),
@@ -62,16 +68,18 @@ void main() {
       ),
     ));
 
-    await expectLater(
-        find.byKey(containerKey), matchesGoldenFile('enhanced_composited_transform_tap.png'));
+    await expectLater(find.byKey(containerKey),
+        matchesGoldenFile('enhanced_composited_transform_tap.png'));
 
     lastPointerDownEvent = null;
     await tester.tapAt(const Offset(35, 45));
+    expect(lastPointerDownEvent, isNotNull);
     expect(lastPointerDownEvent!.position, const Offset(35, 45));
     expect(lastPointerDownEvent!.localPosition, const Offset(15, 15));
 
     lastPointerDownEvent = null;
     await tester.tapAt(const Offset(25, 35));
+    expect(lastPointerDownEvent, isNotNull);
     expect(lastPointerDownEvent!.position, const Offset(25, 35));
     expect(lastPointerDownEvent!.localPosition, const Offset(5, 5));
   });

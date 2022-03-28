@@ -10,8 +10,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-import 'rendering_proxy_box.dart';
-
 /// @nodoc
 class EnhancedLayerLink {
   /// The [EnhancedLeaderLayer] connected to this link.
