@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
+import 'enhanced_composited_transform/anchor.dart';
+
+export 'enhanced_composited_transform/anchor.dart' show AxisFlag;
+
 /// The logic of layout and positioning of a follower element in relation to a
 /// target element.
 ///
 /// This is independent of the underlying rendering implementation.
-abstract class Anchor {
+abstract class Anchor extends EnhancedCompositedTransformAnchor {
   const Anchor();
 
   /// Returns the layout constraints that are given to the follower element.
@@ -21,41 +25,6 @@ abstract class Anchor {
   BoxConstraints getFollowerConstraints({
     required Size targetSize,
     required BoxConstraints theaterConstraints,
-  });
-
-  /// Returns the offset at which to position the follower element in relation
-  /// to the top left of the [targetSize].
-  ///
-  /// The [followerSize] is the final size of the follower element after layout
-  /// based on the follower constraints determined by [getFollowerConstraints].
-  ///
-  /// The [targetSize] represents the bounds of the element which the follower
-  /// element should be anchored to. This must be the same value that is passed
-  /// to [getFollowerConstraints].
-  ///
-  /// The [theaterRect] represents the bounds of the full available space to
-  /// place the follower element in. Note that this is also relative to the top
-  /// left of the [targetSize].
-  /// This means that every offset going into or coming out of this function is
-  /// relative to the top-left corner of the target.
-  ///
-  /// ## Example
-  ///
-  /// In this example, our follower element has a size of `Size(30, 30)` and
-  /// should be anchored to the bottom right of the target.
-  ///
-  /// If we assume the full available space starts at absolute `(0, 0)` and
-  /// spans to absolute `(100, 100)` and the target rect starts at absolute
-  /// `(40, 40)` and spans to absolute `(60, 60)`, the passed values will be:
-  ///
-  ///  * `Rect.fromLTWH(0, 0, 20, 20)` for the [targetSize].
-  ///  * `Rect.fromLTWH(-40, -40, 100, 100)` for the [theaterRect].
-  ///  * `Size(30, 30)` for the [followerSize].
-  ///  * `Offset(20, 20)` as the return value.
-  Offset getFollowerOffset({
-    required Size followerSize,
-    required Size targetSize,
-    required Rect theaterRect,
   });
 }
 
@@ -89,44 +58,33 @@ class Filled implements Anchor {
 /// Can optionally pass a [backup] which will be used if the element is going
 /// to be rendered off screen.
 @immutable
-class Aligned implements Anchor {
+class Aligned extends EnhancedCompositedTransformAligned implements Anchor {
   const Aligned({
-    required this.follower,
-    required this.target,
-    this.portal = Alignment.center,
-    this.alignToPortal = const AxisFlag(),
-    this.shiftToWithinBound = const AxisFlag(),
-    this.offset = Offset.zero,
+    required Alignment follower,
+    required Alignment target,
+    Alignment portal = Alignment.center,
+    AxisFlag alignToPortal = const AxisFlag(),
+    AxisFlag shiftToWithinBound = const AxisFlag(),
+    Offset offset = Offset.zero,
+    EnhancedCompositedTransformAnchor? backup,
+    String? debugName,
     this.widthFactor,
     this.heightFactor,
-    this.backup,
-    this.debugName,
-  });
+  }) : super(
+          follower: follower,
+          target: target,
+          portal: portal,
+          alignToPortal: alignToPortal,
+          shiftToWithinBound: shiftToWithinBound,
+          offset: offset,
+          backup: backup,
+          debugName: debugName,
+        );
 
   static const center = Aligned(
     follower: Alignment.center,
     target: Alignment.center,
   );
-
-  final String? debugName;
-
-  /// The reference point on the follower element.
-  final Alignment follower;
-
-  /// The reference point on the target element, if enabled
-  final Alignment target;
-
-  /// The reference point on the `Portal`, if enabled
-  final Alignment portal;
-
-  /// Whether to use [portal] instead of [target] for X and/or Y axis
-  final AxisFlag alignToPortal;
-
-  ///  for X and/or Y axis
-  final AxisFlag shiftToWithinBound;
-
-  /// Offset to shift the follower element by after all calculations are made.
-  final Offset offset;
 
   /// The width to make the follower element as a multiple of the width of the
   /// target element.
@@ -138,11 +96,6 @@ class Aligned implements Anchor {
   /// The height to make the follower element as a multiple of the height of the
   /// target element.
   final double? heightFactor;
-
-  /// If the calculated position would render the follower element out of bounds
-  /// (for example, a tooltip would go off screen), a backup can be used.
-  /// The offset calculations will fall back to the backup.
-  final Anchor? backup;
 
   @override
   BoxConstraints getFollowerConstraints({
@@ -160,54 +113,6 @@ class Aligned implements Anchor {
   }
 
   @override
-  Offset getFollowerOffset({
-    required Size followerSize,
-    required Size targetSize,
-    required Rect theaterRect,
-  }) {
-    final followerAlignPortal = followerSize.alignedTo(
-      theaterRect.size,
-      followerAlignment: follower,
-      targetAlignment: portal,
-      offset: theaterRect.topLeft + offset,
-    );
-    final followerAlignTarget = followerSize.alignedTo(
-      targetSize,
-      followerAlignment: follower,
-      targetAlignment: target,
-      offset: offset,
-    );
-
-    final followerRectBeforeClamp = Rect.fromLTWH(
-      alignToPortal.x ? followerAlignPortal.left : followerAlignTarget.left,
-      alignToPortal.y ? followerAlignPortal.top : followerAlignTarget.top,
-      alignToPortal.x ? followerAlignPortal.width : followerAlignTarget.width,
-      alignToPortal.y ? followerAlignPortal.height : followerAlignTarget.height,
-    );
-
-    final followerRect = followerRectBeforeClamp.shiftToWithinBound(
-        theaterRect, shiftToWithinBound);
-
-    // print('hi getFollowerOffset '
-    //     'followerSize=$followerSize targetSize=$targetSize theaterRect=$theaterRect '
-    //     'followerAlignPortal=$followerAlignPortal followerAlignTarget=$followerAlignTarget '
-    //     'followerRect=$followerRect');
-
-    if (!theaterRect.fullyContains(followerRect)) {
-      final backup = this.backup;
-      if (backup != null) {
-        return backup.getFollowerOffset(
-          followerSize: followerSize,
-          targetSize: targetSize,
-          theaterRect: theaterRect,
-        );
-      }
-    }
-
-    return followerRect.topLeft;
-  }
-
-  @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -215,92 +120,11 @@ class Aligned implements Anchor {
     if (other is! Aligned) {
       return false;
     }
-    return debugName == other.debugName &&
-        follower == other.follower &&
-        target == other.target &&
-        offset == other.offset &&
-        backup == other.backup;
+    return super == other &&
+        widthFactor == other.widthFactor &&
+        heightFactor == other.heightFactor;
   }
 
   @override
-  int get hashCode => Object.hash(debugName, follower, target, offset, backup);
-
-  @override
-  String toString() => 'Aligned{'
-      'debugName: $debugName, '
-      'follower: $follower, '
-      'target: $target, '
-      'offset: $offset, '
-      'widthFactor: $widthFactor, '
-      'heightFactor: $heightFactor, '
-      'backup: $backup'
-      '}';
-}
-
-@immutable
-class AxisFlag {
-  const AxisFlag({
-    this.x = false,
-    this.y = false,
-  });
-
-  final bool x;
-  final bool y;
-}
-
-extension on Size {
-  /// Returns a [Rect] that is aligned to the sizes (follower size / this and
-  /// the target size) along the given alignments, shifted by [offset].
-  Rect alignedTo(
-    Size targetSize, {
-    required Alignment followerAlignment,
-    required Alignment targetAlignment,
-    Offset offset = Offset.zero,
-  }) {
-    final followerOffset = targetAlignment.alongSize(targetSize) -
-        followerAlignment.alongSize(this) +
-        offset;
-    return followerOffset & this;
-  }
-}
-
-extension on Rect {
-  /// Returns true if [rect] is fully contained within this rect
-  /// If the [rect] has any part that lies outside of this parent
-  /// false will be returned
-  bool fullyContains(Rect rect) =>
-      containsIncludingBottomAndRightEdge(rect.topLeft) &&
-      containsIncludingBottomAndRightEdge(rect.bottomRight);
-
-  /// Whether the point specified by the given offset (which is assumed to be
-  /// relative to the origin) lies between the left and right and the top and
-  /// bottom edges of this rectangle.
-  ///
-  /// This is like [contains] but also includes the bottom edge and the right
-  /// edge because in the context of painting, it would make no sense to
-  /// consider a rect as overflowing when it lines up exactly with another rect.
-  bool containsIncludingBottomAndRightEdge(Offset offset) {
-    return offset.dx >= left &&
-        offset.dx <= right &&
-        offset.dy >= top &&
-        offset.dy <= bottom;
-  }
-
-  Rect shiftToWithinBound(Rect bounds, AxisFlag enable) {
-    return Rect.fromLTWH(
-      enable.x ? left.softClamp(bounds.left, bounds.right - width) : left,
-      enable.y ? top.softClamp(bounds.top, bounds.bottom - height) : top,
-      width,
-      height,
-    );
-  }
-}
-
-extension on double {
-  double softClamp(double lowerLimit, double upperLimit) {
-    if (lowerLimit > upperLimit) {
-      return lowerLimit;
-    }
-    return clamp(lowerLimit, upperLimit).toDouble();
-  }
+  int get hashCode => Object.hash(super.hashCode, widthFactor, heightFactor);
 }

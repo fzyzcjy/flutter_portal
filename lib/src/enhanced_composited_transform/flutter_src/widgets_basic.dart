@@ -4,7 +4,7 @@
 // ignore_for_file: unnecessary_null_comparison, diagnostic_describe_all_properties
 
 import 'package:flutter/material.dart';
-import '../../anchor.dart';
+import '../anchor.dart';
 import '../theater_info.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
@@ -66,7 +66,7 @@ class EnhancedCompositedTransformFollower
   }) : super(key: key, child: child);
 
   /// @nodoc
-  final Anchor anchor;
+  final EnhancedCompositedTransformAnchor anchor;
 
   /// @nodoc
   final EnhancedLayerLink link;

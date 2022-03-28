@@ -5,7 +5,7 @@
 
 import 'package:flutter/rendering.dart';
 
-import '../../anchor.dart';
+import '../anchor.dart';
 import '../theater_info.dart';
 import 'rendering_layer.dart';
 
@@ -117,7 +117,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     // NOTE MODIFIED some arguments
     required EnhancedCompositedTransformTheaterInfo theaterInfo,
     required Size targetSize,
-    required Anchor anchor,
+    required EnhancedCompositedTransformAnchor anchor,
     required String? debugName,
     RenderBox? child,
   })  : _anchor = anchor,
@@ -132,10 +132,10 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   static const showWhenUnlinked = false;
 
   /// @nodoc
-  Anchor get anchor => _anchor;
-  Anchor _anchor;
+  EnhancedCompositedTransformAnchor get anchor => _anchor;
+  EnhancedCompositedTransformAnchor _anchor;
 
-  set anchor(Anchor value) {
+  set anchor(EnhancedCompositedTransformAnchor value) {
     if (_anchor != value) {
       _anchor = value;
       markNeedsPaint();
