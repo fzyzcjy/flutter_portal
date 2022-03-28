@@ -1591,6 +1591,50 @@ Future<void> main() async {
     expect(didClickSecond, isTrue);
   });
 
+  testWidgets('overlay partially follow the target in one axis',
+      (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Portal(
+          child: Container(
+            color: Colors.blue,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 20,
+                  left: 20,
+                  width: 100,
+                  height: 20,
+                  child: PortalTarget(
+                    anchor: const Aligned(
+                      follower: Alignment.center,
+                      target: Alignment.center,
+                    ),
+                    portalFollower: Container(
+                      // width: 100,
+                      width: double.infinity,
+                      height: 10,
+                      color: Colors.green.withAlpha(150),
+                    ),
+                    child: Container(
+                      color: Colors.red.withAlpha(150),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+        find.byType(Portal), matchesGoldenFile('partially_follow.png'));
+  });
+
   testWidgets('portals paints in order of addition (last paints last)',
       (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
