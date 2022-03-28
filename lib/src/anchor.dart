@@ -96,8 +96,7 @@ class Aligned implements Anchor {
     required this.follower,
     required this.target,
     this.portal = Alignment.center,
-    this.alignToPortalX = false,
-    this.alignToPortalY = false,
+    this.alignToPortal = const AxisFlag(),
     this.offset = Offset.zero,
     this.widthFactor,
     this.heightFactor,
@@ -121,11 +120,8 @@ class Aligned implements Anchor {
   /// The reference point on the [Portal], if enabled
   final Alignment portal;
 
-  /// Whether to use [portal] instead of [target] for X axis
-  final bool alignToPortalX;
-
-  /// Same as [alignToPortalX], except for Y axis
-  final bool alignToPortalY;
+  /// Whether to use [portal] instead of [target] for X and/or Y axis
+  final AxisFlag alignToPortal;
 
   /// Offset to shift the follower element by after all calculations are made.
   final Offset offset;
@@ -181,10 +177,10 @@ class Aligned implements Anchor {
     );
 
     final followerRect = Rect.fromLTWH(
-      alignToPortalX ? followerAlignPortal.left : followerAlignTarget.left,
-      alignToPortalY ? followerAlignPortal.top : followerAlignTarget.top,
-      alignToPortalX ? followerAlignPortal.width : followerAlignTarget.width,
-      alignToPortalY ? followerAlignPortal.height : followerAlignTarget.height,
+      alignToPortal.x ? followerAlignPortal.left : followerAlignTarget.left,
+      alignToPortal.y ? followerAlignPortal.top : followerAlignTarget.top,
+      alignToPortal.x ? followerAlignPortal.width : followerAlignTarget.width,
+      alignToPortal.y ? followerAlignPortal.height : followerAlignTarget.height,
     );
 
     // print('hi getFollowerOffset '
@@ -234,6 +230,17 @@ class Aligned implements Anchor {
       'heightFactor: $heightFactor, '
       'backup: $backup'
       '}';
+}
+
+@immutable
+class AxisFlag {
+  const AxisFlag({
+    this.x = false,
+    this.y = false,
+  });
+
+  final bool x;
+  final bool y;
 }
 
 extension on Size {

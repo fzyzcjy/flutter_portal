@@ -1614,7 +1614,7 @@ Future<void> main() async {
                       follower: Alignment.center,
                       target: Alignment.center,
                       portal: Alignment.center,
-                      alignToPortalX: true,
+                      alignToPortal: AxisFlag(x: true),
                     ),
                     portalFollower: Container(
                       width: 100,
