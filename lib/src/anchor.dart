@@ -58,7 +58,8 @@ class Filled implements Anchor {
 /// Can optionally pass a [backup] which will be used if the element is going
 /// to be rendered off screen.
 @immutable
-class Aligned extends EnhancedCompositedTransformAligned implements Anchor {
+class Aligned extends EnhancedCompositedTransformAligned
+    implements Anchor, EnhancedCompositedTransformAnchor {
   const Aligned({
     required Alignment follower,
     required Alignment target,
