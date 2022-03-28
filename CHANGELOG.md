@@ -6,6 +6,7 @@
 * `_RenderPortalTargetTheater.applyPaintTransform` is wrong when using operations like `globalToLocal(ancestor: something)`; it only works correctly with `globalToLocal()` without ancestors param #61 (@fzyzcjy)
 * `localToGlobal` or similar methods are wrong for widgets in the subtree of portal follower #65 (@fzyzcjy)
 * Touch (click) events are drifted (shifted incorrectly) for `PortalTarget`s #64 (@fzyzcjy)
+* Allow the follower partially follow the target in selected axis; allow align relative to Portal #17 (@fzyzcjy)
 
 # 1.0.0-dev.2
 
