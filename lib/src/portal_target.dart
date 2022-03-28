@@ -313,6 +313,7 @@ class _PortalTargetState extends State<PortalTarget> {
                   targetSize: targetSize,
                   portalFollower: EnhancedCompositedTransformFollower(
                     link: _link,
+                    showWhenUnlinked: false,
                     anchor: widget.anchor,
                     targetSize: targetSize,
                     debugName: widget.debugName,

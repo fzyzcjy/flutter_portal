@@ -56,6 +56,7 @@ class EnhancedCompositedTransformFollower
   const EnhancedCompositedTransformFollower({
     Key? key,
     required this.link,
+    this.showWhenUnlinked = true,
     // NOTE MODIFIED some arguments
     required this.targetSize,
     required this.anchor,
@@ -69,6 +70,8 @@ class EnhancedCompositedTransformFollower
   /// @nodoc
   final EnhancedLayerLink link;
 
+  final bool showWhenUnlinked;
+
   /// @nodoc
   final Size targetSize;
 
@@ -80,6 +83,7 @@ class EnhancedCompositedTransformFollower
     return EnhancedRenderFollowerLayer(
       anchor: anchor,
       link: link,
+      showWhenUnlinked: showWhenUnlinked,
       targetSize: targetSize,
       debugName: debugName,
     );
@@ -90,6 +94,7 @@ class EnhancedCompositedTransformFollower
       BuildContext context, EnhancedRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
+      ..showWhenUnlinked = showWhenUnlinked
       ..targetSize = targetSize
       ..anchor = anchor
       ..debugName = debugName;

@@ -123,6 +123,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   EnhancedRenderFollowerLayer({
     required EnhancedLayerLink link,
+    required bool showWhenUnlinked,
     // NOTE MODIFIED some arguments
     required Size targetSize,
     required EnhancedCompositedTransformAnchor anchor,
@@ -130,13 +131,20 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
+        _showWhenUnlinked = showWhenUnlinked,
         _targetSize = targetSize,
         _debugName = debugName,
         super(child);
 
-  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
-  // but we just make it a constant zero.
-  static const showWhenUnlinked = false;
+  /// @nodoc
+  bool get showWhenUnlinked => _showWhenUnlinked;
+  bool _showWhenUnlinked;
+  set showWhenUnlinked(bool value) {
+    assert(value != null);
+    if (_showWhenUnlinked == value) return;
+    _showWhenUnlinked = value;
+    markNeedsPaint();
+  }
 
   /// @nodoc
   EnhancedCompositedTransformAnchor get anchor => _anchor;
@@ -247,6 +255,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     if (layer == null) {
       layer = EnhancedFollowerLayer(
         link: link,
+        showWhenUnlinked: showWhenUnlinked,
         linkedOffsetCallback: _computeLinkedOffset,
         unlinkedOffset: offset,
         debugName: debugName,
@@ -254,6 +263,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     } else {
       layer
         ?..link = link
+        ..showWhenUnlinked = showWhenUnlinked
         ..linkedOffsetCallback = _computeLinkedOffset
         ..unlinkedOffset = offset
         ..debugName = debugName;
@@ -282,6 +292,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
+    properties.add(DiagnosticsProperty('showWhenUnlinked', showWhenUnlinked));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));

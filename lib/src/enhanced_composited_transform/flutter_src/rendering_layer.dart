@@ -198,6 +198,7 @@ class EnhancedFollowerLayer extends ContainerLayer {
   /// The [link] property must not be null.
   EnhancedFollowerLayer({
     required this.link,
+    required this.showWhenUnlinked,
     // NOTE MODIFIED add [linkedOffsetCallback], remove several arguments like
     // [showWhenUnlinked], [unlinkedOffset], [linkedOffset]
     required this.linkedOffsetCallback,
@@ -206,6 +207,8 @@ class EnhancedFollowerLayer extends ContainerLayer {
   });
 
   EnhancedLayerLink link;
+
+  bool? showWhenUnlinked;
 
   // NOTE MODIFIED added this field
   /// Callback that is called to compute the linked offset of the follower layer
@@ -227,9 +230,6 @@ class EnhancedFollowerLayer extends ContainerLayer {
   String? debugName;
 
   Offset? unlinkedOffset;
-
-  // NOTE MODIFIED similarly, make [showWhenUnlinked] a const for our needs.
-  static const showWhenUnlinked = EnhancedRenderFollowerLayer.showWhenUnlinked;
 
   Offset? _transformOffset(Offset localPosition) {
     if (_inverseDirty) {
@@ -253,7 +253,7 @@ class EnhancedFollowerLayer extends ContainerLayer {
       AnnotationResult<S> result, Offset localPosition,
       {required bool onlyFirst}) {
     if (link.leader == null) {
-      if (showWhenUnlinked) {
+      if (showWhenUnlinked!) {
         return super.findAnnotations(result, localPosition - unlinkedOffset!,
             onlyFirst: onlyFirst);
       }
@@ -414,7 +414,8 @@ class EnhancedFollowerLayer extends ContainerLayer {
 
   @override
   void addToScene(ui.SceneBuilder builder) {
-    if (link.leader == null && !showWhenUnlinked) {
+    assert(showWhenUnlinked != null);
+    if (link.leader == null && !showWhenUnlinked!) {
       _lastTransform = null;
       _lastOffset = null;
       _inverseDirty = true;
