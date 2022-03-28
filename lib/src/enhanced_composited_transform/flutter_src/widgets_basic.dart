@@ -5,7 +5,6 @@
 
 import 'package:flutter/material.dart';
 import '../anchor.dart';
-import '../theater_info.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
 
@@ -16,7 +15,7 @@ class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.theaterInfo,
+    required this.theaterGetter,
     this.debugName,
     Widget? child,
   })  : assert(link != null),
@@ -26,7 +25,7 @@ class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
   final EnhancedLayerLink link;
 
   /// @nodoc
-  final EnhancedCompositedTransformTheaterInfo theaterInfo;
+  final TheaterGetter theaterGetter;
 
   // NOTE MODIFIED add
   final String? debugName;
@@ -35,7 +34,7 @@ class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
   EnhancedRenderLeaderLayer createRenderObject(BuildContext context) {
     return EnhancedRenderLeaderLayer(
       link: link,
-      theaterInfo: theaterInfo,
+      theaterGetter: theaterGetter,
       debugName: debugName,
     );
   }
@@ -45,7 +44,7 @@ class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
       BuildContext context, EnhancedRenderLeaderLayer renderObject) {
     renderObject
       ..link = link
-      ..theaterInfo = theaterInfo
+      ..theaterGetter = theaterGetter
       ..debugName = debugName;
   }
 }

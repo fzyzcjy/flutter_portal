@@ -296,7 +296,8 @@ class _PortalTargetState extends State<PortalTarget> {
       children: <Widget>[
         EnhancedCompositedTransformTarget(
           link: _link,
-          theaterInfo: scope.theaterInfo,
+          // TODO improve it: currently a new instance of `theaterGetter` will trigger repaint etc
+          theaterGetter: () => scope.portalLink.theater,
           debugName: widget.debugName,
           child: widget.child,
         ),

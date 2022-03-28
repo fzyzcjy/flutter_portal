@@ -6,8 +6,9 @@
 import 'package:flutter/rendering.dart';
 
 import '../anchor.dart';
-import '../theater_info.dart';
 import 'rendering_layer.dart';
+
+typedef TheaterGetter = RenderBox? Function();
 
 /// @nodoc
 class EnhancedRenderLeaderLayer extends RenderProxyBox {
@@ -15,12 +16,12 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   EnhancedRenderLeaderLayer({
     required EnhancedLayerLink link,
     // NOTE MODIFIED some arguments
-    required EnhancedCompositedTransformTheaterInfo theaterInfo,
+    required TheaterGetter theaterGetter,
     required String? debugName,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
-        _theaterInfo = theaterInfo,
+        _theaterGetter = theaterGetter,
         _debugName = debugName,
         super(child);
 
@@ -39,14 +40,14 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  EnhancedCompositedTransformTheaterInfo get theaterInfo => _theaterInfo;
-  EnhancedCompositedTransformTheaterInfo _theaterInfo;
+  TheaterGetter get theaterGetter => _theaterGetter;
+  TheaterGetter _theaterGetter;
 
-  set theaterInfo(EnhancedCompositedTransformTheaterInfo value) {
-    if (_theaterInfo == value) {
+  set theaterGetter(TheaterGetter value) {
+    if (_theaterGetter == value) {
       return;
     }
-    _theaterInfo = value;
+    _theaterGetter = value;
     markNeedsPaint();
   }
 
@@ -75,7 +76,16 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   }
 
   Rect _theaterRectRelativeToLeader() {
-    return theaterInfo.theaterRectRelativeToLeader(this);
+    assert(
+      theaterGetter() != null,
+      'The theater must be set in the OverlayLink when the '
+      '_RenderPortalTheater is inserted as a child of the _CompositedTransformTheaterInfoScope. '
+      'Therefore, it must not be null in any child PortalEntry.',
+    );
+    final theater = theaterGetter()!;
+
+    final shift = globalToLocal(Offset.zero, ancestor: theater);
+    return shift & theater.size;
   }
 
   @override
@@ -103,8 +113,7 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<EnhancedCompositedTransformTheaterInfo>(
-        'theaterInfo', theaterInfo));
+    properties.add(DiagnosticsProperty('theaterGetter', theaterGetter));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../flutter_portal.dart';
-import 'portal.dart';
 import 'portal_theater.dart';
 
 class PortalLink {
@@ -39,14 +38,12 @@ class PortalLinkScope extends InheritedWidget {
     Key? key,
     required this.debugName,
     required this.portalLink,
-    required this.theaterInfo,
     required this.portalLabels,
     required Widget child,
   }) : super(key: key, child: child);
 
   final String? debugName;
   final PortalLink portalLink;
-  final EnhancedCompositedTransformTheaterInfoForPortal theaterInfo;
   final List<PortalLabel> portalLabels;
 
   @override
@@ -60,7 +57,6 @@ class PortalLinkScope extends InheritedWidget {
     super.debugFillProperties(properties);
     properties.add(StringProperty('debugName', debugName));
     properties.add(DiagnosticsProperty('portalLink', portalLink));
-    properties.add(DiagnosticsProperty('theaterInfo', theaterInfo));
     properties.add(DiagnosticsProperty('portalLabel', portalLabels));
   }
 
