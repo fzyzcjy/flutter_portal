@@ -97,6 +97,7 @@ class Aligned implements Anchor {
     required this.target,
     this.portal = Alignment.center,
     this.alignToPortal = const AxisFlag(),
+    this.shiftToWithinBound = const AxisFlag(),
     this.offset = Offset.zero,
     this.widthFactor,
     this.heightFactor,
@@ -122,6 +123,9 @@ class Aligned implements Anchor {
 
   /// Whether to use [portal] instead of [target] for X and/or Y axis
   final AxisFlag alignToPortal;
+
+  ///  for X and/or Y axis
+  final AxisFlag shiftToWithinBound;
 
   /// Offset to shift the follower element by after all calculations are made.
   final Offset offset;
@@ -176,12 +180,15 @@ class Aligned implements Anchor {
       offset: offset,
     );
 
-    final followerRect = Rect.fromLTWH(
+    final followerRectBeforeClamp = Rect.fromLTWH(
       alignToPortal.x ? followerAlignPortal.left : followerAlignTarget.left,
       alignToPortal.y ? followerAlignPortal.top : followerAlignTarget.top,
       alignToPortal.x ? followerAlignPortal.width : followerAlignTarget.width,
       alignToPortal.y ? followerAlignPortal.height : followerAlignTarget.height,
     );
+
+    final followerRect = followerRectBeforeClamp.shiftToWithinBound(
+        portalRect, shiftToWithinBound);
 
     // print('hi getFollowerOffset '
     //     'followerSize=$followerSize targetSize=$targetSize portalRect=$portalRect '
@@ -279,5 +286,23 @@ extension on Rect {
         offset.dx <= right &&
         offset.dy >= top &&
         offset.dy <= bottom;
+  }
+
+  Rect shiftToWithinBound(Rect bounds, AxisFlag enable) {
+    return Rect.fromLTWH(
+      enable.x ? left.softClamp(bounds.left, bounds.right - width) : left,
+      enable.y ? top.softClamp(bounds.top, bounds.bottom - height) : top,
+      width,
+      height,
+    );
+  }
+}
+
+extension on double {
+  double softClamp(double lowerLimit, double upperLimit) {
+    if (lowerLimit > upperLimit) {
+      return lowerLimit;
+    }
+    return clamp(lowerLimit, upperLimit).toDouble();
   }
 }

@@ -1644,6 +1644,58 @@ Future<void> main() async {
         find.byType(Portal), matchesGoldenFile('partially_follow.png'));
   });
 
+  // #67
+  testWidgets('shift portal follower to be inside the bounds of portal',
+      (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    await tester.pumpWidget(
+      Boilerplate(
+        child: Portal(
+          child: Container(
+            color: Colors.blue.shade300,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -10,
+                  left: 20,
+                  width: 100,
+                  height: 50,
+                  child: PortalTarget(
+                    anchor: const Aligned(
+                      follower: Alignment.topCenter,
+                      target: Alignment.topCenter,
+                      shiftToWithinBound: AxisFlag(y: true),
+                    ),
+                    portalFollower: Container(
+                      width: 100,
+                      height: 20,
+                      color: Colors.green,
+                      child: Center(
+                        child: Container(
+                          width: 80,
+                          height: 4,
+                          color: Colors.green.shade900,
+                        ),
+                      ),
+                    ),
+                    child: Container(
+                      color: Colors.orange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+        find.byType(Portal), matchesGoldenFile('shift_to_within_bound.png'));
+  });
+
   testWidgets('portals paints in order of addition (last paints last)',
       (tester) async {
     tester.binding.window.physicalSizeTestValue = const Size(300, 300);
