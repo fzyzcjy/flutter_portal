@@ -6,28 +6,29 @@
 import 'package:flutter/rendering.dart';
 
 import '../anchor.dart';
-import '../portal_link.dart';
 import 'rendering_layer.dart';
 
+typedef TheaterGetter = RenderBox? Function();
+
 /// @nodoc
-class CustomRenderLeaderLayer extends RenderProxyBox {
+class EnhancedRenderLeaderLayer extends RenderProxyBox {
   /// @nodoc
-  CustomRenderLeaderLayer({
-    required CustomLayerLink link,
+  EnhancedRenderLeaderLayer({
+    required EnhancedLayerLink link,
     // NOTE MODIFIED some arguments
-    required PortalLink portalLink,
+    required TheaterGetter theaterGetter,
     required String? debugName,
     RenderBox? child,
   })  : assert(link != null),
         _link = link,
-        _portalLink = portalLink,
+        _theaterGetter = theaterGetter,
         _debugName = debugName,
         super(child);
 
   /// @nodoc
-  CustomLayerLink get link => _link;
-  CustomLayerLink _link;
-  set link(CustomLayerLink value) {
+  EnhancedLayerLink get link => _link;
+  EnhancedLayerLink _link;
+  set link(EnhancedLayerLink value) {
     assert(value != null);
     if (_link == value) return;
     _link.leaderSize = null;
@@ -39,14 +40,14 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  PortalLink get portalLink => _portalLink;
-  PortalLink _portalLink;
+  TheaterGetter get theaterGetter => _theaterGetter;
+  TheaterGetter _theaterGetter;
 
-  set portalLink(PortalLink value) {
-    if (_portalLink == value) {
+  set theaterGetter(TheaterGetter value) {
+    if (_theaterGetter == value) {
       return;
     }
-    _portalLink = value;
+    _theaterGetter = value;
     markNeedsPaint();
   }
 
@@ -74,29 +75,34 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
     link.leaderSize = size;
   }
 
-  Offset? _computePortalTheaterToLeaderOffset() {
-    final theater = portalLink.theater;
-    if (theater == null) {
-      return null;
-    }
-    return globalToLocal(Offset.zero, ancestor: theater);
+  Rect _theaterRectRelativeToLeader() {
+    assert(
+      theaterGetter() != null,
+      'The theater must be set in the OverlayLink when the '
+      '_RenderPortalTheater is inserted as a child of the _CompositedTransformTheaterInfoScope. '
+      'Therefore, it must not be null in any child PortalEntry.',
+    );
+    final theater = theaterGetter()!;
+
+    final shift = globalToLocal(Offset.zero, ancestor: theater);
+    return shift & theater.size;
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
     if (layer == null) {
-      layer = CustomLeaderLayer(
+      layer = EnhancedLeaderLayer(
         link: link,
         offset: offset,
-        portalTheaterToLeaderOffset: _computePortalTheaterToLeaderOffset,
+        theaterRectRelativeToLeader: _theaterRectRelativeToLeader,
         debugName: debugName,
       );
     } else {
-      final CustomLeaderLayer leaderLayer = layer! as CustomLeaderLayer;
+      final EnhancedLeaderLayer leaderLayer = layer! as EnhancedLeaderLayer;
       leaderLayer
         ..link = link
         ..offset = offset
-        ..portalTheaterToLeaderOffset = _computePortalTheaterToLeaderOffset
+        ..theaterRectRelativeToLeader = _theaterRectRelativeToLeader
         ..debugName = debugName;
     }
     context.pushLayer(layer!, super.paint, Offset.zero);
@@ -106,39 +112,45 @@ class CustomRenderLeaderLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
+    properties.add(DiagnosticsProperty('theaterGetter', theaterGetter));
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
 
 /// @nodoc
-class CustomRenderFollowerLayer extends RenderProxyBox {
+class EnhancedRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
-  CustomRenderFollowerLayer({
-    required CustomLayerLink link,
+  EnhancedRenderFollowerLayer({
+    required EnhancedLayerLink link,
+    required bool showWhenUnlinked,
     // NOTE MODIFIED some arguments
-    required PortalLink portalLink,
     required Size targetSize,
-    required Anchor anchor,
+    required EnhancedCompositedTransformAnchor anchor,
     required String? debugName,
     RenderBox? child,
   })  : _anchor = anchor,
         _link = link,
-        _portalLink = portalLink,
+        _showWhenUnlinked = showWhenUnlinked,
         _targetSize = targetSize,
         _debugName = debugName,
         super(child);
 
-  // NOTE MODIFIED original Flutter code lets user pass it in as an argument,
-  // but we just make it a constant zero.
-  static const showWhenUnlinked = false;
+  /// @nodoc
+  bool get showWhenUnlinked => _showWhenUnlinked;
+  bool _showWhenUnlinked;
+  set showWhenUnlinked(bool value) {
+    assert(value != null);
+    if (_showWhenUnlinked == value) return;
+    _showWhenUnlinked = value;
+    markNeedsPaint();
+  }
 
   /// @nodoc
-  Anchor get anchor => _anchor;
-  Anchor _anchor;
+  EnhancedCompositedTransformAnchor get anchor => _anchor;
+  EnhancedCompositedTransformAnchor _anchor;
 
-  set anchor(Anchor value) {
+  set anchor(EnhancedCompositedTransformAnchor value) {
     if (_anchor != value) {
       _anchor = value;
       markNeedsPaint();
@@ -146,26 +158,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   }
 
   /// @nodoc
-  CustomLayerLink get link => _link;
-  CustomLayerLink _link;
+  EnhancedLayerLink get link => _link;
+  EnhancedLayerLink _link;
 
-  set link(CustomLayerLink value) {
+  set link(EnhancedLayerLink value) {
     if (_link == value) {
       return;
     }
     _link = value;
-    markNeedsPaint();
-  }
-
-  /// @nodoc
-  PortalLink get portalLink => _portalLink;
-  PortalLink _portalLink;
-
-  set portalLink(PortalLink value) {
-    if (_portalLink == value) {
-      return;
-    }
-    _portalLink = value;
     markNeedsPaint();
   }
 
@@ -201,7 +201,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
 
   /// @nodoc
   @override
-  CustomFollowerLayer? get layer => super.layer as CustomFollowerLayer?;
+  EnhancedFollowerLayer? get layer => super.layer as EnhancedFollowerLayer?;
 
   /// @nodoc
   Matrix4 getCurrentTransform() {
@@ -237,36 +237,14 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   /// [PortalTarget].
   ///
   /// The reason we cannot simply access the [link]'s leader in [paint] is that
-  /// the leader is only attached to the [CustomLayerLink] in [LeaderLayer.attach],
+  /// the leader is only attached to the [EnhancedLayerLink] in [LeaderLayer.attach],
   /// which is called in the compositing phase which is after the paint phase.
   Offset _computeLinkedOffset() {
-    assert(
-      portalLink.theater != null,
-      'The theater must be set in the OverlayLink when the '
-      '_RenderPortalTheater is inserted as a child of the _PortalLinkScope. '
-      'Therefore, it must not be null in any child PortalEntry.',
-    );
-    final theater = portalLink.theater!;
-
-    // old method
-    // // In order to compute the theater rect, we must first offset (shift) it by
-    // // the position of the top-left corner of the target in the coordinate space
-    // // of the theater since we are working with it relative to the target.
-    // final theaterShift = -globalToLocal(
-    //   leaderOffset,
-    //   ancestor: theater,
-    // );
-    // new method #61, #62
-    final theaterShift =
-        link.leader!.portalTheaterToLeaderOffset() ?? Offset.zero;
-
-    final theaterRect = theaterShift & theater.size;
-
     return anchor.getFollowerOffset(
       // The size is set in performLayout of the RenderProxyBoxMixin.
       followerSize: size,
       targetSize: targetSize,
-      portalRect: theaterRect,
+      theaterRect: link.leader!.theaterRectRelativeToLeader(),
     );
   }
 
@@ -275,8 +253,9 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     // NOTE MODIFIED removed original [effectiveLinkedOffset] calculation, and replace with callback
 
     if (layer == null) {
-      layer = CustomFollowerLayer(
+      layer = EnhancedFollowerLayer(
         link: link,
+        showWhenUnlinked: showWhenUnlinked,
         linkedOffsetCallback: _computeLinkedOffset,
         unlinkedOffset: offset,
         debugName: debugName,
@@ -284,6 +263,7 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
     } else {
       layer
         ?..link = link
+        ..showWhenUnlinked = showWhenUnlinked
         ..linkedOffsetCallback = _computeLinkedOffset
         ..unlinkedOffset = offset
         ..debugName = debugName;
@@ -311,8 +291,8 @@ class CustomRenderFollowerLayer extends RenderProxyBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CustomLayerLink>('link', link));
-    properties.add(DiagnosticsProperty<PortalLink>('portalLink', portalLink));
+    properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
+    properties.add(DiagnosticsProperty('showWhenUnlinked', showWhenUnlinked));
     properties.add(
         TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));

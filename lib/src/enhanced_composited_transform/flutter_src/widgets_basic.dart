@@ -5,73 +5,72 @@
 
 import 'package:flutter/material.dart';
 import '../anchor.dart';
-import '../portal_link.dart';
 import 'rendering_layer.dart';
 import 'rendering_proxy_box.dart';
 
 /// @nodoc
-class CustomCompositedTransformTarget extends SingleChildRenderObjectWidget {
+class EnhancedCompositedTransformTarget extends SingleChildRenderObjectWidget {
   /// @nodoc
-  const CustomCompositedTransformTarget({
+  const EnhancedCompositedTransformTarget({
     Key? key,
     required this.link,
     // NOTE MODIFIED some arguments
-    required this.portalLink,
-    required this.debugName,
+    required this.theaterGetter,
+    this.debugName,
     Widget? child,
   })  : assert(link != null),
         super(key: key, child: child);
 
   /// @nodoc
-  final CustomLayerLink link;
+  final EnhancedLayerLink link;
 
   /// @nodoc
-  final PortalLink portalLink;
+  final TheaterGetter theaterGetter;
 
   // NOTE MODIFIED add
   final String? debugName;
 
   @override
-  CustomRenderLeaderLayer createRenderObject(BuildContext context) {
-    return CustomRenderLeaderLayer(
+  EnhancedRenderLeaderLayer createRenderObject(BuildContext context) {
+    return EnhancedRenderLeaderLayer(
       link: link,
-      portalLink: portalLink,
+      theaterGetter: theaterGetter,
       debugName: debugName,
     );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, CustomRenderLeaderLayer renderObject) {
+      BuildContext context, EnhancedRenderLeaderLayer renderObject) {
     renderObject
       ..link = link
-      ..portalLink = portalLink
+      ..theaterGetter = theaterGetter
       ..debugName = debugName;
   }
 }
 
 /// @nodoc
-class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
+class EnhancedCompositedTransformFollower
+    extends SingleChildRenderObjectWidget {
   /// @nodoc
-  const CustomCompositedTransformFollower({
+  const EnhancedCompositedTransformFollower({
     Key? key,
     required this.link,
+    this.showWhenUnlinked = true,
     // NOTE MODIFIED some arguments
-    required this.portalLink,
     required this.targetSize,
     required this.anchor,
-    required this.debugName,
+    this.debugName,
     Widget? child,
   }) : super(key: key, child: child);
 
   /// @nodoc
-  final Anchor anchor;
+  final EnhancedCompositedTransformAnchor anchor;
 
   /// @nodoc
-  final CustomLayerLink link;
+  final EnhancedLayerLink link;
 
-  /// @nodoc
-  final PortalLink portalLink;
+  final bool showWhenUnlinked;
 
   /// @nodoc
   final Size targetSize;
@@ -80,11 +79,11 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
   final String? debugName;
 
   @override
-  CustomRenderFollowerLayer createRenderObject(BuildContext context) {
-    return CustomRenderFollowerLayer(
+  EnhancedRenderFollowerLayer createRenderObject(BuildContext context) {
+    return EnhancedRenderFollowerLayer(
       anchor: anchor,
       link: link,
-      portalLink: portalLink,
+      showWhenUnlinked: showWhenUnlinked,
       targetSize: targetSize,
       debugName: debugName,
     );
@@ -92,10 +91,10 @@ class CustomCompositedTransformFollower extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, CustomRenderFollowerLayer renderObject) {
+      BuildContext context, EnhancedRenderFollowerLayer renderObject) {
     renderObject
       ..link = link
-      ..portalLink = portalLink
+      ..showWhenUnlinked = showWhenUnlinked
       ..targetSize = targetSize
       ..anchor = anchor
       ..debugName = debugName;

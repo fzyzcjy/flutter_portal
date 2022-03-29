@@ -8,6 +8,7 @@
 * Touch (click) events are drifted (shifted incorrectly) for `PortalTarget`s #64 (@fzyzcjy)
 * Allow the follower partially follow the target in selected axis; allow align relative to Portal #17 (@fzyzcjy)
 * Shift portal follower to be inside the bounds of portal #67 (@fzyzcjy)
+* Extract the composited transform ("leader/follower") in this library to beautify the code and allow users to use them directly #70 (@fzyzcjy)
 
 # 1.0.0-dev.2
 
