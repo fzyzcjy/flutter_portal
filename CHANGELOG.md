@@ -1,4 +1,4 @@
-# 1.0.0-dev.3
+# 1.0.0
 
 * Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.` (@fzyzcjy)
 * `Aligned.backup` is always used even if it should not; cause: `getFollowerOffset`'s `portalRect` argument is wrong #63 (@fzyzcjy)
