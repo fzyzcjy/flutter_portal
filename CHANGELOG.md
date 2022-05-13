@@ -1,3 +1,8 @@
+# 1.1.0
+
+* Upgrade to Flutter 3.0
+* Export Filled anchor #74 (thanks @mityax)
+
 # 1.0.0
 
 * Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.` (@fzyzcjy)
