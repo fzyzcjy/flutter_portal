@@ -48,8 +48,8 @@ class EnhancedLayerLink {
       if (_debugLeaderCheckScheduled) return true;
       _debugLeaderCheckScheduled = true;
       // ignore: unnecessary_non_null_assertion
-      _ambiguate(SchedulerBinding.instance)
-          !.addPostFrameCallback((Duration timeStamp) {
+      _ambiguate(SchedulerBinding.instance)!
+          .addPostFrameCallback((Duration timeStamp) {
         _debugLeaderCheckScheduled = false;
         assert(_debugPreviousLeaders!.isEmpty);
       });
