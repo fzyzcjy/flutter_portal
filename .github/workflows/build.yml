@@ -23,8 +23,8 @@ jobs:
 
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: ${{ matrix.version }}
-          channel: ${{ matrix.channel }}
+          flutter-version: ${{ matrix.flutter_info.version }}
+          channel: ${{ matrix.flutter_info.channel }}
 
       - name: Install dependencies
         run: flutter --version && flutter pub get
