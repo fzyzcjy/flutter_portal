@@ -13,9 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        channel:
-          - beta
-          - stable
+        version:
+          - 3.0.1
           - 2.10.5
 
     steps:
@@ -23,7 +22,8 @@ jobs:
 
       - uses: subosito/flutter-action@v1
         with:
-          channel: ${{ matrix.channel }}
+          flutter-version: ${{ matrix.version }}
+          # channel: ${{ matrix.channel }}
 
       - name: Install dependencies
         run: flutter pub get
