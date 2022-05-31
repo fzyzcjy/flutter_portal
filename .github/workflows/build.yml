@@ -27,7 +27,7 @@ jobs:
           channel: ${{ matrix.channel }}
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter --version && flutter pub get
 
       - name: Check format
         run: flutter format --set-exit-if-changed .
