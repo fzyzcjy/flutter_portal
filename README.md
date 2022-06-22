@@ -222,7 +222,7 @@ This can be implemented with a second [PortalEntry] combined with [GestureDetect
 ```dart
 PortalTarget(
   visible: isMenuOpen,
-  portal: GestureDetector(
+  portalFollower: GestureDetector(
     behavior: HitTestBehavior.opaque,
     onTap: () {
       setState(() {
