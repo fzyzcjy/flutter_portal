@@ -168,7 +168,7 @@ class AxisFlag {
   final bool y;
 }
 
-extension on Size {
+extension SizeUtilityForEnhancedCompositedTransformAnchor on Size {
   /// Returns a [Rect] that is aligned to the sizes (follower size / this and
   /// the target size) along the given alignments, shifted by [offset].
   Rect alignedTo(
@@ -184,7 +184,7 @@ extension on Size {
   }
 }
 
-extension on Rect {
+extension RectUtilityForEnhancedCompositedTransformAnchor on Rect {
   /// Returns true if [rect] is fully contained within this rect
   /// If the [rect] has any part that lies outside of this parent
   /// false will be returned
@@ -216,7 +216,7 @@ extension on Rect {
   }
 }
 
-extension on double {
+extension DoubleUtilityForEnhancedCompositedTransformAnchor on double {
   double softClamp(double lowerLimit, double upperLimit) {
     if (lowerLimit > upperLimit) {
       return lowerLimit;
