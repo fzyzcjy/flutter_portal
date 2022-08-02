@@ -1,3 +1,8 @@
+# 1.1.1
+
+* Export some methods
+* Fix Flutter 3.0 warnings
+
 # 1.1.0
 
 * Upgrade to Flutter 3.0
