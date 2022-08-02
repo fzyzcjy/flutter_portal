@@ -1,14 +1,14 @@
-# 1.1.1
+## 1.1.1
 
 * Export some methods
 * Fix Flutter 3.0 warnings
 
-# 1.1.0
+## 1.1.0
 
 * Upgrade to Flutter 3.0
 * Export Filled anchor #74 (thanks @mityax)
 
-# 1.0.0
+## 1.0.0
 
 * Fix `_debugCheckLeaderBeforeFollower(forwardLayers, inverseLayers)': LeaderLayer anchor must come before FollowerLayer in paint order, but the reverse was true.` (@fzyzcjy)
 * `Aligned.backup` is always used even if it should not; cause: `getFollowerOffset`'s `portalRect` argument is wrong #63 (@fzyzcjy)
@@ -20,11 +20,11 @@
 * Shift portal follower to be inside the bounds of portal #67 (@fzyzcjy)
 * Extract the composited transform ("leader/follower") in this library to beautify the code and allow users to use them directly #70 (@fzyzcjy)
 
-# 1.0.0-dev.2
+## 1.0.0-dev.2
 
 * Fix broken images in pub
 
-# 1.0.0-dev.1
+## 1.0.0-dev.1
 
 * New anchoring logic for advanced use cases #44 (@creativecreatorormaybenot for the main PR, @fzyzcjy for Flutter stable compatibility)
 * Allow PortalEntry that binds to a ancestor but not nearest Portal #45 (@fzyzcjy)
@@ -34,15 +34,15 @@
 * Fix `Failed assertion: '_lastOffset != null' in various cases`, which should exist in Flutter 2.8~2.10 and flutter_portal from old to new (@fzyzcjy #56)
 * New readme and documentations (@fzyzcjy)
 
-# 0.4.0
+## 0.4.0
 
 - Stable null-safety release
 
-# 0.4.0-nullsafety.0
+## 0.4.0-nullsafety.0
 
 - Migrated to null-safety (thanks to @Jjagg!)
 
-# 0.3.0
+## 0.3.0
 
 - Improved the dart-doc of Portal and PortalEntry
 - Added and improved the examples
@@ -77,25 +77,25 @@
   )
   ```
 
-# 0.2.0
+## 0.2.0
 
 - Update to support latest Flutter version
 
-# 0.1.0
+## 0.1.0
 
 - Changed the algorithm behind how portals/overlays are rendered.\
 This fixes some problems when combined with `LayoutBuilder`
 
 - Removed the generic parameter of `PortalEntry`
 
-# 0.0.1+2
+## 0.0.1+2
 
 Fix pub badge
 
-# 0.0.1+1
+## 0.0.1+1
 
 Improve package description
 
-# 0.0.1
+## 0.0.1
 
 Initial implementation
