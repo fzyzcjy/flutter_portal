@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart'; // ignore: unnecessary_import
 
 import 'portal_link.dart';
 import 'portal_target.dart';
@@ -109,7 +109,7 @@ class PortalLabel<T> {
   }
 
   @override
-  int get hashCode => hashValues(runtimeType, value);
+  int get hashCode => Object.hash(runtimeType, value);
 
   @override
   String toString() {
