@@ -153,7 +153,8 @@ class _FrameCache<K extends Object, V extends Object> {
 
       _cache = MapEntry(key, value);
       // clear cache after frame
-      SchedulerBinding.instance.addPostFrameCallback((_) => _cache = null);
+      _ambiguate(SchedulerBinding.instance)!
+          .addPostFrameCallback((_) => _cache = null);
 
       return value;
     }
@@ -344,3 +345,5 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     properties.add(DiagnosticsProperty('debugName', debugName));
   }
 }
+
+T? _ambiguate<T>(T? value) => value;
