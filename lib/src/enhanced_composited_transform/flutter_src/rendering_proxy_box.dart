@@ -76,6 +76,7 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
     super.performLayout();
     _previousLayoutSize = size;
     link.leaderSize = size;
+    _theaterShiftCache.invalidate();
   }
 
   // https://github.com/fzyzcjy/flutter_portal/issues/85
@@ -155,11 +156,13 @@ class _FrameCache<K extends Object, V extends Object> {
       _cache = _FrameCacheEntry(key: key, value: value, debugCreationStack: _debugStack());
 
       // clear cache after frame
-      _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => _cache = null);
+      _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => invalidate());
 
       return value;
     }
   }
+
+  void invalidate() => _cache = null;
 
   static StackTrace? _debugStack() {
     StackTrace? ans;
