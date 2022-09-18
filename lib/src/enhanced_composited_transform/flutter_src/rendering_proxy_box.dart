@@ -79,8 +79,8 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   }
 
   // https://github.com/fzyzcjy/flutter_portal/issues/85
-  late final _theaterShiftCache = _FrameCache<RenderBox, Offset>(
-      (theater) => globalToLocal(Offset.zero, ancestor: theater));
+  late final _theaterShiftCache =
+      _FrameCache<RenderBox, Offset>((theater) => globalToLocal(Offset.zero, ancestor: theater));
 
   Rect _theaterRectRelativeToLeader() {
     assert(
@@ -132,7 +132,7 @@ class _FrameCache<K extends Object, V extends Object> {
 
   final V Function(K) _compute;
 
-  MapEntry<K, V>? _cache;
+  _FrameCacheEntry<K, V>? _cache;
 
   V get(K key) {
     final cache = _cache;
@@ -142,7 +142,8 @@ class _FrameCache<K extends Object, V extends Object> {
         assert(
           value == cache.value,
           '_FrameCache want to use cache, but the value indeed changes. '
-          'key=$key value=$value cachedValue=${cache.value}',
+          'key=$key value=$value cachedValue=${cache.value} '
+          'cache.debugCreationStack=${cache.debugCreationStack}',
         );
         return true;
       }());
@@ -151,14 +152,35 @@ class _FrameCache<K extends Object, V extends Object> {
     } else {
       final value = _compute(key);
 
-      _cache = MapEntry(key, value);
+      _cache = _FrameCacheEntry(key: key, value: value, debugCreationStack: _debugStack());
+
       // clear cache after frame
-      _ambiguate(SchedulerBinding.instance)!
-          .addPostFrameCallback((_) => _cache = null);
+      _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => _cache = null);
 
       return value;
     }
   }
+
+  static StackTrace? _debugStack() {
+    StackTrace? ans;
+    assert(() {
+      ans = StackTrace.current;
+      return true;
+    }());
+    return ans;
+  }
+}
+
+class _FrameCacheEntry<K extends Object, V extends Object> {
+  const _FrameCacheEntry({
+    required this.key,
+    required this.value,
+    required this.debugCreationStack,
+  });
+
+  final K key;
+  final V value;
+  final StackTrace? debugCreationStack;
 }
 
 /// @nodoc
@@ -338,8 +360,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
     properties.add(DiagnosticsProperty('showWhenUnlinked', showWhenUnlinked));
-    properties.add(
-        TransformProperty('current transform matrix', getCurrentTransform()));
+    properties.add(TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugName', debugName));
