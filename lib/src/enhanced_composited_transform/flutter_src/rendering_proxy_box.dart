@@ -153,16 +153,23 @@ class _FrameCache<K extends Object, V extends Object> {
     } else {
       final value = _compute(key);
 
-      _cache = _FrameCacheEntry(key: key, value: value, debugCreationStack: _debugStack());
+      if (_shouldCacheNow) {
+        _cache = _FrameCacheEntry(key: key, value: value, debugCreationStack: _debugStack());
 
-      // clear cache after frame
-      _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => invalidate());
+        // clear cache after frame
+        _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => invalidate());
+      }
 
       return value;
     }
   }
 
   void invalidate() => _cache = null;
+
+  bool get _shouldCacheNow {
+    // https://github.com/fzyzcjy/yplusplus/issues/5731#issuecomment-1250200176
+    return _ambiguate(SchedulerBinding.instance)!.schedulerPhase == SchedulerPhase.persistentCallbacks;
+  }
 
   static StackTrace? _debugStack() {
     StackTrace? ans;
