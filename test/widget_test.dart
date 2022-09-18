@@ -8,7 +8,7 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:typed_data'; // ignore: unnecessary_import
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -2163,7 +2163,7 @@ class EntryBuildSpyCall {
       o is EntryBuildSpyCall && o.value1 == value1 && o.value2 == value2;
 
   @override
-  int get hashCode => hashValues(value1, value2);
+  int get hashCode => Object.hash(value1, value2);
 
   @override
   String toString() {
