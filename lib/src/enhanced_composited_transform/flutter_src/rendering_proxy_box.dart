@@ -4,6 +4,7 @@
 // ignore_for_file: unnecessary_null_comparison, curly_braces_in_flow_control_structures, omit_local_variable_types, comment_references, always_put_control_body_on_new_line
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../anchor.dart';
 import 'rendering_layer.dart';
@@ -28,6 +29,7 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   /// @nodoc
   EnhancedLayerLink get link => _link;
   EnhancedLayerLink _link;
+
   set link(EnhancedLayerLink value) {
     assert(value != null);
     if (_link == value) return;
@@ -62,6 +64,7 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   // NOTE MODIFIED add
   String? get debugName => _debugName;
   String? _debugName;
+
   set debugName(String? value) {
     if (_debugName == value) return;
     _debugName = value;
@@ -75,6 +78,10 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
     link.leaderSize = size;
   }
 
+  // https://github.com/fzyzcjy/flutter_portal/issues/85
+  late final _theaterShiftCache =
+      _FrameCache<RenderBox, Offset>((theater) => globalToLocal(Offset.zero, ancestor: theater));
+
   Rect _theaterRectRelativeToLeader() {
     assert(
       theaterGetter() != null,
@@ -84,7 +91,9 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
     );
     final theater = theaterGetter()!;
 
-    final shift = globalToLocal(Offset.zero, ancestor: theater);
+    // final shift = globalToLocal(Offset.zero, ancestor: theater);
+    final shift = _theaterShiftCache.get(theater);
+
     return shift & theater.size;
   }
 
@@ -118,6 +127,39 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   }
 }
 
+class _FrameCache<K extends Object, V extends Object> {
+  _FrameCache(this._compute);
+
+  final V Function(K) _compute;
+
+  MapEntry<K, V>? _cache;
+
+  V get(K key) {
+    final cache = _cache;
+    if (cache != null && cache.key == key) {
+      assert(() {
+        final value = _compute(key);
+        assert(
+          value == cache.value,
+          '_FrameCache want to use cache, but the value indeed changes. '
+          'key=$key value=$value cachedValue=${cache.value}',
+        );
+        return true;
+      }());
+
+      return cache.value;
+    } else {
+      final value = _compute(key);
+
+      _cache = MapEntry(key, value);
+      // clear cache after frame
+      SchedulerBinding.instance.addPostFrameCallback((_) => _cache = null);
+
+      return value;
+    }
+  }
+}
+
 /// @nodoc
 class EnhancedRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
@@ -139,6 +181,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   /// @nodoc
   bool get showWhenUnlinked => _showWhenUnlinked;
   bool _showWhenUnlinked;
+
   set showWhenUnlinked(bool value) {
     assert(value != null);
     if (_showWhenUnlinked == value) return;
@@ -184,6 +227,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
   // NOTE MODIFIED add
   String? get debugName => _debugName;
   String? _debugName;
+
   set debugName(String? value) {
     if (_debugName == value) return;
     _debugName = value;
@@ -293,8 +337,7 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
     properties.add(DiagnosticsProperty('showWhenUnlinked', showWhenUnlinked));
-    properties.add(
-        TransformProperty('current transform matrix', getCurrentTransform()));
+    properties.add(TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugName', debugName));
