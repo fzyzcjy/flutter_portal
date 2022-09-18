@@ -80,8 +80,8 @@ class EnhancedRenderLeaderLayer extends RenderProxyBox {
   }
 
   // https://github.com/fzyzcjy/flutter_portal/issues/85
-  late final _theaterShiftCache =
-      _FrameCache<RenderBox, Offset>((theater) => globalToLocal(Offset.zero, ancestor: theater));
+  late final _theaterShiftCache = _FrameCache<RenderBox, Offset>(
+      (theater) => globalToLocal(Offset.zero, ancestor: theater));
 
   Rect _theaterRectRelativeToLeader() {
     assert(
@@ -154,10 +154,12 @@ class _FrameCache<K extends Object, V extends Object> {
       final value = _compute(key);
 
       if (_shouldCacheNow) {
-        _cache = _FrameCacheEntry(key: key, value: value, debugCreationStack: _debugStack());
+        _cache = _FrameCacheEntry(
+            key: key, value: value, debugCreationStack: _debugStack());
 
         // clear cache after frame
-        _ambiguate(SchedulerBinding.instance)!.addPostFrameCallback((_) => invalidate());
+        _ambiguate(SchedulerBinding.instance)!
+            .addPostFrameCallback((_) => invalidate());
       }
 
       return value;
@@ -168,7 +170,8 @@ class _FrameCache<K extends Object, V extends Object> {
 
   bool get _shouldCacheNow {
     // https://github.com/fzyzcjy/yplusplus/issues/5731#issuecomment-1250200176
-    return _ambiguate(SchedulerBinding.instance)!.schedulerPhase == SchedulerPhase.persistentCallbacks;
+    return _ambiguate(SchedulerBinding.instance)!.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks;
   }
 
   static StackTrace? _debugStack() {
@@ -370,7 +373,8 @@ class EnhancedRenderFollowerLayer extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EnhancedLayerLink>('link', link));
     properties.add(DiagnosticsProperty('showWhenUnlinked', showWhenUnlinked));
-    properties.add(TransformProperty('current transform matrix', getCurrentTransform()));
+    properties.add(
+        TransformProperty('current transform matrix', getCurrentTransform()));
     properties.add(DiagnosticsProperty('anchor', anchor));
     properties.add(DiagnosticsProperty('targetSize', targetSize));
     properties.add(DiagnosticsProperty('debugName', debugName));
