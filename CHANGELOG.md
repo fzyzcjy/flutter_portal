@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Fix Layer ... was previously used as oldLayer assertion error in debug mode, and page being blank in release mode #91
+
 ## 1.1.1
 
 * Export some methods
