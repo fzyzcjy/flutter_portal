@@ -157,7 +157,8 @@ class EnhancedLeaderLayer extends ContainerLayer {
         oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
     } else {
-      engineLayer = null; // NOTE #90 and https://github.com/flutter/flutter/pull/113998
+      // NOTE #90 and https://github.com/flutter/flutter/pull/113998
+      engineLayer = null;
     }
     addChildrenToScene(builder);
     if (offset != Offset.zero) builder.pop();
