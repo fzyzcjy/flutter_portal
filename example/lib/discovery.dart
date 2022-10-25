@@ -27,7 +27,8 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('You have clicked the button this many times:'),
-                Text('$count', style: Theme.of(context).textTheme.headline4),
+                // Text('$count', style: Theme.of(context).textTheme.headline4),
+                Text('$count'),
                 ElevatedButton(
                   onPressed: () => setState(() => showDiscovery = true),
                   child: const Text('Show discovery'),
@@ -103,19 +104,18 @@ class Discovery extends StatelessWidget {
               top: 100,
               left: 50,
               width: 200,
-              child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.headline5!,
-                child: TweenAnimationBuilder<double>(
-                  duration: kThemeAnimationDuration,
-                  curve: Curves.easeOut,
-                  tween: Tween(begin: 0, end: visible ? 1 : 0),
-                  builder: (context, opacity, _) {
-                    return Opacity(
-                      opacity: opacity,
-                      child: description,
-                    );
-                  },
-                ),
+              // child: DefaultTextStyle(
+              // style: Theme.of(context).textTheme.headline5!,
+              child: TweenAnimationBuilder<double>(
+                duration: kThemeAnimationDuration,
+                curve: Curves.easeOut,
+                tween: Tween(begin: 0, end: visible ? 1 : 0),
+                builder: (context, opacity, _) {
+                  return Opacity(
+                    opacity: opacity,
+                    child: description,
+                  );
+                },
               ),
             )
           ],
