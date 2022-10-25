@@ -150,12 +150,15 @@ class EnhancedLeaderLayer extends ContainerLayer {
   @override
   void addToScene(ui.SceneBuilder builder) {
     assert(offset != null);
-    if (offset != Offset.zero)
+    if (offset != Offset.zero) {
       engineLayer = builder.pushTransform(
         Matrix4.translationValues(offset.dx, offset.dy, 0.0).storage,
         // NOTE MODIFIED from `_engineLayer` to `engineLayer`
         oldLayer: engineLayer as ui.TransformEngineLayer?,
       );
+    } else {
+      engineLayer = null; // NOTE #90 and https://github.com/flutter/flutter/pull/113998
+    }
     addChildrenToScene(builder);
     if (offset != Offset.zero) builder.pop();
   }
