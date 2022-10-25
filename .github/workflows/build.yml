@@ -15,8 +15,8 @@ jobs:
       matrix:
         flutter_info:
           - {version: '3.0.1', channel: stable}
+          - {version: '3.3.5', channel: stable}
           - {version: null, channel: beta}
-          - {version: '2.10.5', channel: stable}
 
     steps:
       - uses: actions/checkout@v2
