@@ -29,19 +29,19 @@ jobs:
       - name: Install dependencies
         run: flutter --version && flutter pub get
 
+      - name: Run tests
+        run: flutter test --coverage --coverage-path coverage/lcov.info
+
+      # - uses: codecov/codecov-action@v2
+      #  with:
+      #    # token: ${{ secrets.CODECOV_TOKEN }}
+      #    files: ./coverage/lcov.info
+      #    flags: main-tests
+      #    fail_ci_if_error: true
+      #    verbose: true
+
       - name: Check format
         run: flutter format --set-exit-if-changed .
 
       - name: Analyze
         run: flutter analyze
-
-      - name: Run tests
-        run: flutter test --coverage --coverage-path coverage/lcov.info
-
-      - uses: codecov/codecov-action@v2
-        with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          flags: main-tests
-          fail_ci_if_error: true
-          verbose: true
