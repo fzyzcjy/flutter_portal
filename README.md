@@ -348,6 +348,7 @@ Contributors
 
 * [@creativecreatorormaybenot](https://github.com/creativecreatorormaybenot): New anchoring logic for advanced use cases, making anchors more flexible, improving code quality, and enhancing non-fragility without additional layout/paint calls.
 * [@Jjagg](https://github.com/Jjagg): Migrate to NNBD.
+* [@CaseyHillers](https://github.com/CaseyHillers): Make example compatible with Dart 3.
 * [@mono0926](https://github.com/mono0926): Update dependencies and doc.
 * [@tepcii](https://github.com/tepcii) and [@nilsreichardt](https://github.com/nilsreichardt): Fix doc.
 * [@mityax](https://github.com/mityax): Fix export.
