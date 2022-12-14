@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -241,26 +240,11 @@ class PortalTarget extends StatefulWidget {
     BuildContext context,
     List<PortalLabel<dynamic>> portalCandidateLabels,
   ) {
-    final scope = _dependOnScope(context, portalCandidateLabels);
+    final scope = PortalLinkScope.of(context, portalCandidateLabels);
     if (scope == null) {
       return null;
     }
     return '(debugName: ${scope.debugName}, portalLabel: ${scope.portalLabels})';
-  }
-
-  static PortalLinkScope? _dependOnScope(
-    BuildContext context,
-    List<PortalLabel<dynamic>> portalCandidateLabels,
-  ) {
-    for (final portalLabel in portalCandidateLabels) {
-      final scope =
-          context.dependOnSpecificInheritedWidgetOfExactType<PortalLinkScope>(
-              (scope) => scope.portalLabels.contains(portalLabel));
-      if (scope != null) {
-        return scope;
-      }
-    }
-    return null;
   }
 }
 
@@ -273,8 +257,7 @@ class _PortalTargetState extends State<PortalTarget> {
       visible: widget.visible,
       closeDuration: widget.closeDuration,
       builder: (context, currentVisible) {
-        final scope =
-            PortalTarget._dependOnScope(context, widget.portalCandidateLabels);
+        final scope = PortalLinkScope.of(context, widget.portalCandidateLabels);
         if (scope == null) {
           throw PortalNotFoundError._(widget);
         }
@@ -539,41 +522,4 @@ class SanityCheckNestedPortalInfo {
 
   String _scopeToString(PortalLinkScope scope) =>
       '$scope(hash=${shortHash(scope)})';
-}
-
-extension on BuildContext {
-  /// https://stackoverflow.com/questions/71200969
-  Iterable<InheritedElement> getElementsForInheritedWidgetsOfExactType<
-      T extends InheritedWidget>() sync* {
-    final element = getElementForInheritedWidgetOfExactType<T>();
-    if (element != null) {
-      yield element;
-
-      Element? parent;
-      element.visitAncestorElements((element) {
-        parent = element;
-        return false;
-      });
-
-      if (parent != null) {
-        yield* parent!.getElementsForInheritedWidgetsOfExactType<T>();
-      }
-    }
-  }
-
-  InheritedElement? getSpecificElementForInheritedWidgetsOfExactType<
-          T extends InheritedWidget>(bool Function(T) test) =>
-      getElementsForInheritedWidgetsOfExactType<T>()
-          .where((element) => test(element.widget as T))
-          .firstOrNull;
-
-  /// https://stackoverflow.com/questions/71200969
-  T? dependOnSpecificInheritedWidgetOfExactType<T extends InheritedWidget>(
-      bool Function(T) test) {
-    final element = getSpecificElementForInheritedWidgetsOfExactType<T>(test);
-    if (element == null) {
-      return null;
-    }
-    return dependOnInheritedElement(element) as T;
-  }
 }
