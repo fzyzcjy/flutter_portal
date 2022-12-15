@@ -1,3 +1,7 @@
+## 1.1.3
+
+* Allow EnhancedLayerLink to be used on it's own #96 (thanks @cgestes)
+
 ## 1.1.2
 
 * Fix Layer ... was previously used as oldLayer assertion error in debug mode, and page being blank in release mode #91
