@@ -45,7 +45,7 @@ class PortalLinkScope extends InheritedWidget {
 
   final String? debugName;
   final PortalLink portalLink;
-  final List<PortalLabel> portalLabels;
+  final List<PortalLabel<dynamic>> portalLabels;
 
   @override
   bool updateShouldNotify(PortalLinkScope oldWidget) {

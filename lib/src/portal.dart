@@ -49,7 +49,7 @@ class Portal extends StatefulWidget {
   }) : super(key: key);
 
   final String? debugName;
-  final List<PortalLabel> labels;
+  final List<PortalLabel<dynamic>> labels;
   final Widget child;
 
   @override
