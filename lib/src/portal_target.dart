@@ -228,7 +228,7 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<Anchor>('anchor', anchor))
       ..add(DiagnosticsProperty<Duration>('closeDuration', closeDuration))
       ..add(DiagnosticsProperty<Widget>('portalFollower', portalFollower))
-      ..add(DiagnosticsProperty<List<PortalLabel>>(
+      ..add(DiagnosticsProperty<List<PortalLabel<dynamic>>>(
           'portalCandidateLabels', portalCandidateLabels))
       ..add(DiagnosticsProperty('debugName', debugName))
       ..add(DiagnosticsProperty<Widget>('child', child));
