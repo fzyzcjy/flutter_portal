@@ -2159,7 +2159,7 @@ class EntryBuildSpyCall {
   final int value2;
 
   @override
-  bool operator ==(dynamic o) =>
+  bool operator ==(Object o) =>
       o is EntryBuildSpyCall && o.value1 == value1 && o.value2 == value2;
 
   @override
