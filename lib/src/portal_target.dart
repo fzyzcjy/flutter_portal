@@ -205,6 +205,7 @@ class PortalTarget extends StatefulWidget {
     this.portalFollower,
     this.portalCandidateLabels = const [PortalLabel.main],
     this.debugName,
+    this.fit = StackFit.loose,
     required this.child,
   })  : assert(visible == false || portalFollower != null),
         super(key: key);
@@ -216,6 +217,7 @@ class PortalTarget extends StatefulWidget {
   final PortalFollower? portalFollower;
   final List<PortalLabel<dynamic>> portalCandidateLabels;
   final String? debugName;
+  final StackFit fit;
   final Widget child;
 
   @override
@@ -276,6 +278,7 @@ class _PortalTargetState extends State<PortalTarget> {
     _sanityCheckNestedPortalTarget(context, scope);
 
     return Stack(
+      fit: widget.fit,
       children: <Widget>[
         EnhancedCompositedTransformTarget(
           link: _link,
