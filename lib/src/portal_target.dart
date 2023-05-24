@@ -233,6 +233,7 @@ class PortalTarget extends StatefulWidget {
       ..add(DiagnosticsProperty<List<PortalLabel<dynamic>>>(
           'portalCandidateLabels', portalCandidateLabels))
       ..add(DiagnosticsProperty('debugName', debugName))
+      ..add(EnumProperty<StackFit>('fit', fit))
       ..add(DiagnosticsProperty<Widget>('child', child));
   }
 
@@ -393,6 +394,8 @@ class _PortalTargetVisibilityBuilder extends StatefulWidget {
 
   final bool visible;
   final Duration? closeDuration;
+
+  // ignore: avoid_positional_boolean_parameters
   final Widget Function(BuildContext, bool currentVisible) builder;
 
   @override

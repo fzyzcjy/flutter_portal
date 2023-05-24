@@ -143,8 +143,8 @@ void main() {
 
   // try to reproduce #61 and #62
   testWidgets('anchor gets correct input', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     var calledGetSourceOffset = false;
     final anchor = _TestAligned(
