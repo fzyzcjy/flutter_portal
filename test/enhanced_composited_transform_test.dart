@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('tap location', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     final containerKey = GlobalKey();
     final link = EnhancedLayerLink();

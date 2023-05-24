@@ -774,8 +774,8 @@ Future<void> main() async {
 
   // #65
   testWidgets('localToGlobal when portal is shifted', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     final containerKey = GlobalKey();
     final portalFollowerKey = GlobalKey();
@@ -821,8 +821,8 @@ Future<void> main() async {
 
   // #64
   testWidgets('click when portal is shifted', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     final containerKey = GlobalKey();
     final pointerDownEvents = <PointerDownEvent>[];
@@ -1594,8 +1594,8 @@ Future<void> main() async {
   // #17
   testWidgets('overlay partially follow the target in one axis',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     await tester.pumpWidget(
       Boilerplate(
@@ -1647,8 +1647,8 @@ Future<void> main() async {
   // #67
   testWidgets('shift portal follower to be inside the bounds of portal',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     await tester.pumpWidget(
       Boilerplate(
@@ -1698,8 +1698,8 @@ Future<void> main() async {
 
   testWidgets('portals paints in order of addition (last paints last)',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     await tester.pumpWidget(
       Portal(
@@ -1728,8 +1728,8 @@ Future<void> main() async {
 
   testWidgets('PortalTarget can choose non-nearest ancestor Portal',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     const firstPortal = PortalLabel('first');
     const secondPortal = PortalLabel('second');
@@ -1808,8 +1808,8 @@ Future<void> main() async {
   });
 
   testWidgets('PortalTarget understands main scope', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     final containerKey = GlobalKey();
 
@@ -1908,8 +1908,8 @@ Future<void> main() async {
   testWidgets(
       'multi-Portal and nested-PortalFollower: PortalA - PortalB - TargetToPortalA - TargetToPortalB',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     const first = PortalLabel('first');
     const second = PortalLabel('second');
@@ -1985,8 +1985,8 @@ Future<void> main() async {
   testWidgets(
       'multi-Portal and nested-PortalFollower: PortalA - PortalB - TargetToPortalB - TargetToPortalA',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     const first = PortalLabel('first');
     const second = PortalLabel('second');
@@ -2058,8 +2058,8 @@ Future<void> main() async {
   testWidgets(
       'multi-Portal and nested-PortalFollower: PortalA - TargetToPortalA - PortalB - TargetToPortalB',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(300, 300);
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    tester.view.physicalSize = const Size(300, 300);
+    addTearDown(tester.view.resetPhysicalSize);
 
     const first = PortalLabel('first');
     const second = PortalLabel('second');
