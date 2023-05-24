@@ -1,3 +1,7 @@
+## 1.1.4
+
+* Migrate to Dart 3 (#102, #98, #97 thanks @srawlins)
+
 ## 1.1.3
 
 * Allow EnhancedLayerLink to be used on it's own #96 (thanks @cgestes)
