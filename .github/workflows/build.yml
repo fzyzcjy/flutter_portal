@@ -14,9 +14,7 @@ jobs:
     strategy:
       matrix:
         flutter_info:
-          - {version: '3.0.1', channel: stable}
-          - {version: '3.3.5', channel: stable}
-          - {version: null, channel: beta}
+          - {version: '3.10.0', channel: stable}
 
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +39,7 @@ jobs:
       #    verbose: true
 
       - name: Check format
-        run: flutter format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
 
       - name: Analyze
         run: flutter analyze
