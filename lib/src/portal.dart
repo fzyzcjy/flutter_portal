@@ -114,7 +114,8 @@ class PortalLabel<T> {
   @override
   String toString() {
     final valueString = T == String ? "<'$value'>" : '<$value>';
-    return '[$T $valueString]';
+    // ignore: no_runtimeType_toString
+    return '$runtimeType($T $valueString)';
   }
 }
 
