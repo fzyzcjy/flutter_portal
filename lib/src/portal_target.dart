@@ -345,7 +345,7 @@ class _PortalTargetState extends State<PortalTarget> {
       final followerParent =
           context.dependOnInheritedElement(followerParentElement)
               as _PortalTargetTheaterFollowerParent;
-      final followerParentScope = followerParent.usedScope;
+      final parentScope = followerParent.usedScope;
 
       // #60
       final underPortalForCurrent = followerParentElement
@@ -357,15 +357,15 @@ class _PortalTargetState extends State<PortalTarget> {
       }
 
       final followerParentUsedScopeIndex =
-          portalLinkScopeAncestors.indexWhere(followerParentScope.linkEquals);
+          portalLinkScopeAncestors.indexWhere(parentScope.linkEquals);
       final selfUsedScopeIndex =
           portalLinkScopeAncestors.indexWhere(scope.linkEquals);
 
       final info = SanityCheckNestedPortalInfo._(
         selfDebugLabel: widget.debugName,
-        followerParentDebugLabel: followerParent.debugSelfWidget.debugName,
+        parentDebugLabel: followerParent.debugSelfWidget.debugName,
         selfScope: scope,
-        followerParentScope: followerParentScope,
+        parentScope: parentScope,
         portalLinkScopeAncestors: portalLinkScopeAncestors,
       );
 
@@ -505,24 +505,24 @@ class SanityCheckNestedPortalError extends Error {
 class SanityCheckNestedPortalInfo {
   const SanityCheckNestedPortalInfo._({
     required this.selfDebugLabel,
-    required this.followerParentDebugLabel,
+    required this.parentDebugLabel,
     required this.selfScope,
-    required this.followerParentScope,
+    required this.parentScope,
     required this.portalLinkScopeAncestors,
   });
 
   final String? selfDebugLabel;
-  final String? followerParentDebugLabel;
+  final String? parentDebugLabel;
   final PortalLinkScope selfScope;
-  final PortalLinkScope followerParentScope;
+  final PortalLinkScope parentScope;
   final List<PortalLinkScope> portalLinkScopeAncestors;
 
   @override
   String toString() => 'SanityCheckNestedPortalInfo{'
       'selfDebugLabel: $selfDebugLabel, '
-      'followerParentDebugLabel: $followerParentDebugLabel, '
+      'parentDebugLabel: $parentDebugLabel, '
       'selfScope: ${_scopeToString(selfScope)}, '
-      'followerParentScope: ${_scopeToString(followerParentScope)}, '
+      'parentScope: ${_scopeToString(parentScope)}, '
       'portalLinkScopeAncestors: ${portalLinkScopeAncestors.map(_scopeToString).toList()}'
       '}';
 

@@ -1973,9 +1973,9 @@ Future<void> main() async {
     final exception = tester.takeException() as SanityCheckNestedPortalError;
     // print('exception: $exception');
     expect(exception.info.selfDebugLabel, 'InnerTargetToSecondPortal');
-    expect(exception.info.followerParentDebugLabel, 'OuterTargetToFirstPortal');
+    expect(exception.info.parentDebugLabel, 'OuterTargetToFirstPortal');
     expect(exception.info.selfScope.portalLabels, [second]);
-    expect(exception.info.followerParentScope.portalLabels, [first]);
+    expect(exception.info.parentScope.portalLabels, [first]);
     expect(exception.info.portalLinkScopeAncestors.map((e) => e.portalLabels), [
       [second],
       [first]
