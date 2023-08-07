@@ -527,5 +527,5 @@ class SanityCheckNestedPortalInfo {
       '}';
 
   String _scopeToString(PortalLinkScope scope) =>
-      '$scope(hash=${shortHash(scope)})';
+      '${scope.toDiagnosticsNode(style: DiagnosticsTreeStyle.singleLine)}(hash=${shortHash(scope)})';
 }
