@@ -16,6 +16,7 @@ void main() {
     PointerDownEvent? lastPointerDownEvent;
 
     await tester.pumpWidget(MaterialApp(
+      theme: ThemeData(useMaterial3: false),
       home: Scaffold(
         body: Container(
           key: containerKey,
