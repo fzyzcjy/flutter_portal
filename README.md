@@ -12,15 +12,13 @@ Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]/[Overlay
 
 * **Declarative, not imperative**: Like everything else in the Flutter world, overlays (portals) are declarative now. Simply put your floating UI in the normal widget tree. <sub>Compare: The [OverlayEntry] is **not** a widget, and is manipulated imperatively using `.insert()` etc.</sub>
 * **Alignment, done easily**: Built-in support for aligning an overlay next to a UI component. <sub>Compare: A custom contextual menu from scratch in a few lines of code; while [Overlay] makes it nontrivial to align the tooltip/menu next to a widget.</sub>
-* **The intuitive `Context`**: The overlay entry is build with its intuitive parent as its `context`. <sub>Compare The [Overlay] approach uses the far-away overlay as its `context`.</sub>
+* **Customizable alignment logic**: For example, ensure the portal target never renders outside the screen (`shiftToWithinBound`), align it to portal instead of parent widget (`alignToPortal`), and you can even create your own align algorithm (extend `EnhancedCompositedTransformAnchor`). <sub>Compare: [Overlay] does not seem to have this.</sub>
+* **The intuitive `Context`**: The overlay entry is build with its intuitive parent as its `context`. <sub>Compare The [Overlay] approach uses the far-away overlay as its `context`. Update: [OverlayPortal], which is inspired by this package, improved and did this well.</sub>
 
 As a consequence, also have the following pros:
 
 * **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely. <sub>Compare: When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
-* **Customizable alignment logic**: For example, ensure the portal target never renders outside the screen (`shiftToWithinBound`), align it to portal instead of parent widget (`alignToPortal`), and you can even create your own align algorithm (extend `EnhancedCompositedTransformAnchor`). <sub>Compare: [Overlay] does not seem to have this.</sub>
 * **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>Compare: The [Overlay] approach will yield confusing Themes and providers. Update: [OverlayPortal], which is inspired by this package, improved and did this well.</sub>
-
-For comparsion with [OverlayPortal], please refer to [#104](https://github.com/fzyzcjy/flutter_portal/issues/104).
 
 ### 👀 Show me the code
 
