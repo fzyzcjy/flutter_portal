@@ -17,7 +17,8 @@ Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]/[Overlay
 As a consequence, also have the following pros:
 
 * **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely. <sub>Compare: When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
-* **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>Compare: The [Overlay] approach will yield confusing Themes and providers.</sub>
+* **Customizable alignment logic**: For example, ensure the portal target never renders outside the screen (`shiftToWithinBound`), align it to portal instead of parent widget (`alignToPortal`), and you can even create your own align algorithm (extend `EnhancedCompositedTransformAnchor`). <sub>Compare: [Overlay] does not seem to have this.</sub>
+* **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>Compare: The [Overlay] approach will yield confusing Themes and providers. Update: [OverlayPortal], which is inspired by this package, improved and did this well.</sub>
 
 For comparsion with [OverlayPortal], please refer to [#104](https://github.com/fzyzcjy/flutter_portal/issues/104).
 
