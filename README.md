@@ -8,7 +8,7 @@ Want to show floating overlays - tooltips, contextual menus, dialogs, bubbles, e
 
 ## 🚀 Advantages
 
-Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]?
+Why using `flutter_portal` instead of built-in [Overlay]/[OverlayEntry]/[OverlayPortal]?
 
 * **Declarative, not imperative**: Like everything else in the Flutter world, overlays (portals) are declarative now. Simply put your floating UI in the normal widget tree. <sub>Compare: The [OverlayEntry] is **not** a widget, and is manipulated imperatively using `.insert()` etc.</sub>
 * **Alignment, done easily**: Built-in support for aligning an overlay next to a UI component. <sub>Compare: A custom contextual menu from scratch in a few lines of code; while [Overlay] makes it nontrivial to align the tooltip/menu next to a widget.</sub>
@@ -18,6 +18,8 @@ As a consequence, also have the following pros:
 
 * **Easy restorable property**: Since showing an overlay as simple as doing a `setState`, `RestorableProperty` works nicely. <sub>Compare: When using the [Overlay] approach, the state of our modals are not restored when our application is killed by the OS.</sub>
 * **Correct `Theme`/`provider`**: Since the overlay entry has the intuitive `context`, it has access to the same `Theme` and the different `provider`s as the widget that shows the overlay. <sub>Compare: The [Overlay] approach will yield confusing Themes and providers.</sub>
+
+For comparsion with [OverlayPortal], please refer to [#104](https://github.com/fzyzcjy/flutter_portal/issues/104).
 
 ### 👀 Show me the code
 
@@ -356,6 +358,7 @@ Contributors
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
+[overlayportal]: https://api.flutter.dev/flutter/widgets/OverlayPortal-class.html
 [portal]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/Portal-class.html
 [portalentry]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalEntry-class.html
 [portaltarget]: https://pub.dev/documentation/flutter_portal/latest/flutter_portal/PortalTarget-class.html
