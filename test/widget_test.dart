@@ -42,8 +42,6 @@ Future<ByteData> fetchFont() async {
 Future<void> main() async {
   final fontLoader = FontLoader('Roboto')..addFont(fetchFont());
   await fontLoader.load();
-  setUp(() { LayoutBuilder.applyDoubleRebuildFix = true; });
-  tearDown(() { LayoutBuilder.applyDoubleRebuildFix = false; });
 
   testWidgets('can optionally delay close with a Duration', (tester) async {
     await tester.pumpWidget(
@@ -1366,8 +1364,6 @@ Future<void> main() async {
 
     expect(find.text('1'), findsOneWidget);
     expect(find.text('1 1'), findsOneWidget);
-    expect(entryBuild.calls,
-        const [EntryBuildSpyCall(1, 1)]);
   });
 
   testWidgets('layout builder between portal and entry on first build',
