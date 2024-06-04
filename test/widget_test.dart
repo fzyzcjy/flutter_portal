@@ -1365,7 +1365,7 @@ Future<void> main() async {
     expect(find.text('1'), findsOneWidget);
     expect(find.text('1 1'), findsOneWidget);
     // https://github.com/fzyzcjy/flutter_portal/pull/113.
-    // expect(entryBuild.calls, const [EntryBuildSpyCall(0, 1), EntryBuildSpyCall(1, 1)]);    
+    // expect(entryBuild.calls, const [EntryBuildSpyCall(0, 1), EntryBuildSpyCall(1, 1)]);
   });
 
   testWidgets('layout builder between portal and entry on first build',
