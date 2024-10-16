@@ -354,6 +354,7 @@ Contributors
 * [@mono0926](https://github.com/mono0926): Update dependencies and doc.
 * [@tepcii](https://github.com/tepcii) and [@nilsreichardt](https://github.com/nilsreichardt): Fix doc.
 * [@mityax](https://github.com/mityax): Fix export.
+* [@parlough](https://github.com/parlough): Remove outdated lint.
 
 [overlay]: https://api.flutter.dev/flutter/widgets/Overlay-class.html
 [overlayentry]: https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html
